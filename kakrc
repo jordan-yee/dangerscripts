@@ -105,10 +105,19 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 # NOTE: You must first install fzf for this to work
 #       Ubuntu 20.04: `sudo apt install fzf`
 plug "andreyorst/fzf.kak" defer fzf %{
-  # Use ag (the silver searcher) as the file finder
-  # NOTE: You must first install ag for this to work
-  #       Ubuntu 20.04: `sudo apt install silversearcher-ag`
-  set-option global fzf_file_command 'ag'
+
 } config %{
   map global normal <c-p> ': fzf-mode<ret>'
+}
+
+# surround
+# --------
+
+plug "h-youhei/kakoune-surround" config %{
+  declare-user-mode surround
+  map global surround s ':surround<ret>' -docstring 'surround'
+  map global surround c ':change-surround<ret>' -docstring 'change'
+  map global surround d ':delete-surround<ret>' -docstring 'delete'
+  map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
+  map global user s ':enter-user-mode surround<ret>'
 }
