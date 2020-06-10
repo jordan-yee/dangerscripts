@@ -15,12 +15,14 @@ SAVEHIST=1000
 bindkey -v
 # End of lines configured by zsh-newuser-install
 
+# -----------------------------------------------------------------------------
+# Misc
+
 # Set custom prompt
 PS1='%3~ %# '
 
-# --------------------------------
+# -----------------------------------------------------------------------------
 # Change cursor based on mode (vi)
-# TODO: In Progress
 
 # Remove mode switching delay
 KEYTIMEOUT=5
@@ -47,3 +49,32 @@ echo -ne '\e[5 q'
 preexec() {
    echo -ne '\e[5 q'
 }
+
+# -----------------------------------------------------------------------------
+# fzf (fuzzy finder)
+# NOTE: In Progress
+
+# This sets up fzf key bindings after installing with apt on Ubuntu 20.04,
+# and therefore may not work for a different system's installation.
+source /usr/share/doc/fzf/examples/key-bindings.zsh
+source /usr/share/doc/fzf/examples/completion.zsh
+
+# Use fd instead of the default find command for listing path candidates.
+# (See https://github.com/sharkdp/fd)
+#   Ubuntu 20.04: sudo apt install fd-find
+#   Alias following installation instructions for apt package:
+alias fd=fdfind
+
+# - The first argument to the function ($1) is the base path to start traversal
+# - See the source code (completion.{bash,zsh}) for the details.
+_fzf_compgen_path() {
+  fd --hidden --follow --exclude ".git" . "$1"
+}
+
+# Use fd to generate the list for directory completion
+_fzf_compgen_dir() {
+  fd --type d --hidden --follow --exclude ".git" . "$1"
+}
+
+# Use fd as default command when input is tty
+export FZF_DEFAULT_COMMAND='fd --type f'
