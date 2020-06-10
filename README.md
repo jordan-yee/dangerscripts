@@ -1,11 +1,14 @@
 # dangerscripts
-My Linux configuration files.
+This repo contains various Linux configuration files.
+
+These configs are the result of setting up a development environment revolving
+around the Kakoune editor in Ubuntu 20.04 in WSL2 on Windows.
 
 ## Installing
 Clone this repo to your home directory:
     git clone https://github.com/jordan-yee/dangerscripts.git ~/dangerscripts
 
-Before attempting to install packages with apt-get, update package lists
+Before attempting to install packages with apt, update package lists
 with the command:
     sudo apt update
 
