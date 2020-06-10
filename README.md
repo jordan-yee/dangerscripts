@@ -13,6 +13,9 @@ with the command:
     sudo apt update
 
 ### zshell
+To update this repo's saved config:
+  `cp -u ~/.zshrc ~/dangerscripts/.zshrc`
+
 Ubuntu 20.04:
 1. Install zsh
    `sudo apt install zsh`
@@ -22,6 +25,9 @@ Ubuntu 20.04:
    `cp ~/dangerscripts/.zshrc ~/.zshrc`
 
 ### tmux
+To update this repo's saved config:
+  `cp -u ~/.tmux.conf ~/dangerscripts/.tmux.conf`
+
 Ubuntu 20.04:
 1. tmux is pre-installed on Ubuntu 20.04
    To update run:
@@ -30,6 +36,9 @@ Ubuntu 20.04:
    `cp ~/dangerscripts/.tmux.conf ~/.tmux.conf`
 
 ### Kakoune
+To update this repo's saved config:
+  `cp -u ~/.config/kak/kakrc ~/dangerscripts/kakrc`
+
 Ubuntu 20.04:
 1. Install dependencies:
    `sudo apt install build-essential pkg-config libncurses5-dev libncursesw5-dev`
@@ -43,7 +52,7 @@ Ubuntu 20.04:
    sudo make install
    ```
 4. User the dangerscripts config
-   `mkdir -p ~/.config/kak && cp ~/dangerscripts/kakrc ~/.config/kak/kakrc`
+   `mkdir -P ~/.config/kak && cp ~/dangerscripts/kakrc ~/.config/kak/kakrc`
 5. Install the plugin manager used in kakrc
    ```
    mkdir -p ~/.config/kak/plugins/
