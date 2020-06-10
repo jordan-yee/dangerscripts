@@ -80,6 +80,9 @@ hook global NormalKey y|d|c %{ nop %sh{
 # PLUGINS
 
 # load plugin manger
+# NOTE: You must first clone the git repo for this to work:
+#       `mkdir -p ~/.config/kak/plugins/`
+#       `git clone https://github.com/andreyorst/plug.kak.git ~/.config/kak/plugins/plug.kak`
 # ------------------
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 
@@ -99,6 +102,13 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 # fuzzy finder
 # ------------
 
-plug "andreyorst/fzf.kak" config %{
+# NOTE: You must first install fzf for this to work
+#       Ubuntu 20.04: `sudo apt install fzf`
+plug "andreyorst/fzf.kak" defer fzf %{
+  # Use ag (the silver searcher) as the file finder
+  # NOTE: You must first install ag for this to work
+  #       Ubuntu 20.04: `sudo apt install silversearcher-ag`
+  set-option global fzf_file_command 'ag'
+} config %{
   map global normal <c-p> ': fzf-mode<ret>'
 }
