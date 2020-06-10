@@ -25,3 +25,27 @@ Ubuntu 20.04:
    `sudo apt install tmux`
 2. Use the dangerscripts config
    `cp ~/dangerscripts/.tmux.conf ~/.tmux.conf`
+
+### Kakoune
+Ubuntu 20.04:
+1. Install dependencies:
+   `sudo apt install build-essential pkg-config libncurses5-dev libncursesw5-dev`
+   NOTE: build-essential should include g++, gcc, and make, but this is untested, as I've only tested installing build-essential after gcc and make were already installed.
+2. Download Kakoune binaries:
+   `git clone https://github.com/mawww/kakoune.git`
+3. Install Kakoune:
+   From the 'src' directory of the repository run:
+   ```
+   make
+   sudo make install
+   ```
+4. User the dangerscripts config
+   `mkdir -p ~/.config/kak && cp ~/dangerscripts/kakrc ~/.config/kak/kakrc`
+5. Install the plugin manager used in kakrc
+   ```
+   mkdir -p ~/.config/kak/plugins/
+   git clone https://github.com/andreyorst/plug.kak.git ~/.config/kak/plugins/plug.kak
+   ```
+6. Install plugins configured in kakrc
+   First, open kak, then run the command:
+   `:plug-install`
