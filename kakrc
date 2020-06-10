@@ -34,13 +34,13 @@ map global normal <a-backspace> <a-space> -docstring 'remove main sel'
 # perform a literal (non-regex) search in user mode
 # -------------------------------------------------
 
-map global user / ':exec /<ret>\Q\E<left><left>'
+map global user / ':exec /<ret>\Q\E<left><left>' -docstring 'literal search'
 
 # paste from Windows file
 # -----------------------
 
-map global user P '!cat /mnt/c/Users/jyee_/clipboard.txt<ret>'
-map global user p '<a-!>cat /mnt/c/Users/jyee_/clipboard.txt<ret>'
+map global user P '!cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (before)'
+map global user p '<a-!>cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (after)'
 
 # -----------------------------------------------------------------------------
 # hooks
@@ -85,6 +85,7 @@ hook global NormalKey y|d|c %{ nop %sh{
 #       `git clone https://github.com/andreyorst/plug.kak.git ~/.config/kak/plugins/plug.kak`
 # ------------------
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
+plug "andreyorst/plug.kak" noload config %{ }
 
 # convert tabs to spaces
 # ----------------------
@@ -105,7 +106,14 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 # NOTE: You must first install fzf for this to work
 #       Ubuntu 20.04: `sudo apt install fzf`
 plug "andreyorst/fzf.kak" defer fzf %{
-
+  # Change file search command to fd
+  # NOTE: You must first install fd for this to work
+  #       fd binary is fdfind in apt package
+  #       alias to fd doesn't work here
+  set-option global fzf_file_command 'fdfind --hidden --exclude .git'
+  set-option global fzf_cd_command 'fdfind --follow --hidden --exclude .git'
+  # To discover other options or access command docs, view auto-complete
+  # results of `:set-option global fzf` command.
 } config %{
   map global normal <c-p> ': fzf-mode<ret>'
 }
@@ -119,5 +127,5 @@ plug "h-youhei/kakoune-surround" config %{
   map global surround c ':change-surround<ret>' -docstring 'change'
   map global surround d ':delete-surround<ret>' -docstring 'delete'
   map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
-  map global user s ':enter-user-mode surround<ret>'
+  map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
 }
