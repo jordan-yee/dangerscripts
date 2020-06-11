@@ -21,6 +21,10 @@ bindkey -v
 # Set custom prompt
 PS1='%3~ %# '
 
+# Set default editor
+export EDITOR='kak'
+export VISUAL='kak'
+
 # -----------------------------------------------------------------------------
 # Change cursor based on mode (vi)
 
