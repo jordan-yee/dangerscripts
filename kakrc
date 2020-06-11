@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # basic configuration
 
-colorscheme palenight
+colorscheme gruvbox
 
 # show line numbers
 add-highlighter global/ number-lines -relative -hlcursor -min-digits 3
@@ -102,6 +102,7 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 
 # fuzzy finder
 # ------------
+# TODO: Use <c-j/k> to navigate results list.
 
 # NOTE: You must first install fzf for this to work
 #       Ubuntu 20.04: `sudo apt install fzf`
@@ -128,4 +129,25 @@ plug "h-youhei/kakoune-surround" config %{
   map global surround d ':delete-surround<ret>' -docstring 'delete'
   map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
   map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
+}
+
+# improved status bar
+# -------------------
+
+# NOTE: You may need to use a powerline font for things to look right.
+plug "andreyorst/powerline.kak" defer powerline %{
+  set-option global powerline_shorten_bufname short
+  powerline-theme gruvbox
+} config %{
+  powerline-start
+
+  # From a version of the plugin README not on GitHub:
+  # Note that as settings are window dependent new window will use default
+  # separator, which is triangle. To prevent this either use separate hook
+  # global WinCreate .* %{ powerline-separator triangle } that will be applied
+  # to all new windows, or modify powerline_separator and
+  # powerline_separator_thin global options to your liking.
+  hook global WinCreate .* %{
+    powerline-separator none
+  }
 }
