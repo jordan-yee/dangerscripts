@@ -8,6 +8,7 @@ add-highlighter global/ number-lines -relative -hlcursor -min-digits 3
 
 # show max-width helper line
 set-option global autowrap_column 95
+# TODO: Make this a less glaring style.
 add-highlighter global/ column '%opt{autowrap_column}' default,white
 
 # show matching brackets
@@ -77,7 +78,7 @@ hook global NormalKey y|d|c %{ nop %sh{
 }}
 
 # -----------------------------------------------------------------------------
-# PLUGINS
+# PLUGINS - Basic Essential
 
 # load plugin manger
 # NOTE: You must first clone the git repo for this to work:
@@ -100,27 +101,13 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 	map global normal '`' ': enter-user-mode case<ret>'
 }
 
-# fuzzy finder
-# ------------
-# TODO: Use <c-j/k> to navigate results list.
+# auto-insert matching characters
+# -------------------------------
 
-# NOTE: You must first install fzf for this to work
-#       Ubuntu 20.04: `sudo apt install fzf`
-plug "andreyorst/fzf.kak" defer fzf %{
-  # Change file search command to fd
-  # NOTE: You must first install fd for this to work
-  #       fd binary is fdfind in apt package
-  #       alias to fd doesn't work here
-  set-option global fzf_file_command 'fdfind --hidden --exclude .git'
-  set-option global fzf_cd_command 'fdfind --follow --hidden --exclude .git'
-  # To discover other options or access command docs, view auto-complete
-  # results of `:set-option global fzf` command.
-} config %{
-  map global normal <c-p> ': fzf-mode<ret>'
-}
+plug "alexherbo2/auto-pairs.kak"
 
-# surround
-# --------
+# manage surrounding characters
+# -----------------------------
 
 plug "h-youhei/kakoune-surround" config %{
   declare-user-mode surround
@@ -130,6 +117,9 @@ plug "h-youhei/kakoune-surround" config %{
   map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
   map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
 }
+
+# -----------------------------------------------------------------------------
+# PLUGINS - Advanced
 
 # improved status bar
 # -------------------
@@ -150,4 +140,23 @@ plug "andreyorst/powerline.kak" defer powerline %{
   hook global WinCreate .* %{
     powerline-separator none
   }
+}
+
+# fuzzy finder
+# ------------
+# TODO: Use <c-j/k> to navigate results list.
+
+# NOTE: You must first install fzf for this to work
+#       Ubuntu 20.04: `sudo apt install fzf`
+plug "andreyorst/fzf.kak" defer fzf %{
+  # Change file search command to fd
+  # NOTE: You must first install fd for this to work
+  #       fd binary is fdfind in apt package
+  #       alias to fd doesn't work here
+  set-option global fzf_file_command 'fdfind --hidden --exclude .git'
+  set-option global fzf_cd_command 'fdfind --follow --hidden --exclude .git'
+  # To discover other options or access command docs, view auto-complete
+  # results of `:set-option global fzf` command.
+} config %{
+  map global normal <c-p> ': fzf-mode<ret>'
 }
