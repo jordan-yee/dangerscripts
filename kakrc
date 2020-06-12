@@ -9,7 +9,7 @@ add-highlighter global/ number-lines -relative -hlcursor -min-digits 3
 # show max-width helper line
 set-option global autowrap_column 95
 # TODO: Make this a less glaring style.
-add-highlighter global/ column '%opt{autowrap_column}' default,white
+# add-highlighter global/ column '%opt{autowrap_column}' default,white
 
 # show matching brackets
 add-highlighter global/ show-matching
@@ -31,6 +31,14 @@ map global normal <space> , -docstring 'leader'
 # rebind <backspace> to replace the old function of <space>
 map global normal <backspace> <space> -docstring 'remove all sels except main'
 map global normal <a-backspace> <a-space> -docstring 'remove main sel'
+
+# extend view mappings
+# --------------------
+
+# TODO: Make these bindings appear in the comma-delimmited list of keys that
+#       perform the same action.
+map global view K t -docstring 'cursor on top'
+map global view J b -docstring 'cursor on bottom'
 
 # perform a literal (non-regex) search in user mode
 # -------------------------------------------------
@@ -76,6 +84,26 @@ hook global InsertCompletionHide .* %{
 hook global NormalKey y|d|c %{ nop %sh{
   printf %s "$kak_main_reg_dquote" | clip.exe
 }}
+
+# add matches for sh filetype
+# ---------------------------
+
+hook global BufCreate .*\.(conf) %{
+  set-option buffer filetype sh
+}
+
+# change cursor color in insert mode
+# ----------------------------------
+# TODO: This should optimally be be based on the theme.
+# https://discuss.kakoune.com/t/changing-the-cursor-colour-in-insert-mode/394
+
+# hook global ModeChange insert:.* %{
+#   set-face global PrimaryCursor rgb:ffffff,rgb:000000+F
+# }
+
+# hook global ModeChange .*:insert %{
+#   set-face global PrimaryCursor rgb:ffffff,rgb:008800+F
+# }
 
 # -----------------------------------------------------------------------------
 # PLUGINS - Basic Essential
