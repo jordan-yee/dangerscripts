@@ -188,3 +188,24 @@ plug "andreyorst/fzf.kak" defer fzf %{
 } config %{
   map global normal <c-p> ': fzf-mode<ret>'
 }
+
+# parinfer - lisp parenthesis management
+# --------------------------------------
+
+# NOTE: You must first install Rust and Clang for this to work
+#       See https://www.rust-lang.org/tools/install
+#       Ubuntu 20.04:
+#         `sudo apt install rustc`
+#         `sudo apt install clang`
+# NOTE: Installing this might take a while.
+#       Use L command on the plugin list to see compilation output.
+plug "eraserhd/parinfer-rust" do %{
+  cargo install --force --path .
+  # Optionally add cargo clean line to the do block to clean plugin from build
+  # files, thus making it load a bit faster:
+  cargo clean
+} config %{
+  hook global WinSetOption filetype=(clojure|lisp|scheme|racket) %{
+    parinfer-enable-window -smart
+  }
+}
