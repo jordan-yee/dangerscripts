@@ -107,7 +107,7 @@ alias fd=fdfind
 # fzf configuration
 
 # Commands to use for key bindings
-export FZF_DEFAULT_COMMAND='fdfind --type f --exclude .git'
+export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND='fdfind --hidden --type d'
 
