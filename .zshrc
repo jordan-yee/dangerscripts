@@ -123,3 +123,4 @@ _fzf_compgen_dir() {
 
 # fzf configuration
 # -----------------------------------------------------------------------------
+if [ -e /home/jordan/.nix-profile/etc/profile.d/nix.sh ]; then . /home/jordan/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

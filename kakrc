@@ -209,3 +209,18 @@ plug "eraserhd/parinfer-rust" do %{
     parinfer-enable-window -smart
   }
 }
+
+# rep - execute clojure code in a repl
+# ------------------------------------
+
+# NOTE: You must first install the rep executable
+#       See https://github.com/eraserhd/rep/blob/develop/rc/rep.kak
+#       Recommended installation procedure:
+#        1) Download binary from releases tab in GitHub.
+#        2) cp the binary to /usr/local/bin/
+#        3) cp the manual to /usr/local/share/man/man1/
+# This plugin configuration installs the repo's /rc/rep.kak to integrate with
+# the external executable.
+plug "eraserhd/rep" tag "v0.1.2" %{
+  rep.kak
+}
