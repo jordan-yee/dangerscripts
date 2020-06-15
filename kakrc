@@ -11,6 +11,9 @@ set-option global autowrap_column 95
 # TODO: Make this a less glaring style.
 # add-highlighter global/ column '%opt{autowrap_column}' default,white
 
+# soft-wrap lines to always be visible within the terminal
+add-highlighter global/ wrap
+
 # show matching brackets
 add-highlighter global/ show-matching
 
