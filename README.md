@@ -8,9 +8,12 @@ around the Kakoune editor in Ubuntu 20.04 in WSL2 on Windows.
 Clone this repo to your home directory:
     git clone https://github.com/jordan-yee/dangerscripts.git ~/dangerscripts
 
-Before attempting to install packages with apt, update package lists
-with the command:
-    sudo apt update
+To quickly backup changes to your configs, create a link to the backup script in
+your ~/bin directory:
+		ln ~/dangerscripts/backup-configs.sh ~/bin/backup-configs.sh
+
+Then after making changes to a config file, you can run:
+    backup-configs.sh
 
 ### zshell
 To update this repo's saved config:
