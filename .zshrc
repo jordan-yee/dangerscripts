@@ -75,6 +75,10 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
+# Reduce delay in switching to normal mode with vi key bindings
+# 10ms for key sequences
+KEYTIMEOUT=1
+
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
@@ -121,6 +125,12 @@ _fzf_compgen_dir() {
   fd --type d --hidden --exclude ".git" . "$1"
 }
 
+# Disable ALT-C binding to prevent esc-c from triggering fzf
+# This is a problem when esc'ing out of insert mode in zsh with vi key bindings
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[[ $- =~ i ]] && bindkey -r '\ec'
+
 # fzf configuration
 # -----------------------------------------------------------------------------
+
 if [ -e /home/jordan/.nix-profile/etc/profile.d/nix.sh ]; then . /home/jordan/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
