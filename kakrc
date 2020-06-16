@@ -50,6 +50,8 @@ map global user / ':exec /<ret>\Q\E<left><left>' -docstring 'literal search'
 
 # paste from Windows file
 # -----------------------
+# NOTE: I recommend openning this file in an editor in Windows that can auto-convert line endings.
+#       notepad++ has this option
 
 map global user P '!cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (before)'
 map global user p '<a-!>cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (after)'
@@ -147,6 +149,25 @@ plug "h-youhei/kakoune-surround" config %{
   map global surround d ':delete-surround<ret>' -docstring 'delete'
   map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
   map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
+}
+
+# easier navigation between buffers
+# ---------------------------------
+
+plug 'delapouite/kakoune-buffers' %{
+  # Remap macro record/playback bindings
+  map global normal <a-@> q
+  map global normal @ Q
+
+  # Remap select-word-on-left bindings
+  map global normal q b
+  map global normal Q B
+  map global normal <a-q> <a-b>
+  map global normal <a-Q> <a-B>
+
+  # Map bindings for buffer modes from plugin 
+  map global normal b ': enter-buffers-mode<ret>' -docstring 'buffers'
+  map global normal B ': enter-user-mode -lock buffers<ret>' -docstring 'buffers (lock)'
 }
 
 # -----------------------------------------------------------------------------
