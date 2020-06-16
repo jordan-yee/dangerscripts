@@ -151,10 +151,31 @@ plug "h-youhei/kakoune-surround" config %{
   map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
 }
 
+# enhanced text-object selection
+# ------------------------------
+# NOTE: Vertical selections require the kakoune-vertical-selection plugin. 
+
+plug 'delapouite/kakoune-text-objects'
+
+# vertical selection of matching text
+# -----------------------------------
+# NOTE: This plugin is used by the kakound-text-objects plugin.
+
+plug 'occivink/kakoune-vertical-selection' config %{
+  map global user v     ': vertical-selection-down<ret>'
+  map global user <a-v> ': vertical-selection-up<ret>'
+  map global user V     ': vertical-selection-up-and-down<ret>'
+}
+
+# shortcuts for common selection commands
+# ---------------------------------------
+
+plug 'delapouite/kakoune-auto-percent'
+
 # easier navigation between buffers
 # ---------------------------------
 
-plug 'delapouite/kakoune-buffers' %{
+plug 'delapouite/kakoune-buffers' config %{
   # Remap macro record/playback bindings
   map global normal <a-@> q
   map global normal @ Q
