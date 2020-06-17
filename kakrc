@@ -177,6 +177,9 @@ plug 'delapouite/kakoune-auto-percent'
 
 plug 'delapouite/kakoune-buffers' config %{
   # Remap macro record/playback bindings
+  # NOTE: @/<a-@> converts spaces <=> tabs by default
+  #       I'm not setting up a replacement binding for it because I don't use it.
+  #       It might not work anyway with the smarttab plugin.
   map global normal <a-@> q
   map global normal @ Q
 
