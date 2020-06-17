@@ -10,4 +10,6 @@ echo ".tmux.conf has been copied to dangerscripts..."
 cp -u ~/.config/kak/kakrc ~/dangerscripts/kakrc
 echo "kakrc has been copied to dangerscripts..."
 
+cd ~/dangerscripts
+git status
 echo "\nConfig backup complete; remember to commit and push your changes."
