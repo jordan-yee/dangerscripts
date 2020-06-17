@@ -23,6 +23,9 @@ add-highlighter global/ regex \b(TODO|FIXME|XXX|NOTE)\b 0:default+rb
 set-option global indentwidth 2
 set-option global tabstop 2
 
+# use rg for the grep command
+set-option global grepcmd 'rg --column'
+
 # -----------------------------------------------------------------------------
 # mappings
 
@@ -231,6 +234,12 @@ plug "andreyorst/fzf.kak" defer fzf %{
   #       alias to fd doesn't work here
   set-option global fzf_file_command 'fdfind --hidden --exclude .git'
   set-option global fzf_cd_command 'fdfind --follow --hidden --exclude .git'
+
+  # Change grep search command to rg
+  # NOTE: Your must first install ripgrep for this to work
+  #       See https://github.com/BurntSushi/ripgrep#installation
+  set-option global fzf_grep_command 'rg'
+  
   # To discover other options or access command docs, view auto-complete
   # results of `:set-option global fzf` command.
 } config %{
