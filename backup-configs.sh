@@ -5,9 +5,9 @@ cp -u ~/.zshrc ~/dangerscripts/.zshrc
 echo ".zshrc has been copied to dangerscripts..."
 
 cp -u ~/.tmux.conf ~/dangerscripts/.tmux.conf
-echo ".tmux.conf has been copied to dangerscipts..."
+echo ".tmux.conf has been copied to dangerscripts..."
 
 cp -u ~/.config/kak/kakrc ~/dangerscripts/kakrc
-echo "kakrc has been copied to dangerscipts..."
+echo "kakrc has been copied to dangerscripts..."
 
-echo "\nConfig backup complete."
+echo "\nConfig backup complete; remember to commit and push your changes."
