@@ -1,6 +1,6 @@
 # If you come from bash you might have to change your $PATH.
 # Rust - $HOME/.cargo/bin
-export PATH=$HOME/bin:$HOME/.cargo/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="/home/jordan/.oh-my-zsh"
