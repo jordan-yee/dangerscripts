@@ -246,6 +246,12 @@ plug "andreyorst/fzf.kak" defer fzf %{
   map global normal <c-p> ': fzf-mode<ret>'
 }
 
+# find and replace in open buffers
+# --------------------------------
+
+plug "occivink/kakoune-find"
+
+
 # parinfer - lisp parenthesis management
 # --------------------------------------
 
