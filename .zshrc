@@ -91,6 +91,9 @@ else
   export EDITOR='kak'
 fi
 
+# Enable GUI applications to run on X server running on Windows
+export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
+
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
