@@ -197,6 +197,12 @@ plug 'delapouite/kakoune-buffers' config %{
   map global normal B ': enter-user-mode -lock buffers<ret>' -docstring 'buffers (lock)'
 }
 
+# git mode
+# --------
+
+#plug "jordan-yee/kakoune-git-mode"
+source "~/.config/kak/plugins-local/kakoune-git-mode/git-mode.kak"
+
 # -----------------------------------------------------------------------------
 # PLUGINS - Advanced
 
