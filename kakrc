@@ -165,9 +165,9 @@ plug 'delapouite/kakoune-text-objects'
 # NOTE: This plugin is used by the kakound-text-objects plugin.
 
 plug 'occivink/kakoune-vertical-selection' config %{
-  map global user v     ': vertical-selection-down<ret>'
-  map global user <a-v> ': vertical-selection-up<ret>'
-  map global user V     ': vertical-selection-up-and-down<ret>'
+  map global user v     ': vertical-selection-down<ret>' -docstring 'vertical selection down'
+  map global user <a-v> ': vertical-selection-up<ret>' -docstring 'vertical selection up'
+  map global user V     ': vertical-selection-up-and-down<ret>' -docstring 'vertical selection both'
 }
 
 # shortcuts for common selection commands
