@@ -293,3 +293,26 @@ plug "eraserhd/parinfer-rust" do %{
 plug "eraserhd/rep" tag "v0.1.2" %{
   rep.kak
 }
+
+# kak-lsp - kakoune language server protocol client
+# -------------------------------------------------
+
+# NOTE: You must first install cargo for this to work
+#       See https://github.com/ul/kak-lsp
+plug "ul/kak-lsp" do %{
+  cargo build --release --locked
+  cargo install --force --path .
+} config %{
+  set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
+
+  hook global WinSetOption filetype=(c|cpp|clojure) %{
+      map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
+      lsp-enable-window
+      set-option window lsp_hover_anchor true
+      set-option window lsp_auto_highlight_references true
+      set-face window DiagnosticError default+u
+      set-face window DiagnosticWarning default+u
+  }
+
+  hook global KakEnd .* lsp-exit
+}
