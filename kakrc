@@ -113,6 +113,13 @@ hook global BufCreate .*\.(conf) %{
 #   set-face global PrimaryCursor rgb:ffffff,rgb:008800+F
 # }
 
+# clj-kondo - linter for clojure
+# ------------------------------
+
+hook global WinSetOption filetype=clojure %{
+    set-option window lintcmd 'clj-kondo --lint'
+}
+
 # -----------------------------------------------------------------------------
 # PLUGINS - Basic Essential
 
@@ -200,8 +207,7 @@ plug 'delapouite/kakoune-buffers' config %{
 # git mode
 # --------
 
-#plug "jordan-yee/kakoune-git-mode"
-source "~/.config/kak/plugins-local/kakoune-git-mode/git-mode.kak"
+plug "jordan-yee/kakoune-git-mode"
 
 # -----------------------------------------------------------------------------
 # PLUGINS - Advanced
