@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # basic configuration
 
-colorscheme gruvbox
+#colorscheme grubbox
 
 # show line numbers
 add-highlighter global/ number-lines -relative -hlcursor -min-digits 3
@@ -131,17 +131,28 @@ hook global WinSetOption filetype=clojure %{
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 plug "andreyorst/plug.kak" noload config %{ }
 
+# mystical tutor colorscheme
+# --------------------------
+# Modified version of https://github.com/caksoylar/kakoune-mysticaltutor
+# - Original theme uses bold to indicate matching characters, but bold
+#   isn't supported on Windows Terminal (7/13/2020).
+
+plug "jordan-yee/kakoune-mysticaltutor" theme %{ colorscheme mysticaltutor }
+plug "jordan-yee/kakoune-mysticaltutor-powerline" defer powerline %{
+    powerline-theme mysticaltutor
+}
+
 # convert tabs to spaces
 # ----------------------
 plug "andreyorst/smarttab.kak" defer smarttab %{
-  set-option global softtabstop %opt{tabstop}
+    set-option global softtabstop %opt{tabstop}
 }
 
 # change case of selection
 # ------------------------
 
 plug "https://gitlab.com/FlyingWombat/case.kak" config %{
-	map global normal '`' ': enter-user-mode case<ret>'
+    map global normal '`' ': enter-user-mode case<ret>'
 }
 
 # auto-insert matching characters
