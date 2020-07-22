@@ -166,8 +166,15 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
     map global normal '`' ': enter-user-mode case<ret>'
 }
 
+# prelude - scripting helper - dependecy of other plugins
+# -------------------------------------------------------
+
+plug "alexherbo2/prelude.kak"
+
 # auto-insert matching characters
 # -------------------------------
+# Dependent on prelude plugin:
+# https://github.com/alexherbo2/prelude.kak
 
 plug "alexherbo2/auto-pairs.kak"
 
@@ -319,7 +326,7 @@ plug "eraserhd/parinfer-rust" do %{
 #        3) cp the manual to /usr/local/share/man/man1/
 # This plugin configuration installs the repo's /rc/rep.kak to integrate with
 # the external executable.
-plug "eraserhd/rep" tag "v0.1.2" %{
+plug "eraserhd/rep" tag "v0.1.2" subset %{
     rep.kak
 }
 
@@ -328,7 +335,7 @@ plug "eraserhd/rep" tag "v0.1.2" %{
 
 # NOTE: You must first install cargo for this to work
 #       See https://github.com/ul/kak-lsp
-plug "ul/kak-lsp" do %{
+plug "ul/kak-lsp" tag "v8.0.0" do %{
     cargo build --release --locked
     cargo install --force --path .
 } config %{
@@ -338,7 +345,6 @@ plug "ul/kak-lsp" do %{
         map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
         lsp-enable-window
         set-option window lsp_hover_anchor true
-        set-option window lsp_auto_highlight_references true
         set-face window DiagnosticError default+u
         set-face window DiagnosticWarning default+u
     }
