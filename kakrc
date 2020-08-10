@@ -132,6 +132,21 @@ hook global WinSetOption filetype=clojure %{
 }
 
 # -----------------------------------------------------------------------------
+# PLUGINS - Local
+
+# windowing-mode
+# --------------
+
+declare-user-mode windowing
+map global windowing n ': new<ret>' -docstring "Open a new Kakoune client to the right"
+map global user w ': enter-user-mode windowing<ret>' -docstring "windowing mode"
+
+# s-exp-selections
+# ----------------
+
+source "%val{config}/plugins-local/sexp-selections.kak"
+
+# -----------------------------------------------------------------------------
 # PLUGINS - Basic Essential
 
 # load plugin manger
@@ -236,7 +251,17 @@ plug 'delapouite/kakoune-buffers' config %{
 # git mode
 # --------
 
-plug "jordan-yee/kakoune-git-mode"
+plug "jordan-yee/kakoune-git-mode" config %{
+    map global user g ': enter-user-mode git<ret>' -docstring "git mode"
+}
+
+# repl mode
+# ---------
+
+plug "jordan-yee/kakoune-repl-mode" config %{
+    map global user r ': enter-user-mode repl<ret>' -docstring "repl mode"
+    require-module repl-mode
+}
 
 # -----------------------------------------------------------------------------
 # PLUGINS - Advanced
@@ -341,7 +366,14 @@ plug "ul/kak-lsp" tag "v8.0.0" do %{
 } config %{
     set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
 
-    hook global WinSetOption filetype=(c|cpp|clojure) %{
+	# Temporarily removed 'clojure' filetype since its unstable
+	#   - After loading, it would appear to work until making a change, at which
+	#     point it would become unresponsive.
+	#   - Functions called using an alias would not be recognized inside of
+	#     re-frame registrations.
+	#   - I suspect the size of the project or file (1100 loc's) may have caused
+	#     problems.
+    hook global WinSetOption filetype=(c|cpp) %{
         map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
         lsp-enable-window
         set-option window lsp_hover_anchor true
