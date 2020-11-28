@@ -19,18 +19,12 @@ Then after making changes to a config file, you can run:
 To update this repo's saved config:
   `cp -u ~/.zshrc ~/dangerscripts/.zshrc`
 
-I finally caved and decided to use oh-my-zsh like everyone else.
-To avoid this, copy the `.zshrc.pre-oh-my-zsh` config instead of `.zshrc`, and
-skip the install oh-my-zsh step.
-
 Ubuntu 20.04:
 1. Install zsh
    `sudo apt install zsh`
 2. Make zsh the default shell
    `chsh`
-3. Install oh-my-zsh
-   See the [oh-my-zsh website](https://ohmyz.sh/) for installation instructions
-   and other documentation. Also, review the plugins installed in `.zshrc`, and
+3. Review the dependecies listed in this repo's `.zshrc`, and
    install any necessary system utilities accordingly.
 3. Use the dangerscripts config
    `cp ~/dangerscripts/.zshrc ~/.zshrc`
