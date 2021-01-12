@@ -1,8 +1,16 @@
 # dangerscripts
 This repo contains various Linux configuration files.
 
-These configs are the result of setting up a development environment revolving
-around the Kakoune editor in Ubuntu 20.04 in WSL2 on Windows.
+## Organization
+Each application has its own directory containing all config files relevant
+to that application.
+
+The backup and restore scripts are being phased out, since most config files
+will have to be reviewed and modified to some extent for each system they're
+used on.
+
+# [Deprecated]
+All instructions below are to be phased out.
 
 ## Installing
 Clone this repo to your home directory:
