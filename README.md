@@ -11,7 +11,7 @@ Below is a list of all included configs/scripts.
 | Applications | Scripts     | Installation Path            |
 | ------------ | ----------- | ---------------------------- |
 | Kakoune      | kakrc       | ~/.config/kak/kakrc          |
-| Mintty       | .minttyrc   | TODO                         |
+| Mintty       | .minttyrc   | ~/.minttyrc                  |
 | Sakura       | sakura.conf | ~/.config/sakura/sakura.conf |
-| Tmux         | .tmux.conf  | TODO                         |
+| Tmux         | .tmux.conf  | ~/.tmux.conf                 |
 | Zshell       | .zshrc      | ~/.zshrc                     |
