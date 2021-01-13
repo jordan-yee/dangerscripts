@@ -1,15 +1,8 @@
 # -----------------------------------------------------------------------------
-# basic configuration
-
-#colorscheme grubbox
+# Basic Configuration
 
 # show line numbers
 add-highlighter global/ number-lines -relative -hlcursor -min-digits 3
-
-# show max-width helper line
-set-option global autowrap_column 95
-# TODO: Make this a less glaring style.
-# add-highlighter global/ column '%opt{autowrap_column}' default,white
 
 # soft-wrap lines to always be visible within the terminal
 add-highlighter global/ wrap
@@ -17,7 +10,8 @@ add-highlighter global/ wrap
 # show matching brackets
 add-highlighter global/ show-matching
 
-# show trailing whitespace - not working, may be WT issue
+# show trailing whitespace
+# not working - may need to modify colorscheme
 add-highlighter global/trailing regex '[ \t\f\v]+$' 0:Whitespace
 
 # highlight special comment words
@@ -27,17 +21,15 @@ add-highlighter global/ regex \b(TODO|FIXME|XXX|NOTE)\b 0:default+rb
 set-option global indentwidth 4
 set-option global tabstop 4
 
-# use rg for the grep command
-set-option global grepcmd 'rg --column'
-
 # -----------------------------------------------------------------------------
-# mappings
+# Mappings
 
 # use space for user mode leader key
 # ----------------------------------
 
 # rebind <space>
 map global normal <space> , -docstring 'leader'
+
 # rebind <backspace> to replace the old function of <space>
 map global normal <backspace> <space> -docstring 'remove all sels except main'
 map global normal <a-backspace> <a-space> -docstring 'remove main sel'
@@ -45,38 +37,35 @@ map global normal <a-backspace> <a-space> -docstring 'remove main sel'
 # extend view mappings
 # --------------------
 
-# TODO: Make these bindings appear in the comma-delimmited list of keys that
-#       perform the same action.
 map global view K t -docstring 'cursor on top'
 map global view J b -docstring 'cursor on bottom'
 
 # perform a literal (non-regex) search in user mode
 # -------------------------------------------------
 
+# This could be extended so that '/' activates a special search user mode.
+# Additional functions could then be added such as case-insensitive search.
+
 map global user / ':exec /<ret>\Q\E<left><left>' -docstring 'literal search'
 
-# paste from Windows file
-# -----------------------
-# NOTE: I recommend openning this file in an editor in Windows that can auto-convert line endings.
-#       notepad++ has this option
+# remap macro & back-a-word operations
+# ------------------------------------
 
-map global user P '!cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (before)'
-map global user p '<a-!>cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (after)'
+# Remap macro record/playback bindings
+map global normal <a-^> q
+map global normal ^ Q
+
+# Remap select-word-on-left bindings
+map global normal q b
+map global normal Q B
+map global normal <a-q> <a-b>
+map global normal <a-Q> <a-B>
 
 # -----------------------------------------------------------------------------
-# hooks
-
-# jk to escape
-# ------------
-
-hook global InsertChar k %{ try %{
-    exec -draft hH <a-k>jk<ret> d
-    exec <esc>
-}}
+# Hooks
 
 # tab complete
 # ------------
-
 hook global InsertCompletionShow .* %{
     try %{
         execute-keys -draft 'h<a-K>\h<ret>'
@@ -90,19 +79,17 @@ hook global InsertCompletionHide .* %{
     unmap window insert <s-tab> <c-p>
 }
 
-# copy to Windows clipboard
-# -------------------------
+# jk to escape
+# ------------
 
-hook global NormalKey y|d|c %{ nop %sh{
-    printf %s "$kak_main_reg_dquote" | clip.exe
+hook global InsertChar k %{ try %{
+    exec -draft hH <a-k>jk<ret> d
+    exec <esc>
+
+    # Ensure tab is re-enabled after being used for auto-complete.
+    unmap window insert <tab> <c-n>
+    unmap window insert <s-tab> <c-p>
 }}
-
-# add matches for sh filetype
-# ---------------------------
-
-hook global BufCreate .*\.(conf) %{
-    set-option buffer filetype sh
-}
 
 # change cursor color in insert mode
 # ----------------------------------
@@ -116,6 +103,16 @@ hook global BufCreate .*\.(conf) %{
 # hook global ModeChange .*:insert %{
 #   set-face global PrimaryCursor rgb:ffffff,rgb:008800+F
 # }
+
+# -----------------------------------------------------------------------------
+# Language Settings
+
+# add matches for sh filetype
+# ---------------------------
+
+hook global BufCreate .*\.(conf) %{
+    set-option buffer filetype sh
+}
 
 # set clojure-specific settings
 # -----------------------------
@@ -132,7 +129,65 @@ hook global WinSetOption filetype=clojure %{
 }
 
 # -----------------------------------------------------------------------------
-# PLUGINS - Local
+# Integrations
+
+# Use rg for the grep command
+# ---------------------------
+
+set-option global grepcmd 'rg --column'
+
+# Sync with the system clipboard using xsel
+# -----------------------------------------
+# NOTE: These system clipboard integrations require xsel to be installed.
+#       `apt install -y xsel`
+
+# Save primary selection to system clipboard on all copy operations.
+hook global RegisterModified '"' %{ nop %sh{
+    printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
+}}
+
+# Paste from system clipboard
+map global user P '!xsel --output --clipboard<ret>' -docstring 'Paste system clipboard before cursor'
+map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'Paste system clipboard after cursor'
+
+# Copy to Windows clipboard from WSL
+# ----------------------------------
+
+# Save primary selection to system clipboard on all copy operations.
+hook global RegisterModified '"' %{ nop %sh{
+    printf %s "$kak_main_reg_dquote" | clip.exe
+}}
+
+# Paste from Windows file
+# -----------------------
+# NOTE: I recommend opening this file in an editor in Windows that can auto-convert line endings.
+#       Notepad++ has this option
+
+#map global user P '!cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (before)'
+#map global user p '<a-!>cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (after)'
+
+# -----------------------------------------------------------------------------
+# Experimental Scripts
+
+# Experimental execute-pytest-on-current-file script
+# --------------------------------------------------
+# This script provides an example of sending the output of a shell command
+#  to a fifo buffer.
+# TODO: Move this into its own script file
+
+# define-command -docstring "Execute pytest on current file" \
+# pytest %{
+#     evaluate-commands %sh{
+#         # Create a temporary fifo for communication
+#         output=$(mktemp -d -t kak-temp-XXXXXXXX)/fifo
+#         mkfifo ${output}
+#         # run command detached from the shell
+#         ( pytest $kak_buffile > ${output} 2>&1 & ) > /dev/null 2>&1 < /dev/null
+#         # Open the file in Kakoune and add a hook to remove the fifo
+#         echo "edit! -fifo ${output} *pytest-results*
+#               hook buffer BufClose .* %{ nop %sh{ rm -r $(dirname ${output})} }"
+#     }
+# }
 
 # windowing-mode
 # --------------
@@ -147,73 +202,105 @@ map global user w ': enter-user-mode windowing<ret>' -docstring "windowing mode"
 source "%val{config}/plugins-local/sexp-selections.kak"
 
 # -----------------------------------------------------------------------------
-# PLUGINS - Basic Essential
+# Plugins
 
-# load plugin manger
+# ------------------------------------------------------------------------------
+# Configuration for the `plug.kak` plugin
+# https://github.com/robertmeta/plug.kak
+
 # NOTE: You must first clone the git repo for this to work:
 #       `mkdir -p ~/.config/kak/plugins/`
-#       `git clone https://github.com/andreyorst/plug.kak.git ~/.config/kak/plugins/plug.kak`
-# ------------------
+#       `git clone https://github.com/robertmeta/plug.kak ~/.config/kak/plugins/plug.kak`
+
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
-plug "andreyorst/plug.kak" noload config %{ }
 
-# mystical tutor colorscheme
-# --------------------------
-# Modified version of https://github.com/caksoylar/kakoune-mysticaltutor
-# - Original theme uses bold to indicate matching characters, but bold
-#   isn't supported on Windows Terminal (7/13/2020).
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-mysticaltutor` plugin
+# https://github.com/caksoylar/kakoune-mysticaltutor
 
-plug "jordan-yee/kakoune-mysticaltutor" theme %{ colorscheme mysticaltutor }
+plug "caksoylar/kakoune-mysticaltutor" theme config %{
+    colorscheme mysticaltutor
+}
+
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-mysticaltutor-powerline` plugin
+# https://github.com/jordan-yee/kakoune-mysticaltutor-powerline
+
 plug "jordan-yee/kakoune-mysticaltutor-powerline" defer powerline %{
     powerline-theme mysticaltutor
 }
 
-# convert tabs to spaces
-# ----------------------
-plug "andreyorst/smarttab.kak" defer smarttab %{
-    set-option global softtabstop %opt{tabstop}
+# ------------------------------------------------------------------------------
+# Configuration for the `powerline.kak` plugin
+# https://github.com/jdugan6240/powerline.kak
+
+plug "jdugan6240/powerline.kak" defer powerline %{
+    set-option global powerline_shorten_bufname short
+    set-option global powerline_separator ''
+} config %{
+    powerline-start
 }
 
-# change case of selection
-# ------------------------
+# ------------------------------------------------------------------------------
+# Configuration for the `smarttab.kak` plugin
+# https://github.com/andreyorst/smarttab.kak
+
+plug "andreyorst/smarttab.kak" defer smarttab %{
+    # how many spaces to delete when pressing <backspace>
+    set-option global softtabstop %opt{tabstop}
+} config %{
+    hook global WinSetOption filetype=.* expandtab
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `case.kak` plugin
+# https://gitlab.com/FlyingWombat/case.kak
 
 plug "https://gitlab.com/FlyingWombat/case.kak" config %{
     map global normal '`' ': enter-user-mode case<ret>'
 }
 
-# prelude - scripting helper - dependecy of other plugins
-# -------------------------------------------------------
-
-plug "alexherbo2/prelude.kak"
-
-# auto-insert matching characters
-# -------------------------------
-# Dependent on prelude plugin:
+# ------------------------------------------------------------------------------
+# Configuration for the `prelude.kak` plugin
 # https://github.com/alexherbo2/prelude.kak
 
-plug "alexherbo2/auto-pairs.kak"
+plug "alexherbo2/prelude.kak" config %{
+    require-module prelude
+}
 
-# manage surrounding characters
-# -----------------------------
+# ------------------------------------------------------------------------------
+# Configuration for the `auto-pairs.kak` plugin
+# https://github.com/alexherbo2/auto-pairs.kak
+
+# NOTE: Dependent on prelude plugin:
+#       https://github.com/alexherbo2/prelude.kak
+
+plug "alexherbo2/auto-pairs.kak" config %{
+    require-module auto-pairs
+    auto-pairs-enable
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-surround` plugin
+# https://github.com/h-youhei/kakoune-surround
 
 plug "h-youhei/kakoune-surround" config %{
     declare-user-mode surround
+
     map global surround s ':surround<ret>' -docstring 'surround'
     map global surround c ':change-surround<ret>' -docstring 'change'
     map global surround d ':delete-surround<ret>' -docstring 'delete'
     map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
+
     map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
 }
 
-# enhanced text-object selection
-# ------------------------------
-# NOTE: Vertical selections require the kakoune-vertical-selection plugin.
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-vertical-selection` plugin
+# https://github.com/occivink/kakoune-vertical-selection
 
-plug 'delapouite/kakoune-text-objects'
-
-# vertical selection of matching text
-# -----------------------------------
-# NOTE: This plugin is used by the kakound-text-objects plugin.
+# NOTE: This plugin is used by the kakoune-text-objects plugin.
 
 plug 'occivink/kakoune-vertical-selection' config %{
     map global user v     ': vertical-selection-down<ret>' -docstring 'vertical selection down'
@@ -221,40 +308,39 @@ plug 'occivink/kakoune-vertical-selection' config %{
     map global user V     ': vertical-selection-up-and-down<ret>' -docstring 'vertical selection both'
 }
 
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-text-objects` plugin
+# https://github.com/delapouite/kakoune-text-objects
+
+# NOTE: Vertical selections require the kakoune-vertical-selection plugin.
+
+plug 'delapouite/kakoune-text-objects'
+
+# TODO: Update the format of this plugin section to match the others.
 # shortcuts for common selection commands
 # ---------------------------------------
 
 plug 'delapouite/kakoune-auto-percent'
 
-# easier navigation between buffers
-# ---------------------------------
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-buffers` plugin
+# https://github.com/delapouite/kakoune-buffers
 
-plug 'delapouite/kakoune-buffers' config %{
-    # Remap macro record/playback bindings
-    # NOTE: @/<a-@> converts spaces <=> tabs by default
-    #       I'm not setting up a replacement binding for it because I don't use it.
-    #       It might not work anyway with the smarttab plugin.
-    map global normal <a-@> q
-    map global normal @ Q
-
-    # Remap select-word-on-left bindings
-    map global normal q b
-    map global normal Q B
-    map global normal <a-q> <a-b>
-    map global normal <a-Q> <a-B>
-
-    # Map bindings for buffer modes from plugin
+plug "delapouite/kakoune-buffers" config %{
+    # NOTE: These mappings assume <b> has been rebound or isn't needed.
     map global normal b ': enter-buffers-mode<ret>' -docstring 'buffers'
     map global normal B ': enter-user-mode -lock buffers<ret>' -docstring 'buffers (lock)'
 }
 
-# git mode
-# --------
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-git-mode` plugin
+# https://github.com/jordan-yee/kakoune-git-mode
 
 plug "jordan-yee/kakoune-git-mode" config %{
     map global user g ': enter-user-mode git<ret>' -docstring "git mode"
 }
 
+# TODO: Update the format of this plugin section to match the others.
 # repl mode
 # ---------
 
@@ -263,34 +349,9 @@ plug "jordan-yee/kakoune-repl-mode" config %{
     require-module repl-mode
 }
 
-# -----------------------------------------------------------------------------
-# PLUGINS - Advanced
-
-# improved status bar
-# -------------------
-
-# NOTE: You may need to use a powerline font for things to look right.
-plug "andreyorst/powerline.kak" defer powerline %{
-    set-option global powerline_shorten_bufname short
-    # Using custom powerline theme
-    powerline-theme mysticaltutor
-} config %{
-    powerline-start
-
-    # From a version of the plugin README not on GitHub:
-    # Note that as settings are window dependent new window will use default
-    # separator, which is triangle. To prevent this either use separate hook
-    # global WinCreate .* %{ powerline-separator triangle } that will be applied
-    # to all new windows, or modify powerline_separator and
-    # powerline_separator_thin global options to your liking.
-    hook global WinCreate .* %{
-        powerline-separator none
-    }
-}
-
-# fuzzy finder
-# ------------
-# TODO: Use <c-j/k> to navigate results list.
+# ------------------------------------------------------------------------------
+# Configuration for the `fzf.kak` plugin
+# https://github.com/andreyorst/fzf.kak
 
 # NOTE: You must first install fzf for this to work
 #       Ubuntu 20.04: `sudo apt install fzf`
@@ -299,8 +360,8 @@ plug "andreyorst/fzf.kak" defer fzf %{
     # NOTE: You must first install fd for this to work
     #       fd binary is fdfind in apt package
     #       alias to fd doesn't work here
-    set-option global fzf_file_command 'fdfind --hidden --exclude .git'
-    set-option global fzf_cd_command 'fdfind --follow --hidden --exclude .git'
+    set-option global fzf_file_command 'fdfind --hidden --type f --exclude .git'
+    set-option global fzf_cd_command 'fdfind --follow --hidden --type d --exclude .git'
 
     # Change grep search command to rg
     # NOTE: Your must first install ripgrep for this to work
@@ -313,12 +374,13 @@ plug "andreyorst/fzf.kak" defer fzf %{
     map global normal <c-p> ': fzf-mode<ret>'
 }
 
-# find and replace in open buffers
-# --------------------------------
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-find` plugin
+# https://github.com/occivink/kakoune-find
 
 plug "occivink/kakoune-find"
 
-
+# TODO: Update the format of this plugin section to match the others.
 # parinfer - lisp parenthesis management
 # --------------------------------------
 
@@ -340,6 +402,7 @@ plug "eraserhd/parinfer-rust" do %{
     }
 }
 
+# TODO: Update the format of this plugin section to match the others.
 # rep - execute clojure code in a repl
 # ------------------------------------
 
@@ -355,30 +418,42 @@ plug "eraserhd/rep" tag "v0.1.2" subset %{
     rep.kak
 }
 
-# kak-lsp - kakoune language server protocol client
-# -------------------------------------------------
+# ------------------------------------------------------------------------------
+# Configuration for the `kak-lsp` plugin
+# https://github.com/kak-lsp/kak-lsp
 
-# NOTE: You must first install cargo for this to work
-#       See https://github.com/ul/kak-lsp
+# NOTE: You must first install rust for this to work:
+#       https://www.rust-lang.org/learn/get-started
+
 plug "ul/kak-lsp" tag "v8.0.0" do %{
     cargo build --release --locked
     cargo install --force --path .
 } config %{
     set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
 
-	# Temporarily removed 'clojure' filetype since its unstable
-	#   - After loading, it would appear to work until making a change, at which
-	#     point it would become unresponsive.
-	#   - Functions called using an alias would not be recognized inside of
-	#     re-frame registrations.
-	#   - I suspect the size of the project or file (1100 loc's) may have caused
-	#     problems.
-    hook global WinSetOption filetype=(c|cpp) %{
+    # NOTE: Temporarily removed 'clojure' filetype since it's unstable.
+    #   - After loading, it would appear to work until making a change, at which
+    #     point it would become unresponsive.
+    #   - Functions called using an alias would not be recognized inside of
+    #     re-frame registrations.
+    #   - I suspect the size of the project or file (1100 loc's) may have caused
+    #     problems.
+
+    # NOTE: You must install the appropriate servers for whichever filetypes
+    #       you enable here.
+    hook global WinSetOption filetype=(c|cpp|python) %{
         map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
         lsp-enable-window
         set-option window lsp_hover_anchor true
         set-face window DiagnosticError default+u
         set-face window DiagnosticWarning default+u
+    }
+
+    # Python settings
+    # NOTE: You must install the Python lsp server for this to work.
+    #       `pip install 'python-language-server[all]'`
+    hook global WinSetOption filetype=python %{
+        set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
     }
 
     hook global KakEnd .* lsp-exit
