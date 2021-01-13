@@ -163,12 +163,27 @@ zstyle ':vcs_info:*' enable git
 # -----------------------------------------------------------------------------
 # Git
 
-# git aliases
-alias gsa='git status'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gf='git fetch'
 alias gfs='git fetch && git status'
 alias gcm='git commit -m '
-alias gps='git push'
 alias gpl='git pull'
+alias gps='git push'
+
+function print-git-aliases() {
+    echo "gs='git status'"
+    echo "ga='git add'"
+    echo "gc='git commit'"
+    echo "gf='git fetch'"
+    echo "gfs='git fetch && git status'"
+    echo "gcm='git commit -m '"
+    echo "gpl='git pull'"
+    echo "gps='git push'"
+}
+
+alias gh=print-git-aliases
 
 # -----------------------------------------------------------------------------
 # Kakoune
