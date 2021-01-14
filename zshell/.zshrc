@@ -51,6 +51,9 @@ export PATH=$HOME/bin:$HOME/.local/bin:$PATH
 # 10ms for key sequences
 KEYTIMEOUT=1
 
+# Enable autocompletion of hidden files and directories
+setopt globdots
+
 # -----------------------------------------------------------------------------
 # cdr
 
