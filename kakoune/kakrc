@@ -262,11 +262,18 @@ plug "jdugan6240/powerline.kak" defer powerline %{
 # Configuration for the `smarttab.kak` plugin
 # https://github.com/andreyorst/smarttab.kak
 
+# noexpandtab: use tab character to indent and align
+# smarttab:    use tab character to indent and space to align
+# expandtab:   use space character to indent and align
+
 plug "andreyorst/smarttab.kak" defer smarttab %{
-    # how many spaces to delete when pressing <backspace>
+    # set how many spaces to delete when pressing <backspace>
     set-option global softtabstop %opt{tabstop}
 } config %{
-    hook global WinSetOption filetype=.* expandtab
+    expandtab
+
+    # To assign different behavior by filetype, add hooks here:
+    # hook global WinSetOption filetype=(c|cpp) smarttab
 }
 
 # ------------------------------------------------------------------------------
@@ -332,9 +339,9 @@ plug 'occivink/kakoune-vertical-selection' config %{
 
 plug 'delapouite/kakoune-text-objects'
 
-# TODO: Update the format of this plugin section to match the others.
-# shortcuts for common selection commands
-# ---------------------------------------
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-auto-percent` plugin
+# https://github.com/delapouite/kakoune-auto-percent
 
 plug 'delapouite/kakoune-auto-percent'
 
@@ -349,9 +356,20 @@ plug "delapouite/kakoune-buffers" config %{
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `TODO: plugin name` plugin
-# TODO: url
-# TODO: Configure phantom-selection
+# Configuration for the `kakoune-find` plugin
+# https://github.com/occivink/kakoune-find
+
+plug "occivink/kakoune-find"
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-phantom-selection` plugin
+# https://github.com/occivink/kakoune-phantom-selection
+
+plug 'occivink/kakoune-phantom-selection' config %{
+    map global user f ": phantom-selection-iterate-next<ret>" -docstring "Phantom selection next"
+    map global user <a-f> ": phantom-selection-iterate-prev<ret>" -docstring "Phantom selection prev"
+    map global user F ": phantom-selection-select-all; phantom-selection-clear<ret>" -docstring "Clear phantom selection"
+}
 
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-git-mode` plugin
@@ -361,9 +379,9 @@ plug "jordan-yee/kakoune-git-mode" config %{
     map global user g ': enter-user-mode git<ret>' -docstring "git mode"
 }
 
-# TODO: Update the format of this plugin section to match the others.
-# repl mode
-# ---------
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-repl-mode` plugin
+# https://github.com/jordan-yee/kakoune-repl-mode
 
 plug "jordan-yee/kakoune-repl-mode" config %{
     map global user r ': enter-user-mode repl<ret>' -docstring "repl mode"
@@ -396,14 +414,8 @@ plug "andreyorst/fzf.kak" defer fzf %{
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `kakoune-find` plugin
-# https://github.com/occivink/kakoune-find
-
-plug "occivink/kakoune-find"
-
-# TODO: Update the format of this plugin section to match the others.
-# parinfer - lisp parenthesis management
-# --------------------------------------
+# Configuration for the `parinfer-rust` plugin
+# https://github.com/eraserhd/parinfer-rust
 
 # NOTE: You must first install Rust and Clang for this to work
 #       See https://www.rust-lang.org/tools/install
@@ -423,9 +435,9 @@ plug "eraserhd/parinfer-rust" do %{
     }
 }
 
-# TODO: Update the format of this plugin section to match the others.
-# rep - execute clojure code in a repl
-# ------------------------------------
+# ------------------------------------------------------------------------------
+# Configuration for the `eraserhd/rep` plugin
+# https://github.com/eraserhd/rep
 
 # NOTE: You must first install the rep executable
 #       See https://github.com/eraserhd/rep/blob/develop/rc/rep.kak
@@ -451,7 +463,6 @@ plug "ul/kak-lsp" tag "v8.0.0" do %{
     cargo install --force --path .
 } config %{
     set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
-
     # NOTE: Temporarily removed 'clojure' filetype since it's unstable.
     #   - After loading, it would appear to work until making a change, at which
     #     point it would become unresponsive.
