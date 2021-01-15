@@ -37,14 +37,13 @@ bindkey -v
 # -----------------------------------------------------------------------------
 # Misc
 
-# reload zshrc alias
 alias rz='source ~/.zshrc'
 
-# ls aliases
-alias ls='ls -hF --color=tty'
+alias ls='ls --human-readable --classify --color=auto'
 alias lsa='ls -A'
 
 # Add directories to PATH
+# This should probably be in .zshenv or .profile
 export PATH=$HOME/bin:$HOME/.local/bin:$PATH
 
 # Reduce delay in switching to normal mode with vi key bindings
@@ -205,8 +204,6 @@ fi
 # Inspired by:
 # https://github.com/mawww/kakoune/wiki/Kak-daemon-helper-:-1-session-per-project
 # Modified and expanded to scope session to git repo project.
-# NOTE:
-# - Powerline separator must be set via an option, or the default will be used.
 kaks() {
     git_dir=$(git rev-parse --show-toplevel 2>/dev/null)
 
