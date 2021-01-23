@@ -120,34 +120,39 @@ hook global BufCreate .*\.(conf) %{
 # -------------------------------------
 # Linting & Formatting
 
-define-command -docstring "Create user mode mappings for lint commands" \
-enable-lint-mode %{
-    declare-user-mode lint-mode
-    # 'l' is used for lsp-mode, so an alternate activation key has to be chosen here
-    map window user t ': enter-user-mode lint-mode<ret>' -docstring "lint mode"
+# user-modes can only be declared once, so this declaraion is separated from
+# the mappings, which are bound to window scope of appropriate filetypes
+declare-user-mode lint-mode
+
+define-command -docstring "Create window-scoped mappings for lint commands" \
+enable-lint-mode-mappings %{
     map window lint-mode b ': lint-buffer<ret>' -docstring "lint buffer"
     map window lint-mode j ': lint-next-message<ret>' -docstring "next lint message"
     map window lint-mode k ': lint-previous-message<ret>' -docstring "previous lint message"
     map window lint-mode h ': lint-hide-diagnostics<ret>' -docstring "hide lint diagnostics"
     map window lint-mode s ': lint-selections<ret>' -docstring "lint each selection"
+
+    # Bound to t insead of l to avoid collision with kak-lsp user mode mapping
+    map window user t ': enter-user-mode lint-mode<ret>' -docstring "lint mode"
 }
 
 # set clojure-specific settings
 # -----------------------------
 
 hook global WinSetOption filetype=clojure %{
-    echo -debug "Setting clojure filetype configuration options"
-    
+    echo -debug "WinSetOption hook fired for filetype=clojure"
+
     set-option window tabstop 2
     set-option window indentwidth 2
-    
+
     # NOTE: This option requires clj-kondo to be installed.
     set-option window lintcmd 'clj-kondo --lint'
-    enable-lint-mode
-}
 
-hook global BufWritePost .*\.(clj|cljc|cljs) %{
-    lint-buffer
+    # lint buffer on save
+    hook buffer BufWritePost .* %{lint-buffer}
+
+    # Create lint-mode mappings for the window
+    enable-lint-mode-mappings
 }
 
 # -----------------------------------------------------------------------------
