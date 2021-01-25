@@ -138,9 +138,6 @@ enable-lint-mode-mappings %{
     map window user t ': enter-user-mode lint-mode<ret>' -docstring "lint mode"
 }
 
-# set clojure-specific settings
-# -----------------------------
-
 hook global WinSetOption filetype=clojure %{
     echo -debug "WinSetOption hook fired for filetype=clojure"
 
@@ -148,7 +145,7 @@ hook global WinSetOption filetype=clojure %{
     set-option window indentwidth 2
 
     # NOTE: This option requires clj-kondo to be installed.
-    set-option window lintcmd 'clj-kondo --lint'
+    set-option buffer lintcmd 'clj-kondo --lint'
 
     # lint buffer on save
     hook buffer BufWritePost .* %{lint-buffer}
