@@ -154,6 +154,24 @@ hook global WinSetOption filetype=clojure %{
     enable-lint-mode-mappings
 }
 
+hook global WinSetOption filetype=javascript %{
+    set-option window tabstop 2
+    set-option window indentwidth 2
+
+    # NOTE: This option requires eslint + eslint-formatter-kakoune:
+    #       `npm install --save-dev eslint-formatter-kakoune`
+    #         OR
+    #       `yarn add --dev eslint-formatter-kakoune`
+    # NOTE: If you are using yarn, the command must be prefixed with `yarn`.
+    # set-option buffer lintcmd "yarn eslint --config=.eslintrc --format=node_modules/eslint-formatter-kakoune %val{buffile}"
+
+    # lint buffer on save
+    # hook buffer BufWritePost .* %{lint-buffer}
+
+    # Create lint-mode mappings for the window
+    # enable-lint-mode-mappings
+}
+
 # -----------------------------------------------------------------------------
 # Integrations
 
