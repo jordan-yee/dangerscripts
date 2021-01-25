@@ -129,6 +129,8 @@ enable-lint-mode-mappings %{
     map window lint-mode b ': lint-buffer<ret>' -docstring "lint buffer"
     map window lint-mode j ': lint-next-message<ret>' -docstring "next lint message"
     map window lint-mode k ': lint-previous-message<ret>' -docstring "previous lint message"
+    map window lint-mode n ': lint-next-message<ret>' -docstring "next lint message"
+    map window lint-mode p ': lint-previous-message<ret>' -docstring "previous lint message"
     map window lint-mode h ': lint-hide-diagnostics<ret>' -docstring "hide lint diagnostics"
     map window lint-mode s ': lint-selections<ret>' -docstring "lint each selection"
 
