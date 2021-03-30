@@ -27,9 +27,8 @@ bindkey -v
 #   - fd
 # - Ranger
 # - Rust
-# - Python
-#   - pyenv
-#     - pyenv-virtualenv
+# - pyenv
+#   - pyenv-virtualenv
 # - direnv
 # - Starship
 # - nix
@@ -165,24 +164,34 @@ zstyle ':vcs_info:*' enable git
 # -----------------------------------------------------------------------------
 # Git
 
-alias gs='git status'
+alias gsa='git status'
 alias ga='git add'
 alias gc='git commit'
 alias gf='git fetch'
 alias gfs='git fetch && git status'
-alias gcm='git commit -m '
+alias gcm='git commit --message'
 alias gpl='git pull'
 alias gps='git push'
+alias gb='git branch'
+alias gba='git branch --all'
+alias gbd='git branch --delete'
+alias gx='git checkout'
+alias gxb='git checkout -b'
 
 function print-git-aliases() {
-    echo "gs='git status'"
-    echo "ga='git add'"
-    echo "gc='git commit'"
-    echo "gf='git fetch'"
-    echo "gfs='git fetch && git status'"
-    echo "gcm='git commit -m '"
-    echo "gpl='git pull'"
-    echo "gps='git push'"
+    echo "gsa = 'git status'"
+    echo "ga  = 'git add'"
+    echo "gc  = 'git commit'"
+    echo "gf  = 'git fetch'"
+    echo "gfs = 'git fetch && git status'"
+    echo "gcm = 'git commit --message'"
+    echo "gpl = 'git pull'"
+    echo "gps = 'git push'"
+    echo "gb  = 'git branch'"
+    echo "gba = 'git branch --all'"
+    echo "gbd = 'git branch --delete'"
+    echo "gx  = 'git checkout'"
+    echo "gxb = 'git checkout -b'"
 }
 
 alias gh=print-git-aliases
@@ -240,6 +249,7 @@ export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/nu
 # and therefore may not work for a different system's installation.
 # See /usr/share/doc/fzf/README.Debian when fzf is installed w/ apt.
 source /usr/share/doc/fzf/examples/completion.zsh
+source /usr/share/doc/fzf/examples/key-bindings.zsh
 
 # (See https://github.com/sharkdp/fd)
 #   Ubuntu 20.04: sudo apt install fd-find
@@ -262,18 +272,6 @@ _fzf_compgen_dir() {
   fd --type d --hidden --exclude ".git" . "$1"
 }
 
-# TODO: Test whether this is a problem. Without these lines, can the
-# key-bindings script be sourced right after the completion script?
-# 
-# Disable ALT-C binding to prevent esc-c from triggering fzf
-# This is a problem when esc'ing out of insert mode in zsh with vi key bindings
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[[ $- =~ i ]] && bindkey -r '\ec'
-
-# NOTE: If one of the key bindings doesn't work (Usually ALT-C), then place
-# this line further down in the file.
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-
 # -----------------------------------------------------------------------------
 # Ranger
 
@@ -293,9 +291,6 @@ rangercd() {
 export PATH=$HOME/.cargo/bin:$PATH # Rust
 
 # -----------------------------------------------------------------------------
-# Python
-
-# -------------------------------------
 # pyenv
 # NOTE: This section should be placed toward the end of the shell config file.
 
