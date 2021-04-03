@@ -1,4 +1,4 @@
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Basic Configuration
 
 # show line numbers
@@ -23,7 +23,7 @@ set-option global indentwidth 4
 # width of a tab character
 set-option global tabstop 4
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Mappings
 
 # use space for user mode leader key
@@ -63,7 +63,7 @@ map global normal Q B
 map global normal <a-q> <a-b>
 map global normal <a-Q> <a-B>
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Hooks
 
 # tab complete
@@ -107,7 +107,7 @@ hook global InsertChar k %{ try %{
 #   set-face global PrimaryCursor rgb:ffffff,rgb:008800+F
 # }
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Language Settings
 
 # add matches for sh filetype
@@ -120,12 +120,13 @@ hook global BufCreate .*\.(conf) %{
 # -------------------------------------
 # Linting & Formatting
 
-# user-modes can only be declared once, so this declaraion is separated from
-# the mappings, which are bound to window scope of appropriate filetypes
+# user modes can only be declared once, so these declarations are separated
+# from their mappings, which are bound to window scope in filetype hooks.
 declare-user-mode lint-mode
+declare-user-mode format-mode
 
-define-command -docstring "Create window-scoped mappings for lint commands" \
-enable-lint-mode-mappings %{
+define-command -hidden enable-lint-mode-mappings \
+-docstring "Create window-scoped mappings for lint commands" %{
     map window lint-mode b ': lint-buffer<ret>' -docstring "lint buffer"
     map window lint-mode j ': lint-next-message<ret>' -docstring "next lint message"
     map window lint-mode k ': lint-previous-message<ret>' -docstring "previous lint message"
@@ -138,9 +139,29 @@ enable-lint-mode-mappings %{
     map window user t ': enter-user-mode lint-mode<ret>' -docstring "lint mode"
 }
 
-hook global WinSetOption filetype=clojure %{
-    echo -debug "WinSetOption hook fired for filetype=clojure"
+define-command -hidden enable-format-mode-mappings \
+-docstring "Create window-scoped mappings for format commands" %{
+    map window format-mode = ': format-buffer<ret>' -docstring 'format buffer'
+    map window format-mode b ': format-buffer<ret>' -docstring 'format buffer'
+    map window format-mode s ': format-selections<ret>' -docstring 'format selections'
 
+    # Bound to = insead of f to avoid collision with phanton-selections user
+    # mode mapping, and to match Vim's format binding.
+map window user = ': enter-user-mode format-mode<ret>' -docstring "format mode"
+}
+
+define-command -hidden set-format-with-prettier \
+-docstring "Set format settings to use prettier" %{
+    # NOTE: This option requires prettier:
+    #       `npm install --save-dev --save-exact prettier`
+    #         OR
+    #       `yarn add --dev --exact prettier`
+    set-option buffer formatcmd "npx prettier --stdin-filepath=%val{buffile}"
+    hook buffer BufWritePre .* %{format-buffer}
+    enable-format-mode-mappings
+}
+
+hook global WinSetOption filetype=clojure %{
     set-option window tabstop 2
     set-option window indentwidth 2
 
@@ -158,21 +179,58 @@ hook global WinSetOption filetype=javascript %{
     set-option window tabstop 2
     set-option window indentwidth 2
 
-    # NOTE: This option requires eslint + eslint-formatter-kakoune:
-    #       `npm install --save-dev eslint-formatter-kakoune`
-    #         OR
-    #       `yarn add --dev eslint-formatter-kakoune`
-    # NOTE: If you are using yarn, the command must be prefixed with `yarn`.
-    # set-option buffer lintcmd "yarn eslint --config=.eslintrc --format=node_modules/eslint-formatter-kakoune %val{buffile}"
+    # Lint ----------------------------
+    # NOTE: Linting is configured by the kak-jsts plugin (See below in file).
 
-    # lint buffer on save
-    # hook buffer BufWritePost .* %{lint-buffer}
-
-    # Create lint-mode mappings for the window
-    # enable-lint-mode-mappings
+    # Set format settings to use prettier, create format-mode mappings
+    set-format-with-prettier
 }
 
-# -----------------------------------------------------------------------------
+hook global WinSetOption filetype=html %{
+    set-option window tabstop 2
+    set-option window indentwidth 2
+
+    # TODO: https://www.html-tidy.org/
+    # Lint ----------------------------
+    # NOTE: This option requires :
+    #       ``
+    # set-option buffer lintcmd "tidy -e --gnu-emacs yes --quiet yes 2>&1"
+    # lint buffer on save
+    # hook buffer BufWritePost .* %{lint-buffer}
+    # Create lint-mode mappings for the window
+    # enable-lint-mode-mappings
+
+    # Set format settings to use prettier, create format-mode mappings
+    set-format-with-prettier
+}
+
+hook global WinSetOption filetype=css %{
+    set-option window tabstop 4
+    set-option window indentwidth 4
+
+    # TODO: https://stylelint.io/
+    # Lint ----------------------------
+    # NOTE: This option requires :
+    #       ``
+    # set-option buffer lintcmd "stylelint --fix --stdin-filename='%val{buffile}'"
+    # lint buffer on save
+    # hook buffer BufWritePost .* %{lint-buffer}
+    # Create lint-mode mappings for the window
+    # enable-lint-mode-mappings
+
+    # Set format settings to use prettier, create format-mode mappings
+    set-format-with-prettier
+}
+
+hook global WinSetOption filetype=json %{
+    set-option window tabstop 4
+    set-option window indentwidth 4
+
+    # Set format settings to use prettier, create format-mode mappings
+    set-format-with-prettier
+}
+
+# ------------------------------------------------------------------------------
 # Integrations
 
 # Use rg for the grep command
@@ -209,6 +267,14 @@ map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'Paste system
 #map global user P '<a-!>cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (after)'
 #map global user p '!cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (before)'
 
+# kakoune.cr
+# ----------
+# See https://github.com/alexherbo2/kakoune.cr
+
+evaluate-commands %sh{
+    kcr init kakoune
+}
+
 # -----------------------------------------------------------------------------
 # Experimental Scripts
 
@@ -244,36 +310,16 @@ map global user w ': enter-user-mode windowing<ret>' -docstring "windowing mode"
 
 # ------------------------------------------------------------------------------
 # Configuration for the `plug.kak` plugin
-# https://github.com/robertmeta/plug.kak
-
-# NOTE: You must first clone the git repo for this to work:
-#       `mkdir -p ~/.config/kak/plugins/`
-#       `git clone https://github.com/robertmeta/plug.kak ~/.config/kak/plugins/plug.kak`
+# https://github.com/andreyorst/plug.kak
 
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
-
-# ------------------------------------------------------------------------------
-# Configuration for the `kakoune-mysticaltutor` plugin
-# https://github.com/caksoylar/kakoune-mysticaltutor
-
-plug "caksoylar/kakoune-mysticaltutor" theme config %{
-    colorscheme mysticaltutor
-}
-
-
-# ------------------------------------------------------------------------------
-# Configuration for the `kakoune-mysticaltutor-powerline` plugin
-# https://github.com/jordan-yee/kakoune-mysticaltutor-powerline
-
-plug "jordan-yee/kakoune-mysticaltutor-powerline" defer powerline %{
-    powerline-theme mysticaltutor
-}
+plug "andreyorst/plug.kak" noload
 
 # ------------------------------------------------------------------------------
 # Configuration for the `powerline.kak` plugin
-# https://github.com/jdugan6240/powerline.kak
+# https://github.com/andreyorst/powerline.kak
 
-plug "jdugan6240/powerline.kak" defer powerline %{
+plug "andreyorst/powerline.kak" defer powerline %{
     set-option global powerline_shorten_bufname short
     set-option global powerline_separator ''
 } config %{
@@ -299,6 +345,65 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
 }
 
 # ------------------------------------------------------------------------------
+# Configuration for the `fzf.kak` plugin
+# https://github.com/andreyorst/fzf.kak
+
+# NOTE: You must first install fzf for this to work
+#       Ubuntu 20.04: `sudo apt install fzf`
+plug "andreyorst/fzf.kak" config %{
+    map global normal <c-p> ': fzf-mode<ret>'
+} defer "fzf-file" %{
+    # Change file search command to fd
+    # NOTE: You must first install fd for this to work
+    #       fd binary is fdfind in apt package
+    #       alias to fd doesn't work here
+    set-option global fzf_file_command 'fdfind --hidden --type f --exclude .git'
+
+    set-option global fzf_highlight_command 'bat'
+} defer "fzf-cd" %{
+    set-option global fzf_cd_command 'fdfind --follow --hidden --type d --exclude .git'
+} defer "fzf-grep" %{
+    # Change grep search command to rg
+    # NOTE: Your must first install ripgrep for this to work
+    #       See https://github.com/BurntSushi/ripgrep#installation
+    set-option global fzf_grep_command 'rg'
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-mysticaltutor` plugin
+# https://github.com/caksoylar/kakoune-mysticaltutor
+
+plug "caksoylar/kakoune-mysticaltutor" theme config %{
+    colorscheme mysticaltutor
+}
+
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-mysticaltutor-powerline` plugin
+# https://github.com/jordan-yee/kakoune-mysticaltutor-powerline
+
+plug "jordan-yee/kakoune-mysticaltutor-powerline" defer powerline %{
+    powerline-theme mysticaltutor
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-git-mode` plugin
+# https://github.com/jordan-yee/kakoune-git-mode
+
+plug "jordan-yee/kakoune-git-mode" config %{
+    map global user g ': enter-user-mode git<ret>' -docstring "git mode"
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-repl-mode` plugin
+# https://github.com/jordan-yee/kakoune-repl-mode
+
+plug "jordan-yee/kakoune-repl-mode" config %{
+    map global user r ': enter-user-mode repl<ret>' -docstring "repl mode"
+    require-module repl-mode
+}
+
+# ------------------------------------------------------------------------------
 # Configuration for the `case.kak` plugin
 # https://gitlab.com/FlyingWombat/case.kak
 
@@ -307,19 +412,11 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `prelude.kak` plugin
-# https://github.com/alexherbo2/prelude.kak
-
-plug "alexherbo2/prelude.kak" config %{
-    require-module prelude
-}
-
-# ------------------------------------------------------------------------------
 # Configuration for the `auto-pairs.kak` plugin
 # https://github.com/alexherbo2/auto-pairs.kak
 
-# NOTE: Dependent on prelude plugin:
-#       https://github.com/alexherbo2/prelude.kak
+# NOTE: Dependent on kakoune.cr:
+#       https://github.com/alexherbo2/kakoune.cr
 
 plug "alexherbo2/auto-pairs.kak" config %{
     require-module auto-pairs
@@ -339,6 +436,22 @@ plug "h-youhei/kakoune-surround" config %{
     map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
 
     map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-find` plugin
+# https://github.com/occivink/kakoune-find
+
+plug "occivink/kakoune-find"
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-phantom-selection` plugin
+# https://github.com/occivink/kakoune-phantom-selection
+
+plug 'occivink/kakoune-phantom-selection' config %{
+    map global user f ": phantom-selection-iterate-next<ret>" -docstring "Phantom selection next"
+    map global user <a-f> ": phantom-selection-iterate-prev<ret>" -docstring "Phantom selection prev"
+    map global user F ": phantom-selection-select-all; phantom-selection-clear<ret>" -docstring "Clear phantom selection"
 }
 
 # ------------------------------------------------------------------------------
@@ -378,62 +491,71 @@ plug "delapouite/kakoune-buffers" config %{
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `kakoune-find` plugin
-# https://github.com/occivink/kakoune-find
+# Configuration for the `kak-lsp` plugin
+# https://github.com/kak-lsp/kak-lsp
 
-plug "occivink/kakoune-find"
+# NOTE: You must first install rust for this to work:
+#       https://www.rust-lang.org/learn/get-started
 
-# ------------------------------------------------------------------------------
-# Configuration for the `kakoune-phantom-selection` plugin
-# https://github.com/occivink/kakoune-phantom-selection
+# NOTE: Temporarily removed 'clojure' filetype since it's unstable.
+#   - After loading, it would appear to work until making a change, at which
+#     point it would become unresponsive.
+#   - Functions called using an alias would not be recognized inside of
+#     re-frame registrations.
+#   - I suspect the size of the project or file (1100 loc's) may have caused
+#     problems.
 
-plug 'occivink/kakoune-phantom-selection' config %{
-    map global user f ": phantom-selection-iterate-next<ret>" -docstring "Phantom selection next"
-    map global user <a-f> ": phantom-selection-iterate-prev<ret>" -docstring "Phantom selection prev"
-    map global user F ": phantom-selection-select-all; phantom-selection-clear<ret>" -docstring "Clear phantom selection"
-}
-
-# ------------------------------------------------------------------------------
-# Configuration for the `kakoune-git-mode` plugin
-# https://github.com/jordan-yee/kakoune-git-mode
-
-plug "jordan-yee/kakoune-git-mode" config %{
-    map global user g ': enter-user-mode git<ret>' -docstring "git mode"
-}
-
-# ------------------------------------------------------------------------------
-# Configuration for the `kakoune-repl-mode` plugin
-# https://github.com/jordan-yee/kakoune-repl-mode
-
-plug "jordan-yee/kakoune-repl-mode" config %{
-    map global user r ': enter-user-mode repl<ret>' -docstring "repl mode"
-    require-module repl-mode
-}
-
-# ------------------------------------------------------------------------------
-# Configuration for the `fzf.kak` plugin
-# https://github.com/andreyorst/fzf.kak
-
-# NOTE: You must first install fzf for this to work
-#       Ubuntu 20.04: `sudo apt install fzf`
-plug "andreyorst/fzf.kak" defer fzf %{
-    # Change file search command to fd
-    # NOTE: You must first install fd for this to work
-    #       fd binary is fdfind in apt package
-    #       alias to fd doesn't work here
-    set-option global fzf_file_command 'fdfind --hidden --type f --exclude .git'
-    set-option global fzf_cd_command 'fdfind --follow --hidden --type d --exclude .git'
-
-    # Change grep search command to rg
-    # NOTE: Your must first install ripgrep for this to work
-    #       See https://github.com/BurntSushi/ripgrep#installation
-    set-option global fzf_grep_command 'rg'
-
-    # To discover other options or access command docs, view auto-complete
-    # results of `:set-option global fzf` command.
+plug "kak-lsp/kak-lsp" do %{
+    cargo install --locked --force --path .
 } config %{
-    map global normal <c-p> ': fzf-mode<ret>'
+    # Documentation on available options can be seen here:
+    # https://github.com/kak-lsp/kak-lsp#configuring-kakoune
+
+    set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
+    set-option global lsp_auto_highlight_references true
+
+    # NOTE: You must install the appropriate servers for whichever filetypes
+    #       you enable here.
+    hook global WinSetOption filetype=(c|cpp|python) %{
+        map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
+
+        lsp-enable-window
+        # Debugging kak-lsp (The following command should come after lsp-enable/-window):
+        #set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
+        # With the above command enabled, run `kak-lsp -s main` in another terminal
+
+        set-option window lsp_hover_anchor true
+        set-face window DiagnosticError default+u
+        set-face window DiagnosticWarning default+u
+    }
+
+    # Python settings
+    # NOTE: You must install the Python lsp server for this to work.
+    #       `pip install 'python-language-server[all]'`
+    hook global WinSetOption filetype=python %{
+        set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
+    }
+
+    hook global KakEnd .* lsp-exit
 }
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kak-jsts` plugin
+# https://github.com/schemar/kak-jsts
+
+# NOTE: This plugin requires the following dependencies:
+#       - eslint-formatter-kakoune
+#         `npm i -g eslint-formatter-kakoune`
+#       - jq
+
+# plug "schemar/kak-jsts" config %{
+#     hook global WinSetOption filetype=javascript %{
+#         # lint buffer on save
+#         hook buffer BufWritePost .* %{lint-buffer}
+#         # Create lint-mode mappings for the window
+#         enable-lint-mode-mappings
+#     }
+# }
 
 # ------------------------------------------------------------------------------
 # Configuration for the `parinfer-rust` plugin
@@ -471,44 +593,4 @@ plug "eraserhd/parinfer-rust" do %{
 # the external executable.
 plug "eraserhd/rep" tag "v0.1.2" subset %{
     rep.kak
-}
-
-# ------------------------------------------------------------------------------
-# Configuration for the `kak-lsp` plugin
-# https://github.com/kak-lsp/kak-lsp
-
-# NOTE: You must first install rust for this to work:
-#       https://www.rust-lang.org/learn/get-started
-
-plug "ul/kak-lsp" tag "v8.0.0" do %{
-    cargo build --release --locked
-    cargo install --force --path .
-} config %{
-    set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
-    # NOTE: Temporarily removed 'clojure' filetype since it's unstable.
-    #   - After loading, it would appear to work until making a change, at which
-    #     point it would become unresponsive.
-    #   - Functions called using an alias would not be recognized inside of
-    #     re-frame registrations.
-    #   - I suspect the size of the project or file (1100 loc's) may have caused
-    #     problems.
-
-    # NOTE: You must install the appropriate servers for whichever filetypes
-    #       you enable here.
-    hook global WinSetOption filetype=(c|cpp|python) %{
-        map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
-        lsp-enable-window
-        set-option window lsp_hover_anchor true
-        set-face window DiagnosticError default+u
-        set-face window DiagnosticWarning default+u
-    }
-
-    # Python settings
-    # NOTE: You must install the Python lsp server for this to work.
-    #       `pip install 'python-language-server[all]'`
-    hook global WinSetOption filetype=python %{
-        set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
-    }
-
-    hook global KakEnd .* lsp-exit
 }
