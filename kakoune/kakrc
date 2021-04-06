@@ -11,8 +11,11 @@ add-highlighter global/ wrap
 add-highlighter global/ show-matching
 
 # show trailing whitespace
-# not working - may need to modify colorscheme
-add-highlighter global/trailing regex '[ \t\f\v]+$' 0:Whitespace
+set-face global TrailingWhitespace default,rgb:F15050
+add-highlighter global/ regex '[ \h]+$' 0:TrailingWhitespace
+
+# show tab characters
+add-highlighter global/ show-whitespaces -lf ' ' -spc ' ' -nbsp ' ' -tabpad '-'
 
 # highlight special comment words
 add-highlighter global/ regex \b(TODO|FIXME|XXX|NOTE)\b 0:default+rb
@@ -41,6 +44,12 @@ map global normal <a-backspace> <a-space> -docstring 'remove main sel'
 
 map global view K t -docstring 'cursor on top'
 map global view J b -docstring 'cursor on bottom'
+
+# clear current line
+# ------------------
+
+map global normal D ': execute-keys xHd<ret>'
+
 
 # perform a literal (non-regex) search in user mode
 # -------------------------------------------------
@@ -92,20 +101,49 @@ hook global InsertChar k %{ try %{
     # Ensure tab is re-enabled after being used for auto-complete.
     unmap window insert <tab> <c-n>
     unmap window insert <s-tab> <c-p>
+
+    # Ensure PrimaryCursor color is reset
+    # See 'change cursor color insert mode below'
+    unset-face window PrimaryCursor
+    unset-face window PrimaryCursorEol
 }}
 
 # change cursor color in insert mode
 # ----------------------------------
+# See https://discuss.kakoune.com/t/changing-the-cursor-colour-in-insert-mode/394
 # TODO: This should optimally be be based on the theme.
-# https://discuss.kakoune.com/t/changing-the-cursor-colour-in-insert-mode/394
+# TODO: The ModeChange hook is not triggered when exiting insert mode with 'jk',
+#       at least with the current implementation of that.
 
-# hook global ModeChange insert:.* %{
-#   set-face global PrimaryCursor rgb:ffffff,rgb:000000+F
+# hook global ModeChange .* %{
+#     echo -debug "ModeChange hook triggered: %val{hook_param}"
 # }
 
-# hook global ModeChange .*:insert %{
-#   set-face global PrimaryCursor rgb:ffffff,rgb:008800+F
-# }
+hook global ModeChange .*:insert:.* %{
+    unset-face window PrimaryCursor
+    unset-face window PrimaryCursorEol
+}
+
+hook global ModeChange .*:insert %{
+    # NOTE: This fg color is from Mysticaltutor.
+    # TODO: Set fg color to match the current one (the one given by the current theme.)
+    set-face window PrimaryCursor rgb:1E2227,rgba:65f150ee
+    set-face window PrimaryCursorEol rgb:1E2227,rgba:65f150aa
+}
+
+# delete trailing whitespace on save
+# ----------------------------------
+
+define-command -docstring 'Delete trailing whitespace in the current buffer.' \
+remove-trailing-whitespace %{
+    try %{
+        execute-keys -draft %s\h+$<ret> d
+    }
+}
+
+hook global BufWritePre .* %{
+    remove-trailing-whitespace
+}
 
 # ------------------------------------------------------------------------------
 # Language Settings
@@ -320,8 +358,10 @@ plug "andreyorst/plug.kak" noload
 # https://github.com/andreyorst/powerline.kak
 
 plug "andreyorst/powerline.kak" defer powerline %{
+    set-option global powerline_ignore_warnings true
+    powerline-separator global triangle
+} defer powerline_bufname %{
     set-option global powerline_shorten_bufname short
-    set-option global powerline_separator ''
 } config %{
     powerline-start
 }
@@ -338,7 +378,7 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
     # set how many spaces to delete when pressing <backspace>
     set-option global softtabstop %opt{tabstop}
 } config %{
-    expandtab
+    hook global WinSetOption filetype=\.* expandtab
 
     # To assign different behavior by filetype, add hooks here:
     # hook global WinSetOption filetype=(c|cpp) smarttab
@@ -377,12 +417,13 @@ plug "caksoylar/kakoune-mysticaltutor" theme config %{
     colorscheme mysticaltutor
 }
 
-
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-mysticaltutor-powerline` plugin
 # https://github.com/jordan-yee/kakoune-mysticaltutor-powerline
 
-plug "jordan-yee/kakoune-mysticaltutor-powerline" defer powerline %{
+# NOTE: Make sure this comes after the powerline configuration
+
+plug "jordan-yee/kakoune-mysticaltutor-powerline" defer powerline_mysticaltutor %{
     powerline-theme mysticaltutor
 }
 
@@ -525,6 +566,7 @@ plug "kak-lsp/kak-lsp" do %{
         # With the above command enabled, run `kak-lsp -s main` in another terminal
 
         set-option window lsp_hover_anchor true
+        set-option window lsp_auto_highlight_references false
         set-face window DiagnosticError default+u
         set-face window DiagnosticWarning default+u
     }
