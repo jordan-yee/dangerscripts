@@ -1,6 +1,6 @@
 # The following lines were added by compinstall
 
-zstyle ':completion:*' completer _complete _ignored _approximate
+zstyle ':completion:*' completer _expand _complete _ignored _approximate
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
 zstyle ':completion:*' max-errors 2
 zstyle :compinstall filename '/home/jyee/.zshrc'
@@ -39,7 +39,7 @@ bindkey -v
 alias rz='source ~/.zshrc'
 
 alias ls='ls --human-readable --classify --color=auto'
-alias lsa='ls -A'
+alias lsa='ls --almost-all'
 
 # Add directories to PATH
 # This should probably be in .zshenv or .profile
@@ -255,7 +255,7 @@ source /usr/share/doc/fzf/examples/key-bindings.zsh
 #   Ubuntu 20.04: sudo apt install fd-find
 # The fd binary is named fdfind for Debian installs to prevent a naming
 # conflict. Use this alias to if you don't have an existing fd command.
-# NOTE: You may still have to use fdfind in scripts.
+# NOTE: You may still have to use fdfind in scripts (e.g. fzf config below).
 alias fd=fdfind
 
 # Commands to use for key bindings
