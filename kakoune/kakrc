@@ -366,13 +366,6 @@ source "%val{config}/custom/diff.kak"
 # -----------------------------------------------------------------------------
 # Experimental Scripts
 
-# Use grasp for JavaScript AST queries
-# ------------------------------------
-# https://github.com/delapouite/kakoune-grasp
-
-# source "%val{config}/custom/kakoune-grasp/grasp.kak"
-# map global user j ': mode-grasp<ret>' -docstring 'query javascript with grasp'
-
 # repl/window function fixes for dwm + sakura
 # -------------------------------------------
 
