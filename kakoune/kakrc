@@ -50,13 +50,11 @@ map global view J b -docstring 'cursor on bottom'
 
 map global normal D ': execute-keys xHd<ret>'
 
-# perform a literal (non-regex) search in user mode
-# -------------------------------------------------
+# search user mode
+# ----------------
 
-# This could be extended so that '/' activates a special search user mode.
-# Additional functions could then be added such as case-insensitive search.
-
-map global user / ':exec /<ret>\Q\E<left><left>' -docstring 'literal search'
+source "%val{config}/custom/search.kak"
+map global user / ': enter-user-mode search<ret>' -docstring 'search mode'
 
 # remap macro & back-a-word operations
 # ------------------------------------
