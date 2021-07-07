@@ -369,6 +369,12 @@ source "%val{config}/custom/diff.kak"
 
 # source "%val{confing}/custom/repl-windowing-dwm-sakura.kak"
 
+# Quickly insert a section comment
+# --------------------------------
+
+source "%val{config}/custom/comment-sections.kak"
+install-comment-mode-mappings
+
 # ------------------------------------------------------------------------------
 # Plugins
 
