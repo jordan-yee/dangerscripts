@@ -151,6 +151,15 @@ hook global BufWritePre .* %{
     remove-trailing-whitespace
 }
 
+# open fzf file search when a new instance of Kakoune is first opened
+# -------------------------------------------------------------------
+
+hook -once global WinDisplay \*scratch\* %{
+    require-module fzf
+    require-module fzf-file
+    execute-keys '<esc>: fzf-file<ret>'
+}
+
 # ------------------------------------------------------------------------------
 # Language Settings
 
