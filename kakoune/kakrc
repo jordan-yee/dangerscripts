@@ -157,17 +157,21 @@ hook global BufWritePre .* %{
 hook -once global WinDisplay \*scratch\* %{
     require-module fzf
     require-module fzf-file
-    execute-keys '<esc>: fzf-file<ret>'
+    fzf-file
 }
 
 # ------------------------------------------------------------------------------
 # Language Settings
 
-# add matches for sh filetype
-# ---------------------------
+# add filetype matches
+# --------------------
 
 hook global BufCreate .*\.(conf) %{
     set-option buffer filetype sh
+}
+
+hook global BufCreate .*\.(mdx) %{
+    set-option buffer filetype markdown
 }
 
 # -------------------------------------
@@ -283,6 +287,11 @@ hook global WinSetOption filetype=json %{
     set-format-with-prettier
 }
 
+hook global WinSetOption filetype=python %{
+    # execute pytest for the current file
+    source "%val{config}/custom/pytest.kak"
+}
+
 # ------------------------------------------------------------------------------
 # Integrations
 
@@ -365,11 +374,6 @@ evaluate-commands %sh{
 
 source "%val{config}/custom/diff.kak"
 
-# pytest
-# ------
-
-# source "%val{config}/custom/pytest.kak"
-
 # -----------------------------------------------------------------------------
 # Experimental Scripts
 
@@ -383,6 +387,12 @@ source "%val{config}/custom/diff.kak"
 
 source "%val{config}/custom/comment-sections.kak"
 install-comment-mode-mappings
+
+# Add extended JavaScript functionality
+# -------------------------------------
+
+source "%val{config}/custom/javascript-extra.kak"
+map global user j ': enter-user-mode javascript<ret>' -docstring 'javascript mode'
 
 # ------------------------------------------------------------------------------
 # Plugins
@@ -621,9 +631,10 @@ plug "kak-lsp/kak-lsp" do %{
     set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
     set-option global lsp_auto_highlight_references true
 
+    # General LSP settings
     # NOTE: You must install the appropriate servers for whichever filetypes
     #       you enable here.
-    hook global WinSetOption filetype=(c|cpp|python) %{
+    hook global WinSetOption filetype=(clojure|javascript) %{
         map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
 
         lsp-enable-window
