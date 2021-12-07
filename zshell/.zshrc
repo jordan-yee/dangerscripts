@@ -19,7 +19,7 @@ unsetopt share_history
 bindkey -v
 # End of lines configured by zsh-newuser-install
 
-# Dependencies referenced in this zshrc:
+# Dependencies referenced in this file:
 # - Git
 # - Kakoune
 # - WSL2
