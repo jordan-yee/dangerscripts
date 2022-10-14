@@ -56,4 +56,6 @@ define-command install-comment-mode-mappings %{
 
     map global comment-mode p ': primary-section-comment<ret>' -docstring 'Add a primary section comment above the current line'
     map global comment-mode s ': secondary-section-comment<ret>' -docstring 'Add a secondary section comment above the current line'
+    map global comment-mode l ': comment-line<ret>' -docstring '(un)comment selected lines using line comments'
+    map global comment-mode b ': comment-block<ret>' -docstring '(un)comment selections using block comments'
 }
