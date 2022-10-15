@@ -19,7 +19,12 @@ Below is a list of all included configs/scripts.
 
 ## Comparing with local configs
 
-To compare files in a directory:
+To compare all config files with default local paths:
 ```shell
-diff --brief --recursive kakoune/custom ~/.config/kak/custom
+./difflocal.sh
+```
+
+For files that differ, you can sync them with vimdiff:
+```shell
+vimdiff kakoune/kakrc ~/.config/kak/kakrc
 ```
