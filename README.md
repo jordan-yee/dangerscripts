@@ -16,3 +16,10 @@ Below is a list of all included configs/scripts.
 | Sakura       | sakura.conf | ~/.config/sakura/sakura.conf |
 | Tmux         | .tmux.conf  | ~/.tmux.conf                 |
 | Zshell       | .zshrc      | ~/.zshrc                     |
+
+## Comparing with local configs
+
+To compare files in a directory:
+```shell
+diff --brief --recursive kakoune/custom ~/.config/kak/custom
+```
