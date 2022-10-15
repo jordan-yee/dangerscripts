@@ -12,6 +12,7 @@ Below is a list of all included configs/scripts.
 | ------------ | ----------- | ---------------------------- |
 | Kakoune      | kakrc       | ~/.config/kak/kakrc          |
 | Kakoune      | custom/*    | ~/.config/kak/custom/*       |
+| Kakoune      | rc/*        | /usr/local/share/kak/rc/*    |
 | Mintty       | .minttyrc   | ~/.minttyrc                  |
 | Sakura       | sakura.conf | ~/.config/sakura/sakura.conf |
 | Tmux         | .tmux.conf  | ~/.tmux.conf                 |
