@@ -16,6 +16,8 @@ SAVEHIST=1000
 setopt no_share_history
 unsetopt share_history
 
+setopt auto_cd
+
 bindkey -v
 # End of lines configured by zsh-newuser-install
 
@@ -40,6 +42,9 @@ alias rz='source ~/.zshrc'
 
 alias ls='ls --human-readable --classify --color=auto'
 alias lsa='ls --almost-all'
+
+# Save time when needing to restart Windows Terminal to fix rendering bug
+alias tma='tmux attach-session -t 0'
 
 # Add directories to PATH
 # This should probably be in .zshenv or .profile
@@ -111,12 +116,12 @@ function fill-line() {
 
 function set-prompt() {
     emulate -L zsh
-    
+
     local top_left='%F{081}%~%f'
     local top_right='%F{220}$vcs_info_msg_0_%f %* %B%(?.%F{082}%?%f.%F{196}%?%f)%b'
     local bottom_left='%(!.->>.->) '
     local bottom_right=''
-    
+
     PS1="$(fill-line "$top_left" "$top_right")"$'\n'$bottom_left
     RPS1=$bottom_right
 }
@@ -240,7 +245,13 @@ kaks() {
 # WSL2
 
 # Enable GUI applications to run on X server running on Windows
-export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
+#export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
+
+# Open Windows browser from WSL
+export DISPLAY=:0
+export BROWSER=/usr/bin/wslview
+
+alias open=explorer.exe
 
 # -----------------------------------------------------------------------------
 # fzf (fuzzy finder) configuration
@@ -319,4 +330,5 @@ eval "$(direnv hook zsh)"
 # Stuff Automatically Added By Other Applications
 # NOTE: This section should remain at the bottom.
 
+# Nix
 if [ -e /home/jordan/.nix-profile/etc/profile.d/nix.sh ]; then . /home/jordan/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
