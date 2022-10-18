@@ -151,15 +151,6 @@ hook global BufWritePre .* %{
     remove-trailing-whitespace
 }
 
-# open fzf file search when a new instance of Kakoune is first opened
-# -------------------------------------------------------------------
-
-hook -once global WinDisplay \*scratch\* %{
-    require-module fzf
-    require-module fzf-file
-    fzf-file
-}
-
 # ------------------------------------------------------------------------------
 # Language Settings
 
@@ -223,13 +214,17 @@ hook global WinSetOption filetype=clojure %{
     set-option window indentwidth 2
 
     # NOTE: This option requires clj-kondo to be installed.
+    # See https://github.com/clj-kondo/clj-kondo/blob/master/doc/install.md#installation-script-macos-and-linux
     set-option buffer lintcmd 'clj-kondo --lint'
 
     # lint buffer on save
-    hook buffer BufWritePost .* %{lint-buffer}
+    # hook buffer BufWritePost .* %{lint-buffer}
 
     # Create lint-mode mappings for the window
     enable-lint-mode-mappings
+
+    # NOTE: This option requires kak-lsp to be set up for Clojure.
+    hook buffer BufWritePre .* lsp-formatting-sync
 }
 
 hook global WinSetOption filetype=javascript %{
@@ -430,7 +425,7 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
     set-option global softtabstop %opt{tabstop}
 } config %{
     # these languages will use `expandtab' behavior
-    hook global WinSetOption filetype=(rust|markdown|kak|lisp|scheme|sh|perl|javascript|python) expandtab
+    hook global WinSetOption filetype=(rust|markdown|kak|lisp|scheme|sh|perl|javascript|python|yaml) expandtab
     # these languages will use `noexpandtab' behavior
     hook global WinSetOption filetype=(makefile|gas|go) noexpandtab
     # these languages will use `smarttab' behavior
@@ -445,6 +440,13 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
 #       Ubuntu 20.04: `sudo apt install fzf`
 plug "andreyorst/fzf.kak" config %{
     map global normal <c-p> ': fzf-mode<ret>'
+
+    # open fzf file search when a new instance of Kakoune is first opened
+    hook -once global WinDisplay \*scratch\* %{
+        require-module fzf
+        require-module fzf-file
+        fzf-file
+    }
 } defer "fzf-file" %{
     # Change file search command to fd
     # NOTE: You must first install fd for this to work
@@ -485,13 +487,25 @@ plug "jordan-yee/kakoune-mysticaltutor-powerline" defer powerline_mysticaltutor 
 # https://github.com/jordan-yee/kakoune-git-mode
 
 plug "jordan-yee/kakoune-git-mode" config %{
+    set-option global git_mode_use_structured_quick_commit true
+    declare-git-mode
     map global user g ': enter-user-mode git<ret>' -docstring "git mode"
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-plugin-quick-dev` plugin
+# https://github.com/jordan-yee/kakoune-plugin-quick-dev
+
+# load-path "/home/jordan/github/jordan-yee/kakoune-plugin-quick-dev/"
+plug "jordan-yee/kakoune-plugin-quick-dev" config %{
+  quick-dev-register-default-mappings
 }
 
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-repl-mode` plugin
 # https://github.com/jordan-yee/kakoune-repl-mode
 
+# load-path "~/github/jordan-yee/kakoune-repl-mode/"
 plug "jordan-yee/kakoune-repl-mode" config %{
     map global user r ': enter-user-mode repl<ret>' -docstring "repl mode"
     require-module repl-mode
@@ -513,8 +527,7 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 #       https://github.com/alexherbo2/kakoune.cr
 
 plug "alexherbo2/auto-pairs.kak" config %{
-    require-module auto-pairs
-    auto-pairs-enable
+    enable-auto-pairs
 }
 
 # ------------------------------------------------------------------------------
@@ -614,16 +627,10 @@ plug "delapouite/kakoune-buffers" config %{
 # NOTE: You must first install rust for this to work:
 #       https://www.rust-lang.org/learn/get-started
 
-# NOTE: Temporarily removed 'clojure' filetype since it's unstable.
-#   - After loading, it would appear to work until making a change, at which
-#     point it would become unresponsive.
-#   - Functions called using an alias would not be recognized inside of
-#     re-frame registrations.
-#   - I suspect the size of the project or file (1100 loc's) may have caused
-#     problems.
-
 plug "kak-lsp/kak-lsp" do %{
     cargo install --locked --force --path .
+    mkdir -p ~/.config/kak-lsp
+    cp -n kak-lsp.toml ~/.config/kak-lsp/
 } config %{
     # Documentation on available options can be seen here:
     # https://github.com/kak-lsp/kak-lsp#configuring-kakoune
@@ -633,17 +640,19 @@ plug "kak-lsp/kak-lsp" do %{
 
     # General LSP settings
     # NOTE: You must install the appropriate servers for whichever filetypes
-    #       you enable here.
-    hook global WinSetOption filetype=(clojure|javascript) %{
+    #       you enable here. Server configuration: `~/.config/kak-lsp/kak-lsp.toml`
+    # Clojure:
+    #   - https://clojure-lsp.io/installation/#script
+    #   - NOTE: Installed using script method.
+    hook global WinSetOption filetype=(clojure) %{
         map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
 
         lsp-enable-window
         # Debugging kak-lsp (The following command should come after lsp-enable/-window):
-        #set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
+        # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
         # With the above command enabled, run `kak-lsp -s main` in another terminal
 
         set-option window lsp_hover_anchor true
-        set-option window lsp_auto_highlight_references false
         set-face window DiagnosticError default+u
         set-face window DiagnosticWarning default+u
     }
@@ -651,9 +660,9 @@ plug "kak-lsp/kak-lsp" do %{
     # Python settings
     # NOTE: You must install the Python lsp server for this to work.
     #       `pip install 'python-language-server[all]'`
-    hook global WinSetOption filetype=python %{
-        set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
-    }
+    # hook global WinSetOption filetype=python %{
+    #     set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
+    # }
 
     hook global KakEnd .* lsp-exit
 }
@@ -693,8 +702,24 @@ plug "eraserhd/parinfer-rust" do %{
     # files, thus making it load a bit faster:
     cargo clean
 } config %{
+    declare-user-mode parinfer
+    map global parinfer s ': parinfer-enable-window -smart<ret>' -docstring 'enable (smart)'
+    map global parinfer i ': parinfer-enable-window -indent<ret>' \
+    -docstring 'enable (preserve indentation, fix parens)<ret>'
+    map global parinfer p ': parinfer-enable-window -paren<ret>' \
+    -docstring 'enable (preserve parents, fix indentation)<ret>'
+    map global parinfer d ': parinfer-disable-window<ret>' -docstring 'disable'
+
     hook global WinSetOption filetype=(clojure|lisp|scheme|racket) %{
-        parinfer-enable-window -smart
+        evaluate-commands %sh{
+            # special_files_regex='.*\(project\.clj\|profiles\.clj\)$'
+            special_files_regex='.*\(\(\(project\.clj\|profiles\.clj\|deps\.edn\)$\)\|cc-base\)'
+            if ! expr $kak_buffile : $special_files_regex 1>/dev/null; then
+                printf %s 'parinfer-enable-window -paren'
+            fi
+        }
+
+        map window user i ': enter-user-mode parinfer<ret>' -docstring 'parinfer mode'
     }
 }
 
@@ -704,12 +729,8 @@ plug "eraserhd/parinfer-rust" do %{
 
 # NOTE: You must first install the rep executable
 #       See https://github.com/eraserhd/rep/blob/develop/rc/rep.kak
-#       Recommended installation procedure:
-#        1) Download binary from releases tab in GitHub.
-#        2) cp the binary to /usr/local/bin/
-#        3) cp the manual to /usr/local/share/man/man1/
-# This plugin configuration installs the repo's /rc/rep.kak to integrate with
-# the external executable.
-plug "eraserhd/rep" tag "v0.1.2" subset %{
-    rep.kak
-}
+# NOTE: In order to install using `make`, you may need a2x.
+#           Ubuntu 20.04: `sudo apt install asciidoc-base`
+#       This will install the Kakoune plugin to `/usr/local/share/kak/autoload/plugins/`.
+#       I moved that to the below location in order to modify/extend it:
+source "%val{config}/custom/rep.kak"
