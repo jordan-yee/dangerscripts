@@ -28,4 +28,5 @@ To compare all config files with default local paths:
 For files that differ, you can sync them with vimdiff:
 ```shell
 vimdiff kakoune/kakrc ~/.config/kak/kakrc
+vimdiff zshell/.zshrc ~/.zshrc
 ```
