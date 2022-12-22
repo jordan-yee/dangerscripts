@@ -293,8 +293,16 @@ hook global WinSetOption filetype=python %{
 # ripgrep (rg) / :grep command enhancements
 # -----------------------------------------
 # NOTE: You must install ripgrep for this functionality to work.
+#
+# Useful rg options:
+# --smart-case : case insensitive if search is all lowercase, otherwise case sensitive
+# --max-count 1 : only 1 matching line per file is returned
+# --sort SORTBY : sort results in ascending order
+# --sortr SORTBY : sort results in descending order
+#   SORTBY : path, modified, accessed, created, none
+# --word-regexp : only show matches surrounded by word boundaries
 
-set-option global grepcmd 'rg --column'
+    set-option global grepcmd 'rg --column --smart-case'
 
 # :evaluate-commands terminal kak %sh{rg -l <search_term> | xargs echo}
 define-command -docstring %{Open a new kakoune instance that contains a buffer for each unique file from the grep search results.
@@ -339,11 +347,11 @@ hook global RegisterModified '"' %{ nop %sh{
     # Copy to Ubuntu clipboard
     # NOTE: This system clipboard integration requires xsel to be installed.
     #       `apt install -y xsel`
-    printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
+    #printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
     # Copy to tmux clipboard
     #tmux set-buffer -- "$kak_main_reg_dquote"
     # Copy to Windows clipboard from WSL
-    #printf %s "$kak_main_reg_dquote" | clip.exe
+    printf %s "$kak_main_reg_dquote" | clip.exe
 }}
 
 # paste from system clipboard
@@ -387,12 +395,6 @@ source "%val{config}/custom/diff.kak"
 source "%val{config}/custom/comment-sections.kak"
 install-comment-mode-mappings
 
-# Add extended JavaScript functionality
-# -------------------------------------
-
-source "%val{config}/custom/javascript-extra.kak"
-map global user j ': enter-user-mode javascript<ret>' -docstring 'javascript mode'
-
 # ------------------------------------------------------------------------------
 # Plugins
 
@@ -409,7 +411,7 @@ plug "andreyorst/plug.kak" noload
 
 plug "andreyorst/powerline.kak" defer powerline %{
     set-option global powerline_ignore_warnings true
-    powerline-separator global triangle
+    powerline-separator global none
 } defer powerline_bufname %{
     set-option global powerline_shorten_bufname short
 } config %{
