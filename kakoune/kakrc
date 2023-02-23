@@ -50,12 +50,6 @@ map global view J b -docstring 'cursor on bottom'
 
 map global normal D ': execute-keys xHd<ret>'
 
-# search user mode
-# ----------------
-
-source "%val{config}/custom/search.kak"
-map global user / ': enter-user-mode search<ret>' -docstring 'search mode'
-
 # remap macro & back-a-word operations
 # ------------------------------------
 
@@ -140,16 +134,16 @@ hook global ModeChange .*:insert %{
 # delete trailing whitespace on save
 # ----------------------------------
 
-define-command -docstring 'Delete trailing whitespace in the current buffer.' \
-remove-trailing-whitespace %{
-    try %{
-        execute-keys -draft %s\h+$<ret> d
-    }
-}
+# define-command -docstring 'Delete trailing whitespace in the current buffer.' \
+# remove-trailing-whitespace %{
+#     try %{
+#         execute-keys -draft %s\h+$<ret> d
+#     }
+# }
 
-hook global BufWritePre .* %{
-    remove-trailing-whitespace
-}
+# hook global BufWritePre .* %{
+#     remove-trailing-whitespace
+# }
 
 # ------------------------------------------------------------------------------
 # Language Settings
@@ -305,39 +299,39 @@ hook global WinSetOption filetype=python %{
     set-option global grepcmd 'rg --column --smart-case'
 
 # :evaluate-commands terminal kak %sh{rg -l <search_term> | xargs echo}
-define-command -docstring %{Open a new kakoune instance that contains a buffer for each unique file from the grep search results.
-This is intended to be used as a starting point for the :find plugin command.} \
-grep-to-find -params 1 %{
-    evaluate-commands terminal kak %sh{rg -l $1 | xargs echo}
-}
+# define-command -docstring %{Open a new kakoune instance that contains a buffer for each unique file from the grep search results.
+# This is intended to be used as a starting point for the :find plugin command.} \
+# grep-to-find -params 1 %{
+#     evaluate-commands terminal kak %sh{rg -l $1 | xargs echo}
+# }
 
-define-command grep-and-find \
--docstring 'grep-and-find <grepterm> <findterm> : search for a pattern in all files return by a grep search
-Opens a new kakoune instance with the results of `find <findterm>` for all files in the results of `grep <grepterm>`.' \
--params ..2 %{
-    evaluate-commands %sh{
-        eval set -- "$@"
-        if [ "$#" -lt 2 ]; then
-            echo "echo -debug 'less than 2 args given: $#'"
-        else
-            echo "echo -debug 'at least 2 args given: $#'"
-        fi
-    }
+# define-command grep-and-find \
+# -docstring 'grep-and-find <grepterm> <findterm> : search for a pattern in all files return by a grep search
+# Opens a new kakoune instance with the results of `find <findterm>` for all files in the results of `grep <grepterm>`.' \
+# -params ..2 %{
+#     evaluate-commands %sh{
+#         eval set -- "$@"
+#         if [ "$#" -lt 2 ]; then
+#             echo "echo -debug 'less than 2 args given: $#'"
+#         else
+#             echo "echo -debug 'at least 2 args given: $#'"
+#         fi
+#     }
 
-    # TODO: Handle extraction of values for either args, selections, or registers.
-    # evaluate-commands terminal kak %sh{rg -l $1 | xargs echo} -e %sh{echo "'find $2'"}
-    evaluate-commands terminal kak %sh{rg -l $kak_reg_g | xargs echo} -e %sh{echo "'find $kak_reg_f'"}
-}
+#     # TODO: Handle extraction of values for either args, selections, or registers.
+#     # evaluate-commands terminal kak %sh{rg -l $1 | xargs echo} -e %sh{echo "'find $2'"}
+#     evaluate-commands terminal kak %sh{rg -l $kak_reg_g | xargs echo} -e %sh{echo "'find $kak_reg_f'"}
+# }
 
-define-command grep-in-grep -params 2 \
--docstring 'grep-in-grep <initial_search_term> <follow_up_search_term>: search in files returned by an initial grep command' \
-%{
-    # TODO: Temporarily set a new grep command to the following, then run the grep command
-    #       (Make the temp grep command includes arg1, then arg2 is passed in an `:eval grep $2`.)
-    # %sh{rg -l $1 | xargs rg --column $2}
+# define-command grep-in-grep -params 2 \
+# -docstring 'grep-in-grep <initial_search_term> <follow_up_search_term>: search in files returned by an initial grep command' \
+# %{
+#     # TODO: Temporarily set a new grep command to the following, then run the grep command
+#     #       (Make the temp grep command includes arg1, then arg2 is passed in an `:eval grep $2`.)
+#     # %sh{rg -l $1 | xargs rg --column $2}
 
-    # TODO: Handle extraction of values for either args, selections, or registers.
-}
+#     # TODO: Handle extraction of values for either args, selections, or registers.
+# }
 
 # system clipboard
 # ----------------
@@ -376,13 +370,21 @@ evaluate-commands %sh{
     kcr init kakoune
 }
 
+# -----------------------------------------------------------------------------
+# Experimental Scripts
+
+source "%val{config}/custom/kakscript.kak"
+
+# search user mode
+# ----------------
+
+source "%val{config}/custom/search.kak"
+map global user / ': enter-user-mode search<ret>' -docstring 'search mode'
+
 # Unix diff utility
 # -----------------
 
 source "%val{config}/custom/diff.kak"
-
-# -----------------------------------------------------------------------------
-# Experimental Scripts
 
 # repl/window function fixes for dwm + sakura
 # -------------------------------------------
@@ -394,6 +396,18 @@ source "%val{config}/custom/diff.kak"
 
 source "%val{config}/custom/comment-sections.kak"
 install-comment-mode-mappings
+map global user c ': enter-user-mode comment-mode<ret>' -docstring 'comment mode'
+
+# Depth-first grep searches
+# -------------------------
+
+source "%val{config}/custom/grep-stack.kak"
+
+# Quickly select & navigate filepaths
+# -----------------------------------
+source "%val{config}/custom/filepath.kak"
+filepath-enable-mappings
+map global selection f ': enter-user-mode -lock filepath<ret>j' -docstring 'select next filepath & lock filepath mode'
 
 # ------------------------------------------------------------------------------
 # Plugins
@@ -431,7 +445,7 @@ plug "andreyorst/smarttab.kak" defer smarttab %{
     set-option global softtabstop %opt{tabstop}
 } config %{
     # these languages will use `expandtab' behavior
-    hook global WinSetOption filetype=(rust|markdown|kak|lisp|scheme|sh|perl|javascript|python|yaml) expandtab
+    hook global WinSetOption filetype=(rust|markdown|kak|lisp|scheme|sh|perl|javascript|python|yaml|sql) expandtab
     # these languages will use `noexpandtab' behavior
     hook global WinSetOption filetype=(makefile|gas|go) noexpandtab
     # these languages will use `smarttab' behavior
@@ -448,11 +462,11 @@ plug "andreyorst/fzf.kak" config %{
     map global normal <c-p> ': fzf-mode<ret>'
 
     # open fzf file search when a new instance of Kakoune is first opened
-    hook -once global WinDisplay \*scratch\* %{
-        require-module fzf
-        require-module fzf-file
-        fzf-file
-    }
+    # hook -once global WinDisplay \*scratch\* %{
+    #     require-module fzf
+    #     require-module fzf-file
+    #     fzf-file
+    # }
 } defer "fzf-file" %{
     # Change file search command to fd
     # NOTE: You must first install fd for this to work
@@ -514,7 +528,10 @@ plug "jordan-yee/kakoune-plugin-quick-dev" config %{
 # NOTE: This provides commands used by mappings in the `kakoune-repl-mode`
 # config, as well as a custom `rep.kak` script, which requires `rep` to be
 # installed (see further below).
-plug "jordan-yee/kakoune-clojure"
+# load-path "~/gitub/jordan-yee/kakoune-clojure"
+plug "jordan-yee/kakoune-clojure" config %{
+    rep-register-default-mappings
+}
 
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-repl-mode` plugin
@@ -524,10 +541,12 @@ plug "jordan-yee/kakoune-clojure"
 plug "jordan-yee/kakoune-repl-mode" config %{
     require-module repl-mode
     map global user r ': enter-user-mode repl<ret>' -docstring "repl mode"
+    repl-mode-register-default-mappings
 
     declare-user-mode repl-commands
     map global repl-commands c ': clojure-repl-command<ret>' -docstring "Prompt for a REPL command to evaluate on the current selection"
     map global repl-commands l ': clojure-repl-command dlet<ret>' -docstring "dlet"
+    map global repl-commands t ': clojure-repl-command clojure.test/run-test<ret>' -docstring "run-test"
 
     declare-user-mode ns-repl-commands
     map global ns-repl-commands n ': clojure-namespace-repl-command<ret>' -docstring "Prompt for a REPL command to evaluate on the current namespace symbol"
@@ -537,6 +556,9 @@ plug "jordan-yee/kakoune-repl-mode" config %{
 
     hook global WinSetOption filetype=clojure %{
       set-option window repl_mode_new_repl_command 'lein repl'
+      complete-command -menu repl-mode-set-new-repl-command shell-script-candidates %{
+          printf '%s\n' 'lein repl :connect' 'lein repl'
+      }
 
       map window repl c ': enter-user-mode repl-commands<ret>' -docstring "REPL Commands"
       map window repl n ': enter-user-mode ns-repl-commands<ret>' -docstring "Namespace REPL Commands"

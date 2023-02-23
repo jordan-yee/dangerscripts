@@ -48,7 +48,7 @@ alias tma='tmux attach-session -t 0'
 
 # Add directories to PATH
 # This should probably be in .zshenv or .profile
-export PATH=$HOME/bin:$HOME/.local/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:/snap/bin:$PATH
 
 # Reduce delay in switching to normal mode with vi key bindings
 # 10ms for key sequences
@@ -82,89 +82,89 @@ zstyle ':completion:*:*:cdr:*:*' menu selection
 # http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html#Prompt-Expansion
 # 2-line prompt:
 # https://gist.github.com/romkatv/2a107ef9314f0d5f76563725b42f7cab
-function prompt-length() {
-    emulate -L zsh
-    local COLUMNS=${2:-$COLUMNS}
-    local -i x y=$#1 m
-    if (( y )); then
-        while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
-             x=y
-             (( y *= 2 ));
-        done
-        local xy
-        while (( y > x + 1 )); do
-            m=$(( x + (y - x) / 2 ))
-            typeset ${${(%):-$1%$m(l.x.y)}[-1]}=$m
-        done
-    fi
-    echo $x
-}
+# function prompt-length() {
+#     emulate -L zsh
+#     local COLUMNS=${2:-$COLUMNS}
+#     local -i x y=$#1 m
+#     if (( y )); then
+#         while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
+#              x=y
+#              (( y *= 2 ));
+#         done
+#         local xy
+#         while (( y > x + 1 )); do
+#             m=$(( x + (y - x) / 2 ))
+#             typeset ${${(%):-$1%$m(l.x.y)}[-1]}=$m
+#         done
+#     fi
+#     echo $x
+# }
 
-function fill-line() {
-    emulate -L zsh
-    local left_len=$(prompt-length $1)
-    local right_len=$(prompt-length $2 9999)
-    local pad_len=$((COLUMNS - left_len - right_len - ${ZLE_RPROMPT_INDENT:-1}))
-    if (( pad_len < 1 )); then
-        # Not enough space for the right part. Drop it.
-        echo -E - ${1}
-    else
-        local pad=${(pl.$pad_len.. .)}  # pad_len spaces
-        echo -E - ${1}${pad}${2}
-    fi
-}
+# function fill-line() {
+#     emulate -L zsh
+#     local left_len=$(prompt-length $1)
+#     local right_len=$(prompt-length $2 9999)
+#     local pad_len=$((COLUMNS - left_len - right_len - ${ZLE_RPROMPT_INDENT:-1}))
+#     if (( pad_len < 1 )); then
+#         # Not enough space for the right part. Drop it.
+#         echo -E - ${1}
+#     else
+#         local pad=${(pl.$pad_len.. .)}  # pad_len spaces
+#         echo -E - ${1}${pad}${2}
+#     fi
+# }
 
-function set-prompt() {
-    emulate -L zsh
+# function set-prompt() {
+#     emulate -L zsh
 
-    local top_left='%F{081}%~%f'
-    local top_right='%F{220}$vcs_info_msg_0_%f %* %B%(?.%F{082}%?%f.%F{196}%?%f)%b'
-    local bottom_left='%(!.->>.->) '
-    local bottom_right=''
+#     local top_left='%F{081}%~%f'
+#     local top_right='%F{220}$vcs_info_msg_0_%f %* %B%(?.%F{082}%?%f.%F{196}%?%f)%b'
+#     local bottom_left='%(!.->>.->) '
+#     local bottom_right=''
 
-    PS1="$(fill-line "$top_left" "$top_right")"$'\n'$bottom_left
-    RPS1=$bottom_right
-}
+#     PS1="$(fill-line "$top_left" "$top_right")"$'\n'$bottom_left
+#     RPS1=$bottom_right
+# }
 
-setopt noprompt{bang,subst} prompt{cr,percent,sp}
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd set-prompt
+# setopt noprompt{bang,subst} prompt{cr,percent,sp}
+# autoload -Uz add-zsh-hook
+# add-zsh-hook precmd set-prompt
+
+# -------------------------------------
+# Display vcs info in prompt
+
+# autoload -Uz vcs_info
+# precmd_vcs_info() { vcs_info }
+# precmd_functions+=( precmd_vcs_info )
+# setopt prompt_subst
+# zstyle ':vcs_info:git:*' formats '[%b]'
+# zstyle ':vcs_info:*' enable git
 
 # -------------------------------------
 # Change cursor based on mode (vi)
 
 # Change cursor shape for different vi modes
-function zle-keymap-select {
-  if [[ ${KEYMAP} == vicmd ]] ||
-     [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
+# function zle-keymap-select {
+#   if [[ ${KEYMAP} == vicmd ]] ||
+#      [[ $1 = 'block' ]]; then
+#     echo -ne '\e[1 q'
 
-  elif [[ ${KEYMAP} == main ]] ||
-       [[ ${KEYMAP} == viins ]] ||
-       [[ ${KEYMAP} = '' ]] ||
-       [[ $1 = 'beam' ]]; then
-    echo -ne '\e[5 q'
-  fi
-}
-zle -N zle-keymap-select
+#   elif [[ ${KEYMAP} == main ]] ||
+#        [[ ${KEYMAP} == viins ]] ||
+#        [[ ${KEYMAP} = '' ]] ||
+#        [[ $1 = 'beam' ]]; then
+#     echo -ne '\e[5 q'
+#   fi
+# }
+# zle -N zle-keymap-select
 
-# Use beam shape cursor on startup
-echo -ne '\e[5 q'
+# # Use beam shape cursor on startup
+# echo -ne '\e[5 q'
 
-# Use beam shape cursor for each new prompt
-preexec() {
-   echo -ne '\e[5 q'
-}
-
-# -------------------------------------
-# Display vcs info in prompt
-
-autoload -Uz vcs_info
-precmd_vcs_info() { vcs_info }
-precmd_functions+=( precmd_vcs_info )
-setopt prompt_subst
-zstyle ':vcs_info:git:*' formats '[%b]'
-zstyle ':vcs_info:*' enable git
+# # Use beam shape cursor for each new prompt
+# preexec() {
+#    echo -ne '\e[5 q'
+# }
 
 # -----------------------------------------------------------------------------
 # Git
