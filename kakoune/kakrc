@@ -33,11 +33,11 @@ set-option global tabstop 4
 # ----------------------------------
 
 # rebind <space>
-map global normal <space> , -docstring 'leader'
+# map global normal <space> , -docstring 'leader'
 
 # rebind <backspace> to replace the old function of <space>
-map global normal <backspace> <space> -docstring 'remove all sels except main'
-map global normal <a-backspace> <a-space> -docstring 'remove main sel'
+map global normal <backspace> , -docstring 'remove all sels except main'
+map global normal <a-backspace> <a-,> -docstring 'remove main sel'
 
 # extend view mappings
 # --------------------
@@ -296,42 +296,7 @@ hook global WinSetOption filetype=python %{
 #   SORTBY : path, modified, accessed, created, none
 # --word-regexp : only show matches surrounded by word boundaries
 
-    set-option global grepcmd 'rg --column --smart-case'
-
-# :evaluate-commands terminal kak %sh{rg -l <search_term> | xargs echo}
-# define-command -docstring %{Open a new kakoune instance that contains a buffer for each unique file from the grep search results.
-# This is intended to be used as a starting point for the :find plugin command.} \
-# grep-to-find -params 1 %{
-#     evaluate-commands terminal kak %sh{rg -l $1 | xargs echo}
-# }
-
-# define-command grep-and-find \
-# -docstring 'grep-and-find <grepterm> <findterm> : search for a pattern in all files return by a grep search
-# Opens a new kakoune instance with the results of `find <findterm>` for all files in the results of `grep <grepterm>`.' \
-# -params ..2 %{
-#     evaluate-commands %sh{
-#         eval set -- "$@"
-#         if [ "$#" -lt 2 ]; then
-#             echo "echo -debug 'less than 2 args given: $#'"
-#         else
-#             echo "echo -debug 'at least 2 args given: $#'"
-#         fi
-#     }
-
-#     # TODO: Handle extraction of values for either args, selections, or registers.
-#     # evaluate-commands terminal kak %sh{rg -l $1 | xargs echo} -e %sh{echo "'find $2'"}
-#     evaluate-commands terminal kak %sh{rg -l $kak_reg_g | xargs echo} -e %sh{echo "'find $kak_reg_f'"}
-# }
-
-# define-command grep-in-grep -params 2 \
-# -docstring 'grep-in-grep <initial_search_term> <follow_up_search_term>: search in files returned by an initial grep command' \
-# %{
-#     # TODO: Temporarily set a new grep command to the following, then run the grep command
-#     #       (Make the temp grep command includes arg1, then arg2 is passed in an `:eval grep $2`.)
-#     # %sh{rg -l $1 | xargs rg --column $2}
-
-#     # TODO: Handle extraction of values for either args, selections, or registers.
-# }
+set-option global grepcmd 'rg --column --smart-case'
 
 # system clipboard
 # ----------------
@@ -352,15 +317,9 @@ hook global RegisterModified '"' %{ nop %sh{
 # map global user P '!xsel --output --clipboard<ret>' -docstring 'Paste system clipboard before cursor'
 # map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'Paste system clipboard after cursor'
 map global user P -docstring 'Paste system clipboard before cursor' \
-"!powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n'<ret>"
+"!powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//'<ret>"
 map global user p -docstring 'Paste system clipboard after cursor' \
-"<a-!>powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n'<ret>"
-
-# paste from windows file
-# NOTE: I recommend opening this file in an editor in Windows that can auto-convert line endings,
-#       such as Notepad++. This is a hack aiming to provide a path between Windows and WSL.
-#map global user P '<a-!>cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (after)'
-#map global user p '!cat /mnt/c/Users/jyee_/clipboard.txt<ret>' -docstring 'paste from clipboard.txt (before)'
+"<a-!>powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//'<ret>"
 
 # kakoune.cr
 # ----------
@@ -704,7 +663,6 @@ plug "kak-lsp/kak-lsp" do %{
     #       you enable here. Server configuration: `~/.config/kak-lsp/kak-lsp.toml`
     # Clojure:
     #   - https://clojure-lsp.io/installation/#script
-    #   - NOTE: Installed using script method.
     hook global WinSetOption filetype=(clojure) %{
         map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
 
@@ -789,10 +747,7 @@ plug "eraserhd/parinfer-rust" do %{
 # https://github.com/eraserhd/rep
 
 # NOTE: You must first install the rep executable
-#       See https://github.com/eraserhd/rep/blob/develop/rc/rep.kak
 # NOTE: In order to install using `make`, you may need a2x.
-#           Ubuntu 20.04: `sudo apt install asciidoc-base`
-#       This will install the Kakoune plugin to `/usr/local/share/kak/autoload/plugins/`.
-#       I moved that to the below location in order to modify/extend it:
-# NOTE: This was moved to the new `kakoune-clojure` plugin, registered above:
-# source "%val{config}/custom/rep.kak"
+#       Ubuntu 20.04: `sudo apt install asciidoc-base`
+# NOTE: A customized version of the rep.kak script was moved to the new
+#       `kakoune-clojure` plugin, registered above.
