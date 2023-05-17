@@ -33,7 +33,8 @@ define-command -override filepath-enable-mappings \
 
 # Known Weaknesses:
 # - file paths with spaces, presumably surrounded by quotes
-declare-option regex filepath_regex "(\b|/)((\w|-)+/?)+(\.[a-z]+)*\b"
+declare-option regex filepath_regex
+set-option global filepath_regex "(\.|\b|/)((\w|-)+/?)+(\.[a-z]+)*\b"
 
 # --------------------------------------
 # Fail Conditions
