@@ -11,7 +11,7 @@ add-highlighter global/ wrap
 add-highlighter global/ show-matching
 
 # show trailing whitespace
-set-face global TrailingWhitespace default,rgb:F15050
+set-face global TrailingWhitespace default,rgb:586473 # rgb:F15050
 add-highlighter global/ regex '[ \h]+$' 0:TrailingWhitespace
 
 # show tab characters
@@ -368,6 +368,18 @@ source "%val{config}/custom/filepath.kak"
 filepath-enable-mappings
 map global selection f ': enter-user-mode -lock filepath<ret>j' -docstring 'select next filepath & lock filepath mode'
 
+# `kakoune-inc-dec` plugin
+# ------------------------
+# https://gitlab.com/Screwtapello/kakoune-inc-dec/
+# ```
+# cd ~/.config/kak/plugins
+# git clone https://gitlab.com/Screwtapello/kakoune-inc-dec.git
+# ```
+
+source "%val{config}/custom/kakoune-inc-dec/inc-dec.kak"
+map global normal <c-a> ': inc-dec-modify-numbers + 1<ret>'
+map global normal <c-x> ': inc-dec-modify-numbers - 1<ret>'
+
 # ------------------------------------------------------------------------------
 # Plugins
 
@@ -546,6 +558,7 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 #       https://github.com/alexherbo2/kakoune.cr
 
 plug "alexherbo2/auto-pairs.kak" config %{
+    set-option global auto_pairs '"' '"' "'" "'" ` `
     enable-auto-pairs
 }
 
@@ -660,11 +673,18 @@ plug "kak-lsp/kak-lsp" do %{
 
     # General LSP settings
     # NOTE: You must install the appropriate servers for whichever filetypes
-    #       you enable here. Server configuration: `~/.config/kak-lsp/kak-lsp.toml`
+    # you enable here. Server configuration: `~/.config/kak-lsp/kak-lsp.toml`
     # Clojure:
     #   - https://clojure-lsp.io/installation/#script
     hook global WinSetOption filetype=(clojure) %{
         map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
+        map window lsp "n" ": lsp-find-error --include-warnings<ret>" \
+        -docstring "find next diagnostic"
+        map window lsp "p" ": lsp-find-error --previous --include-warnings<ret>" \
+        -docstring "find previous diagnostic"
+
+        map global object e '<a-semicolon>lsp-object Function Variable<ret>' \
+        -docstring 'LSP Function or Variable (def expressions)'
 
         lsp-enable-window
         # Debugging kak-lsp (The following command should come after lsp-enable/-window):
@@ -674,6 +694,25 @@ plug "kak-lsp/kak-lsp" do %{
         set-option window lsp_hover_anchor true
         set-face window DiagnosticError default+u
         set-face window DiagnosticWarning default+u
+
+        # Markdown rendering in info box:
+        # https://github.com/kak-lsp/kak-lsp
+        # By default all of these faces use `Information`
+        # I updated some of them using faces from the mysticaltutor theme, so
+        # make sure that's installed/loaded first.
+        face global InfoDefault               Information
+        face global InfoBlock                 block
+        face global InfoBlockQuote            block
+        face global InfoBullet                bullet
+        face global InfoHeader                header
+        face global InfoLink                  link
+        face global InfoLinkMono              mono
+        face global InfoMono                  mono
+        face global InfoRule                  Information
+        face global InfoDiagnosticError       Error
+        face global InfoDiagnosticHint        Information
+        face global InfoDiagnosticInformation Information
+        face global InfoDiagnosticWarning     Information
     }
 
     # Python settings
@@ -722,10 +761,11 @@ plug "eraserhd/parinfer-rust" do %{
     cargo clean
 } config %{
     declare-user-mode parinfer
-    map global parinfer s ': parinfer-enable-window -smart<ret>' -docstring 'enable (smart)'
-    map global parinfer i ': parinfer-enable-window -indent<ret>' \
+    map global parinfer s ': parinfer-disable-window<ret>: parinfer-enable-window -smart<ret>' \
+    -docstring 'enable (smart)'
+    map global parinfer i ': parinfer-disable-window<ret>: parinfer-enable-window -indent<ret>' \
     -docstring 'enable (preserve indentation, fix parens)<ret>'
-    map global parinfer p ': parinfer-enable-window -paren<ret>' \
+    map global parinfer p ': parinfer-disable-window<ret>: parinfer-enable-window -paren<ret>' \
     -docstring 'enable (preserve parents, fix indentation)<ret>'
     map global parinfer d ': parinfer-disable-window<ret>' -docstring 'disable'
 
@@ -739,6 +779,7 @@ plug "eraserhd/parinfer-rust" do %{
         }
 
         map window user i ': enter-user-mode parinfer<ret>' -docstring 'parinfer mode'
+        map window normal u ': parinfer-disable-window<ret>u'
     }
 }
 
@@ -747,6 +788,7 @@ plug "eraserhd/parinfer-rust" do %{
 # https://github.com/eraserhd/rep
 
 # NOTE: You must first install the rep executable
+#       See https://github.com/eraserhd/rep/blob/develop/rc/rep.kak
 # NOTE: In order to install using `make`, you may need a2x.
 #       Ubuntu 20.04: `sudo apt install asciidoc-base`
 # NOTE: A customized version of the rep.kak script was moved to the new
