@@ -443,11 +443,11 @@ plug "andreyorst/fzf.kak" config %{
     # NOTE: You must first install fd for this to work
     #       fd binary is fdfind in apt package
     #       alias to fd doesn't work here
-    set-option global fzf_file_command 'fdfind --hidden --type f --exclude .git'
+    set-option global fzf_file_command 'fd --hidden --type f --exclude .git'
 
     set-option global fzf_highlight_command 'bat'
 } defer "fzf-cd" %{
-    set-option global fzf_cd_command 'fdfind --follow --hidden --type d --exclude .git'
+    set-option global fzf_cd_command 'fd --follow --hidden --type d --exclude .git'
 } defer "fzf-grep" %{
     # Change grep search command to rg
     # NOTE: Your must first install ripgrep for this to work
@@ -641,7 +641,10 @@ plug 'delapouite/kakoune-text-objects'
 # Configuration for the `kakoune-auto-percent` plugin
 # https://github.com/delapouite/kakoune-auto-percent
 
-plug 'delapouite/kakoune-auto-percent'
+plug 'delapouite/kakoune-auto-percent' config %{
+    unmap global normal (
+    unmap global normal )
+}
 
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-buffers` plugin
@@ -772,7 +775,7 @@ plug "eraserhd/parinfer-rust" do %{
     hook global WinSetOption filetype=(clojure|lisp|scheme|racket) %{
         evaluate-commands %sh{
             # special_files_regex='.*\(project\.clj\|profiles\.clj\)$'
-            special_files_regex='.*\(\(\(project\.clj\|profiles\.clj\|deps\.edn\)$\)\|cc-base\)'
+            special_files_regex='.*\(\(\(project\.clj\|profiles\.clj\|deps\.edn\|tests\.edn)$\)\|cc-base\)'
             if ! expr $kak_buffile : $special_files_regex 1>/dev/null; then
                 printf %s 'parinfer-enable-window -paren'
             fi
@@ -780,6 +783,7 @@ plug "eraserhd/parinfer-rust" do %{
 
         map window user i ': enter-user-mode parinfer<ret>' -docstring 'parinfer mode'
         map window normal u ': parinfer-disable-window<ret>u'
+        map window normal U ': parinfer-disable-window<ret>U'
     }
 }
 
@@ -788,7 +792,6 @@ plug "eraserhd/parinfer-rust" do %{
 # https://github.com/eraserhd/rep
 
 # NOTE: You must first install the rep executable
-#       See https://github.com/eraserhd/rep/blob/develop/rc/rep.kak
 # NOTE: In order to install using `make`, you may need a2x.
 #       Ubuntu 20.04: `sudo apt install asciidoc-base`
 # NOTE: A customized version of the rep.kak script was moved to the new

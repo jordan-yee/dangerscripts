@@ -253,25 +253,20 @@ export BROWSER=/usr/bin/wslview
 
 alias open=explorer.exe
 
+# wsl-notify-send
+# https://github.com/stuartleeks/wsl-notify-send
+notify-send() { wsl-notify-send.exe --category $WSL_DISTRO_NAME "${@}"; }
+
 # -----------------------------------------------------------------------------
 # fzf (fuzzy finder) configuration
 
-# This sets up fzf key bindings after installing with apt on Ubuntu 20.04,
-# and therefore may not work for a different system's installation.
-# See /usr/share/doc/fzf/README.Debian when fzf is installed w/ apt.
-source /usr/share/doc/fzf/examples/completion.zsh
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-
-# (See https://github.com/sharkdp/fd)
-#   Ubuntu 20.04: sudo apt install fd-find
-# The fd binary is named fdfind for Debian installs to prevent a naming
-# conflict. Use this alias to if you don't have an existing fd command.
-# NOTE: You may still have to use fdfind in scripts (e.g. fzf config below).
-alias fd=fdfind
+# This sets up fzf key bindings and completion for zshell:
+source /home/jordan/github/junegunn/fzf/shell/completion.zsh
+source /home/jordan/github/junegunn/fzf/shell/key-bindings.zsh
 
 # Commands to use for key bindings
-export FZF_ALT_C_COMMAND='fdfind --hidden --type d'
-export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --exclude .git'
+export FZF_ALT_C_COMMAND='fd --hidden --type d'
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 # Commands to use for fuzzy completion (**<tab>)
@@ -317,7 +312,9 @@ eval "$(pyenv virtualenv-init -)"
 # direnv
 # NOTE: This section should be placed toward the end of the shell config file.
 
-eval "$(direnv hook zsh)"
+# NOTE: This must come after the nix script is executed if you installed direnv
+# via nix.
+# eval "$(direnv hook zsh)"
 
 # -----------------------------------------------------------------------------
 # Starship prompt

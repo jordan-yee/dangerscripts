@@ -28,7 +28,7 @@ define-command -override -hidden insert-section-comment -params 2 \
         prefix_length=`expr $comment_line_length + 1`
         delimiter_length=`expr $WIDTH - $prefix_length`
 
-        keys_to_execute="O<esc>\"\"cP<esc>i <esc>$delimiter_length\"\"dP<esc>i<ret><esc>\"\"cP<esc>i $SECTION_NAME<ret><esc>l"
+        keys_to_execute="O<esc>\"\"cPa <esc>$delimiter_length\"\"dpo<esc>\"\"cPa $SECTION_NAME<ret><esc>ll"
         printf "%s\n" "execute-keys \"$keys_to_execute\""
     }
 }
@@ -52,7 +52,7 @@ define-command -override  secondary-section-comment \
 define-command -override install-comment-mode-mappings \
 -docstring "declare `comment-mode` user-mode & register default mappings" \
 %{
-    declare-user-mode comment-mode
+    try %{ declare-user-mode comment-mode }
     map global comment-mode p ': primary-section-comment<ret>' -docstring 'Add a primary section comment above the current line'
     map global comment-mode s ': secondary-section-comment<ret>' -docstring 'Add a secondary section comment above the current line'
     map global comment-mode l ': comment-line<ret>' -docstring '(un)comment selected lines using line comments'

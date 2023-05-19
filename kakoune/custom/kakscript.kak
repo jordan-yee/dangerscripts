@@ -28,7 +28,7 @@ define-command -override -hidden -params 1 kak-reverse-search \
 
 define-command -override -hidden kak-clear-secondary-selections \
 -docstring 'clear selections to only keep the main one' %{
-    execute-keys <space>
+    execute-keys ,
 }
 
 define-command -override -hidden kak-save-selections \
