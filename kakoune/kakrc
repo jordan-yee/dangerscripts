@@ -127,8 +127,8 @@ hook global ModeChange .*:insert:.* %{
 hook global ModeChange .*:insert %{
     # NOTE: This fg color is from Mysticaltutor.
     # TODO: Set fg color to match the current one (the one given by the current theme.)
-    set-face window PrimaryCursor rgb:1E2227,rgba:65f150ee
-    set-face window PrimaryCursorEol rgb:1E2227,rgba:65f150aa
+    set-face window PrimaryCursor rgb:1E2227,rgba:89f279ee
+    set-face window PrimaryCursorEol rgb:1E2227,rgba:89f279aa
 }
 
 # delete trailing whitespace on save
@@ -162,11 +162,7 @@ hook global BufCreate .*\.(mdx) %{
 # -------------------------------------
 # Linting & Formatting
 
-# user modes can only be declared once, so these declarations are separated
-# from their mappings, which are bound to window scope in filetype hooks.
 declare-user-mode lint-mode
-declare-user-mode format-mode
-
 define-command -hidden enable-lint-mode-mappings \
 -docstring "Create window-scoped mappings for lint commands" %{
     map window lint-mode b ': lint-buffer<ret>' -docstring "lint buffer"
@@ -181,6 +177,7 @@ define-command -hidden enable-lint-mode-mappings \
     map window user t ': enter-user-mode lint-mode<ret>' -docstring "lint mode"
 }
 
+declare-user-mode format-mode
 define-command -hidden enable-format-mode-mappings \
 -docstring "Create window-scoped mappings for format commands" %{
     map window format-mode = ': format-buffer<ret>' -docstring 'format buffer'
@@ -368,18 +365,6 @@ source "%val{config}/custom/filepath.kak"
 filepath-enable-mappings
 map global selection f ': enter-user-mode -lock filepath<ret>j' -docstring 'select next filepath & lock filepath mode'
 
-# `kakoune-inc-dec` plugin
-# ------------------------
-# https://gitlab.com/Screwtapello/kakoune-inc-dec/
-# ```
-# cd ~/.config/kak/plugins
-# git clone https://gitlab.com/Screwtapello/kakoune-inc-dec.git
-# ```
-
-source "%val{config}/custom/kakoune-inc-dec/inc-dec.kak"
-map global normal <c-a> ': inc-dec-modify-numbers + 1<ret>'
-map global normal <c-x> ': inc-dec-modify-numbers - 1<ret>'
-
 # ------------------------------------------------------------------------------
 # Plugins
 
@@ -558,7 +543,8 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 #       https://github.com/alexherbo2/kakoune.cr
 
 plug "alexherbo2/auto-pairs.kak" config %{
-    set-option global auto_pairs '"' '"' "'" "'" ` `
+    # TODO: only use this reduced subset for clojure/lisps
+    set-option global auto_pairs '"' '"' ` `
     enable-auto-pairs
 }
 
@@ -566,16 +552,18 @@ plug "alexherbo2/auto-pairs.kak" config %{
 # Configuration for the `kakoune-surround` plugin
 # https://github.com/h-youhei/kakoune-surround
 
-plug "h-youhei/kakoune-surround" config %{
-    declare-user-mode surround
+# NOTE: Switching to kakoune-mirror instead
+# plug "h-youhei/kakoune-surround" config %{
+#     declare-user-mode surround
 
-    map global surround s ':surround<ret>' -docstring 'surround'
-    map global surround c ':change-surround<ret>' -docstring 'change'
-    map global surround d ':delete-surround<ret>' -docstring 'delete'
-    map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
+#     map global surround s ':surround<ret>' -docstring 'surround'
+#     # TODO: Fix change-surround
+#     map global surround c ':change-surround<ret>' -docstring 'change'
+#     map global surround d ':delete-surround<ret>' -docstring 'delete'
+#     map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
 
-    map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
-}
+#     map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
+# }
 
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-find` plugin
@@ -588,9 +576,23 @@ plug "occivink/kakoune-find"
 # https://github.com/occivink/kakoune-phantom-selection
 
 plug 'occivink/kakoune-phantom-selection' config %{
-    map global user f ": phantom-selection-iterate-next<ret>" -docstring "Phantom selection next"
-    map global user <a-f> ": phantom-selection-iterate-prev<ret>" -docstring "Phantom selection prev"
-    map global user F ": phantom-selection-select-all; phantom-selection-clear<ret>" -docstring "Clear phantom selection"
+    define-command phantom-selection-activate %{
+        phantom-selection-add-selection
+        map window normal ( ": phantom-selection-iterate-prev<ret>"
+        map window normal ) ": phantom-selection-iterate-next<ret>"
+    }
+
+    define-command phantom-selection-stop %{
+        phantom-selection-select-all
+        phantom-selection-clear
+        unmap window normal (
+        unmap window normal )
+    }
+
+    map global user f ": phantom-selection-activate<ret>" \
+    -docstring "Start phantom selection"
+    map global user F ": phantom-selection-stop<ret>" \
+    -docstring "Stop phantom selection"
 }
 
 # ------------------------------------------------------------------------------
@@ -620,13 +622,12 @@ plug 'occivink/kakoune-sort-selections' config %{
 # https://github.com/occivink/kakoune-expand
 
 plug 'occivink/kakoune-expand' config %{
-    # 'x' avoids conflict with the rep mapping
-    map -docstring "expand" global user x ': expand<ret>'
+    map -docstring "expand" global normal <c-x> ': expand<ret>'
 
     # 'lock' mapping where pressing <space> repeatedly will expand the selection
     declare-user-mode expand
     map -docstring "expand" global expand <space> ': expand<ret>'
-    map -docstring "expand ↻" global user X       ': expand; enter-user-mode -lock expand<ret>'
+    map -docstring "expand ↻" global user x       ': expand; enter-user-mode -lock expand<ret>'
 }
 
 # ------------------------------------------------------------------------------
@@ -657,8 +658,28 @@ plug "delapouite/kakoune-buffers" config %{
 }
 
 # ------------------------------------------------------------------------------
+# Configuration for the `kakoune-mirror` plugin
+# https://github.com/delapouite/kakoune-mirror
+
+plug 'delapouite/kakoune-mirror' config %{
+    map global normal "'" ': enter-user-mode -lock mirror<ret>'
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-inc-dec` plugin
+# https://gitlab.com/Screwtapello/kakoune-inc-dec/
+
+try %{ source "%val{config}/plugins/kakoune-inc-dec/inc-dec.kak"
+} catch %{ echo -debug "Failed to load `kakoune-inc-dec` plugin: not yet installed" }
+plug "https://gitlab.com/Screwtapello/kakoune-inc-dec/" noload config %{
+    map global normal <c-a> ': inc-dec-modify-numbers + 1<ret>'
+    map global normal <c-a-a> ': inc-dec-modify-numbers - 1<ret>'
+}
+
+# ------------------------------------------------------------------------------
 # Configuration for the `kak-lsp` plugin
 # https://github.com/kak-lsp/kak-lsp
+# https://github.com/kak-lsp/kak-lsp/releases
 
 # NOTE: You must first install rust for this to work:
 #       https://www.rust-lang.org/learn/get-started
