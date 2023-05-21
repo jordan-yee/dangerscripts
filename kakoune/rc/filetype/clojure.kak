@@ -195,7 +195,7 @@ define-command -hidden clojure-trim-indent lisp-trim-indent
 declare-option \
     -docstring 'regex matching the head of forms which have options *and* indented bodies' \
     regex clojure_special_indent_forms \
-    '(?:def.*|doseq|for|fn\*?|if(-.*|)|let.*|loop|ns|testing|with-.*|when(-.*|)|comment|try|catch)'
+    '(?:def.*|doseq|for|fn\*?|if(-.*|)|let.*|loop|ns|testing|with-.*|when(-.*|)|comment|try|catch|case|cond)'
 
 define-command -hidden clojure-indent-on-new-line %{
     # registers: i = best align point so far; w = start of first word of form
