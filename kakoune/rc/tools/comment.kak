@@ -1,3 +1,5 @@
+# Modified by Jordan Yee
+
 # Line comments
 # If the language has no line comments, set to ''
 declare-option -docstring "characters inserted at the beginning of a commented line" \
