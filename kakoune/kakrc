@@ -528,6 +528,12 @@ plug "jordan-yee/kakoune-repl-mode" config %{
 }
 
 # ------------------------------------------------------------------------------
+# Configuration for the `kakoune-chtsh` plugin
+# https://github.com/jordan-yee/kakoune-chtsh
+
+plug "jordan-yee/kakoune-chtsh"
+
+# ------------------------------------------------------------------------------
 # Configuration for the `case.kak` plugin
 # https://gitlab.com/FlyingWombat/case.kak
 
@@ -807,6 +813,13 @@ plug "eraserhd/parinfer-rust" do %{
         map window normal U ': parinfer-disable-window<ret>U'
     }
 }
+
+
+# ------------------------------------------------------------------------------
+# Configuration for the `eraserhd/kak-ansi` plugin
+# https://github.com/eraserhd/kak-ansi
+
+plug "eraserhd/kak-ansi"
 
 # ------------------------------------------------------------------------------
 # Configuration for the `eraserhd/rep` plugin
