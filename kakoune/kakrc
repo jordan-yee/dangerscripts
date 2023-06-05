@@ -26,6 +26,12 @@ set-option global indentwidth 4
 # width of a tab character
 set-option global tabstop 4
 
+# set background color of autowrap_column
+set-option global autowrap_column 80
+# use a slightly brightened version of the color scheme default (rgb:1E2227):
+# https://github.com/caksoylar/kakoune-mysticaltutor
+add-highlighter global/ column '%opt{autowrap_column}' default,rgb:2C323A
+
 # ------------------------------------------------------------------------------
 # Mappings
 
@@ -326,8 +332,8 @@ evaluate-commands %sh{
     kcr init kakoune
 }
 
-# -----------------------------------------------------------------------------
-# Experimental Scripts
+# ------------------------------------------------------------------------------
+# Custom / Experimental Scripts
 
 source "%val{config}/custom/kakscript.kak"
 
@@ -361,9 +367,15 @@ source "%val{config}/custom/grep-stack.kak"
 
 # Quickly select & navigate filepaths
 # -----------------------------------
+
 source "%val{config}/custom/filepath.kak"
 filepath-enable-mappings
 map global selection f ': enter-user-mode -lock filepath<ret>j' -docstring 'select next filepath & lock filepath mode'
+
+# --------------------------------------
+# Wrap text to within autowrap_column
+
+source "%val{config}/custom/wrap-mode.kak"
 
 # ------------------------------------------------------------------------------
 # Plugins
@@ -466,6 +478,7 @@ plug "jordan-yee/kakoune-git-mode" config %{
     set-option global git_mode_use_structured_quick_commit true
     declare-git-mode
     map global user g ': enter-user-mode git<ret>' -docstring "git mode"
+    map global git o ': tmux-terminal-window lazygit<ret>' -docstring "open lazygit in new window"
 }
 
 # ------------------------------------------------------------------------------
@@ -474,7 +487,9 @@ plug "jordan-yee/kakoune-git-mode" config %{
 
 # load-path "/home/jordan/github/jordan-yee/kakoune-plugin-quick-dev/"
 plug "jordan-yee/kakoune-plugin-quick-dev" config %{
+  quick-dev-mode-init
   quick-dev-register-default-mappings
+  map global user q ': enter-user-mode quick-dev<ret>' -docstring 'quick-dev mode'
 }
 
 # ------------------------------------------------------------------------------
@@ -549,8 +564,7 @@ plug "https://gitlab.com/FlyingWombat/case.kak" config %{
 #       https://github.com/alexherbo2/kakoune.cr
 
 plug "alexherbo2/auto-pairs.kak" config %{
-    # TODO: only use this reduced subset for clojure/lisps
-    set-option global auto_pairs '"' '"' ` `
+    set-option global auto_pairs { }
     enable-auto-pairs
 }
 
