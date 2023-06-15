@@ -265,6 +265,7 @@ source /home/jordan/github/junegunn/fzf/shell/completion.zsh
 source /home/jordan/github/junegunn/fzf/shell/key-bindings.zsh
 
 # Commands to use for key bindings
+export FZF_COMPLETION_TRIGGER='~~'
 export FZF_ALT_C_COMMAND='fd --hidden --type d'
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
