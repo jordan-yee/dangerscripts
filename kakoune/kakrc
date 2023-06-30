@@ -51,6 +51,10 @@ map global normal <a-backspace> <a-,> -docstring 'remove main sel'
 map global view K t -docstring 'cursor on top'
 map global view J b -docstring 'cursor on bottom'
 
+# TODO: restore search register after executing these mappings
+map global normal <c-a-k> 'Z<a-/>^\n<ret>vtz' -docstring 'previous empty line on top'
+map global normal <c-a-d> 'Z/^\n<ret>vbz' -docstring 'next empty line on bottom'
+
 # clear current line
 # ------------------
 
@@ -72,11 +76,11 @@ map global normal <a-Q> <a-B>
 # selection helpers
 # -----------------
 
-map global user Z <a-Z>a -docstring 'Add selection to selections register'
+map global user z <a-Z>a -docstring 'Add selection to selections register'
 
 declare-user-mode selection
 map global selection d ': diff-selections<ret>' -docstring 'Diff the selections and display the result in a new buffer'
-map global user z ': enter-user-mode selection<ret>' -docstring 'selection mode'
+map global user s ': enter-user-mode selection<ret>' -docstring 'selection mode'
 
 # ------------------------------------------------------------------------------
 # Hooks
@@ -342,6 +346,10 @@ source "%val{config}/custom/kakscript.kak"
 
 source "%val{config}/custom/search.kak"
 map global user / ': enter-user-mode search<ret>' -docstring 'search mode'
+map global search j ':set global jumpclient %val{client}<ret>' -docstring 'set current client as jumpclient'
+map global search J ":unset global jumpclient" -docstring 'clear jumpclient'
+map global search t ':set global toolsclient %val{client}<ret>' -docstring 'set current client as toolsclient'
+map global search T ":unset global toolsclient" -docstring 'clear toolsclient'
 
 # Unix diff utility
 # -----------------
@@ -641,14 +649,16 @@ plug 'occivink/kakoune-sort-selections' config %{
 # Configuration for the `kakoune-expand` plugin
 # https://github.com/occivink/kakoune-expand
 
-plug 'occivink/kakoune-expand' config %{
-    map -docstring "expand" global normal <c-x> ': expand<ret>'
+# NOTE: This is not working in a clj file, and I don't really use it, so
+# disabling for now. I'll probably remove it at some point later.
+# plug 'occivink/kakoune-expand' config %{
+#     map -docstring "expand" global normal <c-x> ': expand<ret>'
 
-    # 'lock' mapping where pressing <space> repeatedly will expand the selection
-    declare-user-mode expand
-    map -docstring "expand" global expand <space> ': expand<ret>'
-    map -docstring "expand ↻" global user x       ': expand; enter-user-mode -lock expand<ret>'
-}
+#     # 'lock' mapping where pressing <space> repeatedly will expand the selection
+#     declare-user-mode expand
+#     map -docstring "expand" global expand <space> ': expand<ret>'
+#     map -docstring "expand ↻" global user x       ': expand; enter-user-mode -lock expand<ret>'
+# }
 
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-text-objects` plugin
@@ -694,6 +704,20 @@ try %{ source "%val{config}/plugins/kakoune-inc-dec/inc-dec.kak"
 plug "https://gitlab.com/Screwtapello/kakoune-inc-dec/" noload config %{
     map global normal <c-a> ': inc-dec-modify-numbers + 1<ret>'
     map global normal <c-a-a> ': inc-dec-modify-numbers - 1<ret>'
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kak-rainbow` plugin
+# https://github.com/Bodhizafa/kak-rainbow
+
+plug 'Bodhizafa/kak-rainbow' config %{
+    # [Partial Pallette](https://coolors.co/81f3e6-997ef1-ea4348-66d421-5c7aff)
+    #                                rgb:FFFFFF+b cyan       green      blue       purple     red        orange     yellow
+    set-option global rainbow_colors rgb:FFFFFF+b rgb:81F3E6 rgb:66D421 rgb:5C7AFF rgb:997EF1 rgb:EA4348 rgb:FF870F rgb:FCD569
+
+    hook global WinSetOption filetype=(scheme|lisp|clojure) %{
+        rainbow-enable-window
+    }
 }
 
 # ------------------------------------------------------------------------------
