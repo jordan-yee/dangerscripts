@@ -6,6 +6,11 @@ add-highlighter global/ number-lines -relative -hlcursor -min-digits 3
 
 # soft-wrap lines to always be visible within the terminal
 add-highlighter global/ wrap
+declare-user-mode highlighters
+# WARNING: This is currently overriden by the custom (hug)sql script
+map global user h ': enter-user-mode highlighters<ret>' -docstring 'toggle soft-wrap highlighter'
+map global highlighters w ': rmhl global/wrap<ret>' -docstring "don't soft-wrap"
+map global highlighters W ': addhl -override global/ wrap<ret>' -docstring 'do soft-wrap'
 
 # show matching brackets
 add-highlighter global/ show-matching
@@ -196,7 +201,7 @@ define-command -hidden enable-format-mode-mappings \
 
     # Bound to = insead of f to avoid collision with phanton-selections user
     # mode mapping, and to match Vim's format binding.
-map window user = ': enter-user-mode format-mode<ret>' -docstring "format mode"
+    map window user = ': enter-user-mode format-mode<ret>' -docstring "format mode"
 }
 
 define-command -hidden set-format-with-prettier \
@@ -380,10 +385,31 @@ source "%val{config}/custom/filepath.kak"
 filepath-enable-mappings
 map global selection f ': enter-user-mode -lock filepath<ret>j' -docstring 'select next filepath & lock filepath mode'
 
-# --------------------------------------
 # Wrap text to within autowrap_column
+# -----------------------------------
 
 source "%val{config}/custom/wrap-mode.kak"
+
+# open instance of br on the left
+# -------------------------------
+
+define-command -override open-br \
+-docstring 'Open an instance of br file browser on the left.' %{
+    nop %sh{ zsh -c 'tmux split-window -hbf -l 80; tmux send-keys br C-m' }
+    echo 'Opening br...'
+}
+
+alias global br open-br
+
+# expand tmux pane width to fit buffer contents
+# ---------------------------------------------
+
+source "%val{config}/custom/auto-window-resize.kak"
+
+# (Hug)SQL helper commands
+# ------------------------
+
+source "%val{config}/custom/sql.kak"
 
 # ------------------------------------------------------------------------------
 # Plugins
@@ -755,9 +781,20 @@ plug "kak-lsp/kak-lsp" do %{
         -docstring 'LSP Function or Variable (def expressions)'
 
         lsp-enable-window
-        # Debugging kak-lsp (The following command should come after lsp-enable/-window):
+        # Debugging kak-lsp:
+        #
+        # View debug info in a dedicated terminal:
+        # 1. Run kak-lsp in another terminal (up to 4 v's):
+        #    `kak-lsp -s main -vvv`
+        # 2. Start kakoune with:
+        #    `kak -s main`
+        # 3. Disable the exit hook (bottom of this config block) if you want.
+        #
+        # Save debug info to a log file:
+        # 1. Enable the following command to enable logging:
         # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
-        # With the above command enabled, run `kak-lsp -s main` in another terminal
+        #    - This should come after `lsp-enable-window`
+        #    - Default lsp_cmd: `kak-lsp -s %val{session}`
 
         set-option window lsp_hover_anchor true
         set-face window DiagnosticError default+u
@@ -840,15 +877,21 @@ plug "eraserhd/parinfer-rust" do %{
     hook global WinSetOption filetype=(clojure|lisp|scheme|racket) %{
         evaluate-commands %sh{
             # special_files_regex='.*\(project\.clj\|profiles\.clj\)$'
-            special_files_regex='.*\(\(\(project\.clj\|profiles\.clj\|deps\.edn\|tests\.edn)$\)\|cc-base\)'
+            special_files_regex='.*\(project\.clj\|profiles\.clj\|deps\.edn\|tests\.edn)$'
+            # if the file DOES NOT match one of the special files, enable parinfer
             if ! expr $kak_buffile : $special_files_regex 1>/dev/null; then
+                # printf '%s\n' 'echo -debug "enabling parinfer for window"'
                 printf %s 'parinfer-enable-window -paren'
+            # if the file DOES match one of the special files, disable parinfer
+            else
+                # printf '%s\n' 'echo -debug "disabling parinfer for window"'
+                printf %s 'try %{ parinfer-disable-window }'
             fi
         }
 
         map window user i ': enter-user-mode parinfer<ret>' -docstring 'parinfer mode'
-        map window normal u ': parinfer-disable-window<ret>u'
-        map window normal U ': parinfer-disable-window<ret>U'
+        map window normal u ': try %{ parinfer-disable-window }<ret>u'
+        map window normal U ': try %{ parinfer-disable-window }<ret>U'
     }
 }
 
