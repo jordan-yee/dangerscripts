@@ -169,6 +169,8 @@ zstyle ':completion:*:*:cdr:*:*' menu selection
 # -----------------------------------------------------------------------------
 # Git
 
+alias lg='lazygit'
+
 alias gsa='git status'
 alias ga='git add'
 alias gc='git commit'
