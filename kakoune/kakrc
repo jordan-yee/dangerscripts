@@ -20,7 +20,7 @@ set-face global TrailingWhitespace default,rgb:586473 # rgb:F15050
 add-highlighter global/ regex '[ \h]+$' 0:TrailingWhitespace
 
 # show tab characters
-add-highlighter global/ show-whitespaces -lf ' ' -spc ' ' -nbsp ' ' -tabpad '-'
+add-highlighter global/ show-whitespaces -lf ' ' -spc ' ' -nbsp ' ' -tabpad '-' -indent ''
 
 # highlight special comment words
 add-highlighter global/ regex \b(TODO|FIXME|XXX|NOTE)\b 0:default+rb
@@ -36,6 +36,9 @@ set-option global autowrap_column 80
 # use a slightly brightened version of the color scheme default (rgb:1E2227):
 # https://github.com/caksoylar/kakoune-mysticaltutor
 add-highlighter global/ column '%opt{autowrap_column}' default,rgb:2C323A
+
+# default placement for new/terminal command
+set-option global windowing_placement 'horizontal'
 
 # ------------------------------------------------------------------------------
 # Mappings
@@ -56,9 +59,14 @@ map global normal <a-backspace> <a-,> -docstring 'remove main sel'
 map global view K t -docstring 'cursor on top'
 map global view J b -docstring 'cursor on bottom'
 
-# TODO: restore search register after executing these mappings
-map global normal <c-a-k> 'Z<a-/>^\n<ret>vtz' -docstring 'previous empty line on top'
-map global normal <c-a-d> 'Z/^\n<ret>vbz' -docstring 'next empty line on bottom'
+define-command prev-empty-line-to-top %{
+    execute-keys -save-regs '/' 'Z<a-/>^\n<ret>vtz'
+}
+define-command next-empty-line-to-bottom %{
+    execute-keys -save-regs '/' 'Z/^\n<ret>vbz'
+}
+map global normal <c-a-k> ':prev-empty-line-to-top<ret>' -docstring 'previous empty line on top'
+map global normal <c-a-d> ':next-empty-line-to-bottom<ret>' -docstring 'next empty line on bottom'
 
 # clear current line
 # ------------------
@@ -215,7 +223,9 @@ define-command -hidden set-format-with-prettier \
     enable-format-mode-mappings
 }
 
-hook global WinSetOption filetype=clojure %{
+# hook groups starting with clojure- are all removed when leaving the filetype
+# by kakoune's included clojure filetype script
+hook global WinSetOption filetype=clojure -group clojure-fmt %{
     set-option window tabstop 2
     set-option window indentwidth 2
 
@@ -228,6 +238,8 @@ hook global WinSetOption filetype=clojure %{
 
     # Create lint-mode mappings for the window
     enable-lint-mode-mappings
+
+    map global goto D "<esc>: lsp-declaration<ret>" -docstring 'go to declaration'
 
     # NOTE: This option requires kak-lsp to be set up for Clojure.
     hook buffer BufWritePre .* lsp-formatting-sync
@@ -425,8 +437,73 @@ plug "andreyorst/plug.kak" noload
 # Configuration for the `powerline.kak` plugin
 # https://github.com/andreyorst/powerline.kak
 
+# NOTE: Powerline module definition (requires the powerline plugin)
+hook global ModuleLoaded powerline %{ require-module powerline_parinfer }
+provide-module powerline_parinfer %{
+    # NOTE: Here I'm relying on the option: `parinfer_current_mode_modeline`
+    # This is managed by manual changes to the parinfer rc script, which only
+    # exist local at the time of writing this comment.
+
+    declare-option -hidden bool powerline_module_parinfer true
+    set-option -add global powerline_modules 'parinfer'
+
+    define-command -hidden powerline-parinfer %{
+        evaluate-commands %sh{
+            default=$kak_opt_powerline_base_bg
+            next_bg=$kak_opt_powerline_next_bg
+            normal=$kak_opt_powerline_separator
+            thin=$kak_opt_powerline_separator_thin
+            if [ "$kak_opt_powerline_module_parinfer" = "true" ]; then
+                fg=$kak_opt_powerline_color10
+                bg=$kak_opt_powerline_color11
+                if [ ! -z "$kak_opt_parinfer_current_mode" ]; then
+                    [ "$next_bg" = "$bg" ] && separator="{$fg,$bg}$thin" || separator="{$bg,${next_bg:-$default}@powerline_base}$normal"
+                    echo "set-option -add global powerlinefmt %{$separator{$fg,$bg} %opt{powerline_parinfer_current_mode} }"
+                    echo "set-option global powerline_next_bg $bg"
+                fi
+            fi
+        }
+    }
+
+    declare-option -hidden str powerline_parinfer_current_mode
+    define-command -hidden powerline-update-parinfer-current-mode %{
+        set-option buffer powerline_parinfer_current_mode %sh{
+            current_mode=$kak_opt_parinfer_current_mode_modeline
+            enabled=$kak_opt_parinfer_enabled
+            if [ -z "$current_mode" ] || [ "$enabled" = "false" ]; then
+                current_mode="off"
+            fi
+            printf "%s\n" "(${current_mode})"
+        }
+    }
+
+    define-command -hidden powerline-parinfer-setup-hooks %{
+        remove-hooks global powerline-parinfer
+        evaluate-commands %sh{
+            if [ "$kak_opt_powerline_module_parinfer" = "true" ]; then
+                printf "%s\n" "hook -group powerline-parinfer global WinDisplay .* %{ powerline-update-parinfer-current-mode }"
+                printf "%s\n" "hook -group powerline-parinfer global WinSetOption parinfer_current_mode_modeline=.* %{ powerline-update-parinfer-current-mode }"
+                # somewhat works
+                # printf "%s\n" "hook -group powerline-parinfer global ModeChange .* %{ powerline-update-parinfer-current-mode }"
+            fi
+        }
+    }
+
+    define-command -hidden powerline-toggle-parinfer -params ..1 %{
+        evaluate-commands %sh{
+            [ "$kak_opt_powerline_module_parinfer" = "true" ] && value=false || value=true
+            if [ -n "$1" ]; then
+                [ "$1" = "on" ] && value=true || value=false
+            fi
+            echo "set-option global powerline_module_parinfer $value"
+        }
+    }
+}
+
 plug "andreyorst/powerline.kak" defer powerline %{
     set-option global powerline_ignore_warnings true
+    # default: powerline-format global 'git bufname line_column mode_info filetype client session position'
+    powerline-format global 'git bufname line_column mode_info filetype parinfer client session position'
     powerline-separator global none
 } defer powerline_bufname %{
     set-option global powerline_shorten_bufname short
@@ -485,6 +562,46 @@ plug "andreyorst/fzf.kak" config %{
     #       See https://github.com/BurntSushi/ripgrep#installation
     set-option global fzf_grep_command 'rg'
 }
+
+# ------------------------------------------------------------------------------
+# Configuration for the `mru-files` plugin
+# https://gitlab.com/kstr0k/mru-files.kak
+
+plug 'https://gitlab.com/kstr0k/mru-files.kak.git' %{
+    # optional customization: set these *before* plugin loads
+    #set global mru_files_history %sh{echo "$HOME/.local/share/kak/mru.txt"}
+} demand mru-files %{  # %{} needed even if empty
+    # suggested mappings: *after* plugin loads
+    # think "go alt[ernate]-f[iles]"
+    map global goto <a-f> '<esc>: mru-files ' -docstring 'mru-files'
+    map global goto <a-F> '<esc>: mru-files-related<ret>' -docstring 'mru-files-related'
+}
+# optional: enable kakhist (see kakhist/README.md)
+
+# ------------------------------------------------------------------------------
+# Configuration for the `luar` plugin
+# https://github.com/gustavo-hms/luar
+
+# plug "gustavo-hms/luar"
+
+# ------------------------------------------------------------------------------
+# Configuration for the `peneira` plugin
+# https://github.com/gustavo-hms/peneira
+
+# plug "gustavo-hms/peneira" demand luar %{
+#     require-module peneira
+# }
+
+# ------------------------------------------------------------------------------
+# Configuration for the `peneira-filters` plugin
+# https://codeberg.org/mbauhardt/peneira-filters
+
+# plug "https://codeberg.org/mbauhardt/peneira-filters" demand peneira %{
+#     map global normal <c-p> ': peneira-filters-mode<ret>'
+# } demand peneira-filters %{
+#     # requires peneira, peneira-filters, & mru-files
+#     map global peneira-filters m ': peneira-mru<ret>' -docstring 'List most recently used files'
+# }
 
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-mysticaltutor` plugin
@@ -747,38 +864,91 @@ plug 'Bodhizafa/kak-rainbow' config %{
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `kak-lsp` plugin
-# https://github.com/kak-lsp/kak-lsp
-# https://github.com/kak-lsp/kak-lsp/releases
+# Configuration for the `kakoune-lsp` plugin
+# https://github.com/kakoune-lsp/kakoune-lsp
+# https://github.com/kakoune-lsp/kakoune-lsp/releases
 
 # NOTE: You must first install rust for this to work:
 #       https://www.rust-lang.org/learn/get-started
 
-plug "kak-lsp/kak-lsp" do %{
+plug "kakoune-lsp/kakoune-lsp" do %{
     cargo install --locked --force --path .
-    mkdir -p ~/.config/kak-lsp
-    cp -n kak-lsp.toml ~/.config/kak-lsp/
+    # kak-lsp.toml has been deprecated in favor of language-specific kakrc hooks
+    # mkdir -p ~/.config/kak-lsp
+    # cp -n ~/kak-lsp.toml ~/.config/kak-lsp/
 } config %{
     # Documentation on available options can be seen here:
     # https://github.com/kak-lsp/kak-lsp#configuring-kakoune
 
     set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
     set-option global lsp_auto_highlight_references true
+    set-option global lsp_timeout 0 # disable lsp timeout
+    set-option global lsp_file_watch_support true
 
-    # General LSP settings
-    # NOTE: You must install the appropriate servers for whichever filetypes
-    # you enable here. Server configuration: `~/.config/kak-lsp/kak-lsp.toml`
-    # Clojure:
+    map global user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
+
+    # Diagnostics
+    map global lsp "n" ": lsp-find-error --include-warnings<ret>" \
+    -docstring "find next diagnostic"
+    map global lsp "p" ": lsp-find-error --previous --include-warnings<ret>" \
+    -docstring "find previous diagnostic"
+
+    # Snippets
+    map global insert <tab> '<a-;>: try %{ lsp-snippets-select-next-placeholders } catch %{ execute-keys -with-hooks <lt>tab> }<ret>' \
+    -docstring 'Select next snippet placeholder'
+
+    # Overridden to use general kak command, whatever that's been configured to be
+    # Here, we're intending to use a standalone graalvm cljfmt binary.
+    map global lsp f "<esc>: format-buffer<ret>" -docstring 'format contents of the buffer'
+
+    set-option global lsp_hover_anchor true
+    set-face global DiagnosticError default+u
+    set-face global DiagnosticWarning default+u
+
+    # Markdown rendering in info box:
+    # https://github.com/kak-lsp/kak-lsp
+    # By default all of these faces use `Information`
+    # I updated some of them using faces from the mysticaltutor theme, so
+    # make sure that's installed/loaded first.
+    face global InfoDefault               Information
+    face global InfoBlock                 block
+    face global InfoBlockQuote            block
+    face global InfoBullet                bullet
+    face global InfoHeader                header
+    face global InfoLink                  link
+    face global InfoLinkMono              mono
+    face global InfoMono                  mono
+    face global InfoRule                  Information
+    face global InfoDiagnosticError       Error
+    face global InfoDiagnosticHint        Information
+    face global InfoDiagnosticInformation Information
+    face global InfoDiagnosticWarning     Information
+
+    # Clojure Server Config:
     #   - https://clojure-lsp.io/installation/#script
-    hook global WinSetOption filetype=(clojure) %{
-        map window user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
-        map window lsp "n" ": lsp-find-error --include-warnings<ret>" \
-        -docstring "find next diagnostic"
-        map window lsp "p" ": lsp-find-error --previous --include-warnings<ret>" \
-        -docstring "find previous diagnostic"
+    #   - NOTE: Installed using script method.
+    hook -group lsp-filetype-clojure global BufSetOption filetype=(clojure) %{
+        set-option buffer lsp_servers %{
+            [clojure-lsp]
+            root_globs = ["deps.edn", "project.clj", ".git", ".hg"]
+            settings_section = "_"
+            [clojure-lsp.settings._]
+            # See https://clojure-lsp.io/settings/#all-settings
+            # source-paths-ignore-regex = ["resources.*", "target.*"]
+        }
+    }
 
+    hook global WinSetOption filetype=(clojure) %{
+
+        # TODO: disable parinfer only when inserting a snippet completion
+        # hook -once global InsertCompletionHide .* parinfer-disable-window
+
+        # Select Clojure def's
         map global object e '<a-semicolon>lsp-object Function Variable<ret>' \
         -docstring 'LSP Function or Variable (def expressions)'
+
+        # Goto ns alias in require
+        map global goto D "<esc>: lsp-declaration<ret>" -docstring 'go to declaration'
 
         lsp-enable-window
         # Debugging kak-lsp:
@@ -795,29 +965,6 @@ plug "kak-lsp/kak-lsp" do %{
         # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
         #    - This should come after `lsp-enable-window`
         #    - Default lsp_cmd: `kak-lsp -s %val{session}`
-
-        set-option window lsp_hover_anchor true
-        set-face window DiagnosticError default+u
-        set-face window DiagnosticWarning default+u
-
-        # Markdown rendering in info box:
-        # https://github.com/kak-lsp/kak-lsp
-        # By default all of these faces use `Information`
-        # I updated some of them using faces from the mysticaltutor theme, so
-        # make sure that's installed/loaded first.
-        face global InfoDefault               Information
-        face global InfoBlock                 block
-        face global InfoBlockQuote            block
-        face global InfoBullet                bullet
-        face global InfoHeader                header
-        face global InfoLink                  link
-        face global InfoLinkMono              mono
-        face global InfoMono                  mono
-        face global InfoRule                  Information
-        face global InfoDiagnosticError       Error
-        face global InfoDiagnosticHint        Information
-        face global InfoDiagnosticInformation Information
-        face global InfoDiagnosticWarning     Information
     }
 
     # Python settings
@@ -827,7 +974,8 @@ plug "kak-lsp/kak-lsp" do %{
     #     set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
     # }
 
-    hook global KakEnd .* lsp-exit
+    # I think this may be deprecated
+    # hook global KakEnd .* lsp-exit
 }
 
 # ------------------------------------------------------------------------------
