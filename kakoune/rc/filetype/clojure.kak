@@ -195,7 +195,7 @@ define-command -hidden clojure-trim-indent lisp-trim-indent
 declare-option \
     -docstring 'regex matching the head of forms which have options *and* indented bodies' \
     regex clojure_special_indent_forms \
-    '(?:def.*|doseq|for|fn\*?|if(-.*|)|let.*|loop|ns|testing|with-.*|when(-.*|)|comment|try|catch|case|cond)'
+    '(?:def.*|doseq|for|fn\*?|if(-.*|)|let.*|loop|ns|testing|with-.*|when(-.*|)|comment|try|catch|case|cond|do)'
 
 define-command -hidden clojure-indent-on-new-line %{
     # registers: i = best align point so far; w = start of first word of form
@@ -222,7 +222,7 @@ define-command -hidden clojure-indent-on-new-line %{
 declare-option -docstring %{
     top-level directories which can contain clojure files
     e.g. '(src|test|dev)'
-} regex clojure_source_directories '(src|test|dev)'
+} regex clojure_source_directories '(src|test|dev)(/clj[csx]?)?'
 
 define-command -docstring %{clojure-insert-ns: Insert namespace directive at top of Clojure source file} \
     clojure-insert-ns %{
