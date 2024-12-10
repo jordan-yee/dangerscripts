@@ -7,10 +7,12 @@
 
 # example mappings to traverse search results:
 # temporary dependency on kak-lsp for brevity
-map global normal <c-n> %{:lsp-next-location %opt{locations_stack_top}<ret>}
-map global normal <c-a-n> %{:lsp-previous-location %opt{locations_stack_top}<ret>}
+# map global normal <c-n> %{:lsp-next-location %opt{locations_stack_top}<ret>} -docstring 'lsp-next-location'
+# map global normal <c-a-n> %{:lsp-previous-location %opt{locations_stack_top}<ret>} -docstring 'lsp-next-location'
+map global normal <c-n> %{:lsp-next-location %opt{locations_stack_top}<ret>} -docstring 'jump-next'
+map global normal <c-a-n> %{:lsp-previous-location %opt{locations_stack_top}<ret>} -docstring 'jump-previous'
 map global normal <c-r> %{:locations-pop<ret>}
-map global normal <c-g> %{:locations-goto-current<ret>}
+map global normal <a-g> %{:locations-goto-current<ret>} # <c-g> no longer bindable
 
 # --------------------------------------
 # Options
