@@ -41,6 +41,22 @@ add-highlighter global/ column '%opt{autowrap_column}' default,rgb:2C323A
 set-option global windowing_placement 'horizontal'
 
 # ------------------------------------------------------------------------------
+# Commands
+
+define-command -override edit-dir \
+-params 1 -shell-script-completion %sh{ find . -type d -mindepth 1 } \
+-docstring 'edit-dir <directory>: open all files in the given directory' %{
+    evaluate-commands %sh{
+        # find "$(pwd)" -type f -exec printf "%s\n" "e {}" \; | tr '\n' ';' | sed 's/;$//'
+        find "$1" -type f -exec printf "e %s\n" {} \;
+    }
+}
+alias global ed edit-dir
+complete-command edit-dir shell-script-candidates %{
+    find . -type d -mindepth 1 | sed 's|^\./||'
+}
+
+# ------------------------------------------------------------------------------
 # Mappings
 
 # use space for user mode leader key
@@ -337,13 +353,25 @@ hook global RegisterModified '"' %{ nop %sh{
     printf %s "$kak_main_reg_dquote" | clip.exe
 }}
 
+define-command yank-system-clipboard \
+-docstring 'save system clipboard to yank/paste register' %{
+    evaluate-commands %sh{
+        windows_clipboard=$(powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//')
+        printf "set-register dquote '%s'\n" "$windows_clipboard"
+    }
+}
+
 # paste from system clipboard
 # map global user P '!xsel --output --clipboard<ret>' -docstring 'Paste system clipboard before cursor'
 # map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'Paste system clipboard after cursor'
 map global user P -docstring 'Paste system clipboard before cursor' \
-"!powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//'<ret>"
+":eval yank-system-clipboard<ret>P"
+# "!powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//'<ret>"
 map global user p -docstring 'Paste system clipboard after cursor' \
-"<a-!>powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//'<ret>"
+":eval yank-system-clipboard<ret>p"
+# "<a-!>powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//'<ret>"
+map global user R -docstring 'Replace selections with system clipboard' \
+":eval yank-system-clipboard<ret>R"
 
 # kakoune.cr
 # ----------
@@ -351,6 +379,23 @@ map global user p -docstring 'Paste system clipboard after cursor' \
 
 evaluate-commands %sh{
     kcr init kakoune
+}
+
+
+# gh (GitHub CLI)
+# ---------------
+
+define-command -override gh-browse \
+-docstring 'Open file to current line in GitHub in your browser' %{
+    # TODO: check
+    # - existence of gh command
+    # - that we're in a github repo
+    echo %sh{
+        project_root=$(PWD) # assuming kak's working directory is project root
+        gh browse "$kak_reg_percent:$kak_cursor_line"
+        # printf "gh browse %s\n" "$kak_reg_percent:$kak_cursor_line"
+        printf "Opening current file in GitHub...\n"
+    }
 }
 
 # ------------------------------------------------------------------------------
@@ -674,7 +719,8 @@ plug "jordan-yee/kakoune-repl-mode" config %{
     map global ns-repl-commands n ': clojure-namespace-repl-command<ret>' -docstring "Prompt for a REPL command to evaluate on the current namespace symbol"
     map global ns-repl-commands i ': clojure-namespace-repl-command in-ns<ret>' -docstring "in-ns"
     map global ns-repl-commands r ': clojure-namespace-repl-command remove-ns<ret>' -docstring "remove-ns"
-    map global ns-repl-commands t ': clojure-namespace-repl-command clojure.test/run-tests<ret>' -docstring "run-tests"
+    # map global ns-repl-commands t ': clojure-namespace-repl-command clojure.test/run-tests<ret>' -docstring "run-tests"
+    map global ns-repl-commands t ': clojure-namespace-repl-command kaocha.repl/run<ret>' -docstring "run all tests in namespace"
 
     hook global WinSetOption filetype=clojure %{
       set-option window repl_mode_new_repl_command 'lein repl'
