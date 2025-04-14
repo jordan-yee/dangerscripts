@@ -1,6 +1,5 @@
 # ------------------------------------------------------------------------------
 # Commands for scripting basic kakoune functionality more cleanly.
-# TODO: Move this to a shared lib/script
 
 # NOTE: Ensure the module is source'd ahead of this one:
 # source "%val{config}/custom/kakscript.kak"
@@ -70,84 +69,150 @@ define-command -override -hidden filepath-fail-when-last-match \
 
 define-command -override -hidden filepath-fail-when-file-not-found \
 -docstring 'fails if the current selection is not an existing file' %{
-    execute-keys -draft gf
-}
+    evaluate-commands %sh{
+        full_path="$(pwd)/$kak_selection"
 
-declare-option str filepath_existing_path_selection_desc
-define-command -override -hidden filepath-save-existing-filepath-selections \
--docstring 'if selection is a filepath to an existing file, save it
-(for use with `exec -itersel`)' %{
-    try %{
-        # if
-        filepath-fail-when-file-not-found
-        # then
-        set-option window filepath_existing_path_selection_desc "%val{selection_desc}"
-    }
-}
-define-command -override -hidden filepath-fail-when-existing-filepaths-not-found \
--docstring 'fails if there are no existing filepaths found in the file' %{
-    evaluate-commands -draft %{
-        kak-select-all
-        kak-select-regex %opt{filepath_regex}
-        unset-option window filepath_existing_path_selection_desc
-        execute-keys -itersel ': filepath-save-existing-filepath-selections<ret>'
-        try %{ select "%opt{filepath_existing_path_selection_desc}" } catch %{
-            fail 'no filepaths for existing files found'
-        }
+        if [ -f "$full_path" ]; then
+            # printf '%s\n' "echo -debug 'File found: $full_path'"
+            printf '%s\n' "echo 'true'"
+        else
+            # printf '%s\n' "echo -debug 'File not found: $full_path'"
+            # This fail output matches the fail output of `gf`.
+            printf '%s\n' "fail unable to find file '$kak_selection'"
+        fi
     }
 }
 
 # --------------------------------------
 # filepath-select-next
 
-define-command -override -hidden filepath-select-next-loop \
--docstring 'Select the next existing file path in the file' %{
-    kak-clear-secondary-selections
-    kak-search %opt{filepath_regex} # select the next potential filepath string
+declare-option str filepath_next_path_selection_desc
+define-command -override -hidden filepath-save-next-filepath-selection \
+-docstring 'if selection is a filepath to an existing file, save it and throw
+error to break outer -itersel' %{
     try %{
-        filepath-fail-when-file-not-found
+        # if
+            filepath-fail-when-file-not-found
+        # then
+            # when selection is a valid filepath, save it
+            set-option window filepath_next_path_selection_desc "%val{selection_desc}"
+            fail 'filepath found'
     } catch %{
-        filepath-fail-when-existing-filepaths-not-found
-        # if file contains filepaths to existing files, then recurse until finding one
-        filepath-select-next-loop
+        evaluate-commands %sh{
+            if [ "$kak_error" = 'filepath found' ]; then
+                # re-throw to immediately break the itersel when a filepath is found
+                printf '%s\n' "fail 'filepath found'"
+            else
+                # we expect file-not-found errors: continue the itersel
+                printf '%s\n' "nop"
+            fi
+        }
+    }
+}
+
+define-command -override -hidden filepath_find_next_filepath_in_selections \
+-docstring 'find next existing filepath in the current selections and save it' \
+%{
+    unset-option window filepath_next_path_selection_desc
+    try %{
+        # expecting to break itersel with error when filepath is found
+        execute-keys -itersel ': filepath-save-next-filepath-selection<ret>'
     }
 }
 
 define-command -override filepath-select-next \
 -docstring 'Select the next existing file path in the file' %{
-    try %{
-        kak-save-selections
-        filepath-select-next-loop
-    } catch %{
-        # restore initial selections if no valid filepath was found
-        kak-restore-selections
-        fail 'no existing file path found'
+    # TRY SEARCHING TO END OF BUFFER
+    evaluate-commands -draft %{
+        kak-select-to-end
+        # fails when cursor is at end of buffer
+        try %{ kak-select-regex %opt{filepath_regex} }
+        filepath_find_next_filepath_in_selections
+    }
+    evaluate-commands %{
+        try %{
+            select "%opt{filepath_next_path_selection_desc}"
+        } catch %{
+            # TRY SEARCHING FROM BEGINNING OF BUFFER
+            # no filepath found from selection to end of buffer
+            # -> wrap around from beginning of buffer to selection
+            evaluate-commands -draft %{
+                kak-select-to-top
+                kak-select-regex %opt{filepath_regex}
+                # to be consistent with the forward-selections
+                execute-keys <a-semicolon>
+                filepath_find_next_filepath_in_selections
+            }
+            evaluate-commands %{
+                try %{
+                    select "%opt{filepath_next_path_selection_desc}"
+                } catch %{
+                    # DONE SEARCHING ENTIRE BUFFER
+                    echo -debug 'failure caught in: filepath-select-next'
+                    fail 'no filepaths for existing files found'
+                }
+            }
+        }
     }
 }
 
 # --------------------------------------
 # filepath-select-previous
 
-define-command -override -hidden filepath-select-previous-loop %{
-    kak-clear-secondary-selections
-    kak-reverse-search %opt{filepath_regex} # select the previous potential filepath string
+declare-option str filepath_last_path_selection_desc
+define-command -override -hidden filepath-save-last-filepath-selection \
+-docstring 'if selection is a filepath to an existing file, save it
+(for use with `exec -itersel`)' %{
     try %{
-        filepath-fail-when-file-not-found
-    } catch %{
-        filepath-fail-when-existing-filepaths-not-found
-        # if file contains filepaths to existing files, then recurse until finding one
-        filepath-select-previous-loop
+        # if
+            # we expect file-not-found errors: continue the itersel
+            filepath-fail-when-file-not-found
+        # then
+            # when selection is a valid filepath, save it
+            set-option window filepath_last_path_selection_desc "%val{selection_desc}"
     }
+}
+
+define-command -override -hidden filepath_find_prev_filepath_in_selections \
+-docstring 'find previous existing filepath in the current selections and save it' \
+%{
+    unset-option window filepath_last_path_selection_desc
+    # expecting itersel to complete successfully
+    execute-keys -itersel ': filepath-save-last-filepath-selection<ret>'
 }
 
 define-command -override filepath-select-previous \
 -docstring 'Select the previous existing file path in the file' %{
-    try %{
-        kak-save-selections
-        filepath-select-previous-loop
-    } catch %{
-        # restore initial selections if no valid filepath was found
-        kak-restore-selections
-        fail 'no existing file path found'
+    # TRY SEARCHING TO BEGINNING OF BUFFER
+    evaluate-commands -draft %{
+        kak-select-to-top
+        # fails when cursor is at beginning of buffer
+        try %{ kak-select-regex %opt{filepath_regex} }
+        filepath_find_prev_filepath_in_selections
+    }
+    evaluate-commands %{
+        try %{
+            select "%opt{filepath_last_path_selection_desc}"
+        } catch %{
+            # TRY SEARCHING FROM END OF BUFFER
+            # no filepath found from selection to beginning of buffer
+            # -> wrap around from end of buffer to selection
+            evaluate-commands -draft %{
+                kak-select-to-end
+                kak-select-regex %opt{filepath_regex}
+                # to be consistent with the forward-selections in itersel
+                execute-keys <a-semicolon>
+                filepath_find_prev_filepath_in_selections
+            }
+            evaluate-commands %{
+                try %{
+                    select "%opt{filepath_last_path_selection_desc}"
+                } catch %{
+                    # DONE SEARCHING ENTIRE BUFFER
+                    echo -debug 'failure caught in: filepath-select-previous'
+                    fail 'no filepaths for existing files found'
+                }
+            }
+        }
     }
 }

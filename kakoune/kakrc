@@ -107,6 +107,9 @@ map global normal <a-Q> <a-B>
 
 map global user z <a-Z>a -docstring 'Add selection to selections register'
 
+# NOTE: This custom mode is used for other mappings beyond what's defined here:
+# - My custom filepath.kak script
+# - The occivink/kakoune-sort-selections plugin
 declare-user-mode selection
 map global selection d ': diff-selections<ret>' -docstring 'Diff the selections and display the result in a new buffer'
 map global user s ': enter-user-mode selection<ret>' -docstring 'selection mode'
@@ -438,7 +441,7 @@ source "%val{config}/custom/grep-stack.kak"
 # Quickly select & navigate filepaths
 # -----------------------------------
 
-source "%val{config}/custom/filepath.kak"
+# source "%val{config}/custom/filepath.kak"
 filepath-enable-mappings
 map global selection f ': enter-user-mode -lock filepath<ret>j' -docstring 'select next filepath & lock filepath mode'
 

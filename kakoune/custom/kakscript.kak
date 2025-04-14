@@ -46,6 +46,17 @@ define-command -override -hidden kak-select-all \
     execute-keys '%'
 }
 
+define-command -override -hidden kak-select-to-end \
+-docstring 'select to the end of the buffer' %{
+    execute-keys '<semicolon>Ge'
+}
+
+define-command -override -hidden kak-select-to-top \
+-docstring 'select to the top (beginning) of the buffer' %{
+    execute-keys '<semicolon>Gg'
+}
+
+
 define-command -override -hidden -params 1 kak-select-regex \
 -docstring 'create a selection for each match of the given regex' %{
     execute-keys "s%arg{1}<ret>"
