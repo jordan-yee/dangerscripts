@@ -441,7 +441,7 @@ source "%val{config}/custom/grep-stack.kak"
 # Quickly select & navigate filepaths
 # -----------------------------------
 
-# source "%val{config}/custom/filepath.kak"
+source "%val{config}/custom/filepath.kak"
 filepath-enable-mappings
 map global selection f ': enter-user-mode -lock filepath<ret>j' -docstring 'select next filepath & lock filepath mode'
 
