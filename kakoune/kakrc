@@ -43,17 +43,15 @@ set-option global windowing_placement 'horizontal'
 # ------------------------------------------------------------------------------
 # Commands
 
-define-command -override edit-dir \
--params 1 -shell-script-completion %sh{ find . -type d -mindepth 1 } \
+define-command -override edit-dir -params 1 \
 -docstring 'edit-dir <directory>: open all files in the given directory' %{
     evaluate-commands %sh{
-        # find "$(pwd)" -type f -exec printf "%s\n" "e {}" \; | tr '\n' ';' | sed 's/;$//'
         find "$1" -type f -exec printf "e %s\n" {} \;
     }
 }
 alias global ed edit-dir
 complete-command edit-dir shell-script-candidates %{
-    find . -type d -mindepth 1 | sed 's|^\./||'
+    find . -mindepth 1 -type d | sed 's|^\./||'
 }
 
 # ------------------------------------------------------------------------------
@@ -466,6 +464,74 @@ alias global br open-br
 
 source "%val{config}/custom/auto-window-resize.kak"
 
+
+# quickly spawn new clients at the current position
+# -------------------------------------------------
+
+define-command -override new-here -params 1..2 \
+-docstring 'new-here <placement> [<command>]: open a new client to the current
+position in a split with the specified <placement>
+
+uses the configured %opt{windowing_module}
+
+optionally, provide additional <command> to be executed in the context of the
+new client on initialization' %{
+    evaluate-commands %sh{
+        # set target window placement
+        printf "%s\n" "set local windowing_placement $1"
+        # compose start of command
+        printf "%s" \
+        "terminal kak -c $kak_session -e 'edit $kak_buffile $kak_cursor_line $kak_cursor_column"
+        # inject optional parameter
+        if [ $# -gt 1 ]; then
+            printf "%s" ";$2"
+        fi
+        # compose end of command
+        printf "%s\n" "'"
+    }
+}
+complete-command new-here shell-script-candidates %{
+    case "$kak_token_to_complete" in
+        0) printf "%s\n" horizontal vertical window;;
+    esac
+}
+
+define-command -override new-here-horizontal -params ..1 -command-completion \
+-docstring 'new-here-horizontal [<command>]: open a new client to the current
+position in a horizontal split
+
+uses the configured %opt{windowing_module}
+
+optionally, provide additional <command> to be executed in the context of the
+new client on initialization' %{
+    new-here horizontal %arg{1}
+}
+alias global newh new-here-horizontal
+
+define-command -override new-here-vertical -params ..1 -command-completion \
+-docstring 'new-here-vertical [<command>]: open a new client to the current
+position in a vertical split
+
+uses the configured %opt{windowing_module}
+
+optionally, provide additional <command> to be executed in the context of the
+new client on initialization' %{
+    new-here vertical %arg{1}
+}
+alias global newv new-here-vertical
+
+define-command -override new-here-window -params ..1 -command-completion \
+-docstring 'new-here-window [<command>]: open a new client to the current
+position in a new window/tab
+
+uses the configured %opt{windowing_module}
+
+optionally, provide additional <command> to be executed in the context of the
+new client on initialization' %{
+    new-here window %arg{1}
+}
+alias global neww new-here-window
+
 # (Hug)SQL helper commands
 # ------------------------
 
@@ -716,20 +782,26 @@ plug "jordan-yee/kakoune-repl-mode" config %{
     declare-user-mode repl-commands
     map global repl-commands c ': clojure-repl-command<ret>' -docstring "Prompt for a REPL command to evaluate on the current selection"
     map global repl-commands l ': clojure-repl-command dlet<ret>' -docstring "dlet"
-    map global repl-commands t ': clojure-repl-command clojure.test/run-test<ret>' -docstring "run-test"
+    # map global repl-commands t ': clojure-repl-command clojure.test/run-test<ret>' -docstring "run-test"
+    map global repl-commands t ': clojure-template-repl-command "kaocha.repl/run (var <lt>ns<gt>/<lt>sel<gt>)"<ret>' \
+    -docstring "run kaocha test for selected var"
 
     declare-user-mode ns-repl-commands
-    map global ns-repl-commands n ': clojure-namespace-repl-command<ret>' -docstring "Prompt for a REPL command to evaluate on the current namespace symbol"
+    map global ns-repl-commands n ': clojure-namespace-repl-command<ret>' \
+    -docstring "Prompt for a REPL command to evaluate on the current namespace symbol"
     map global ns-repl-commands i ': clojure-namespace-repl-command in-ns<ret>' -docstring "in-ns"
     map global ns-repl-commands r ': clojure-namespace-repl-command remove-ns<ret>' -docstring "remove-ns"
-    # map global ns-repl-commands t ': clojure-namespace-repl-command clojure.test/run-tests<ret>' -docstring "run-tests"
-    map global ns-repl-commands t ': clojure-namespace-repl-command kaocha.repl/run<ret>' -docstring "run all tests in namespace"
+    # map global ns-repl-commands t ': clojure-namespace-repl-command clojure.test/run-tests<ret>' \
+    # -docstring "run-tests"
+    map global ns-repl-commands t ': clojure-namespace-repl-command kaocha.repl/run<ret>' \
+    -docstring "run all tests in namespace via kaocha"
 
     hook global WinSetOption filetype=clojure %{
-      set-option window repl_mode_new_repl_command 'lein repl'
-      complete-command -menu repl-mode-set-new-repl-command shell-script-candidates %{
-          printf '%s\n' 'lein repl :connect' 'lein repl'
-      }
+      # Disabled because I find I usually just want a connected terminal.
+      # set-option window repl_mode_new_repl_command 'bb nrepl-plus'
+      # complete-command -menu repl-mode-set-new-repl-command shell-script-candidates %{
+      #     printf '%s\n' 'bb nrepl-plus' 'lein repl :connect' 'lein repl'
+      # }
 
       map window repl c ': enter-user-mode repl-commands<ret>' -docstring "REPL Commands"
       map window repl n ': enter-user-mode ns-repl-commands<ret>' -docstring "Namespace REPL Commands"
@@ -931,6 +1003,7 @@ plug "kakoune-lsp/kakoune-lsp" do %{
 
     set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
     set-option global lsp_auto_highlight_references true
+    set-option global lsp_auto_show_code_actions true
     set-option global lsp_timeout 0 # disable lsp timeout
     set-option global lsp_file_watch_support true
 
@@ -998,8 +1071,14 @@ plug "kakoune-lsp/kakoune-lsp" do %{
 
         # Goto ns alias in require
         map global goto D "<esc>: lsp-declaration<ret>" -docstring 'go to declaration'
+        map global goto <a-d> "<esc>: newv lsp-definition<ret>" -docstring 'go to defintion in vsplit'
+        map global goto <a-D> "<esc>: newh lsp-definition<ret>" -docstring 'go to defintion in hsplit'
 
         lsp-enable-window
+
+        # lsp-auto-signature-help-enable
+        # lsp-inlay-hints-enable global
+
         # Debugging kak-lsp:
         #
         # View debug info in a dedicated terminal:
