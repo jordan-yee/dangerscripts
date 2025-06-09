@@ -188,8 +188,13 @@ hook global ModeChange .*:insert %{
 # ------------------------------------------------------------------------------
 # Language Settings
 
-# add filetype matches
-# --------------------
+# --------------------------------------
+# Custom Highlighters
+
+source "~/.config/kak/highlighters/httpyac.kak"
+
+# --------------------------------------
+# Add Filetype Matches
 
 hook global BufCreate .*\.(conf) %{
     set-option buffer filetype sh
