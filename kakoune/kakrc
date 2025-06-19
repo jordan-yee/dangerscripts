@@ -469,7 +469,6 @@ alias global br open-br
 
 source "%val{config}/custom/auto-window-resize.kak"
 
-
 # quickly spawn new clients at the current position
 # -------------------------------------------------
 
