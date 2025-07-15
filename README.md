@@ -17,10 +17,15 @@ Below is a list of all included configs/scripts.
 | Kakoune      | custom/*       | ~/.config/kak/custom/*       |
 | Kakoune      | highlighters/* | ~/.config/kak/highlighters/* |
 | Kakoune      | rc/*           | /usr/local/share/kak/rc/*    |
-| Mintty       | .minttyrc      | ~/.minttyrc                  |
-| Sakura       | sakura.conf    | ~/.config/sakura/sakura.conf |
 | Tmux         | .tmux.conf     | ~/.tmux.conf                 |
 | Zshell       | .zshrc         | ~/.zshrc                     |
+| Flowstorm    | flowstorm/*    | ~/.flow-storm/*              |
+
+Inactive / No Longer Used
+
+| Applications | Scripts        | Installation Path            |
+| Mintty       | .minttyrc      | ~/.minttyrc                  |
+| Sakura       | sakura.conf    | ~/.config/sakura/sakura.conf |
 
 ## Comparing with local configs
 

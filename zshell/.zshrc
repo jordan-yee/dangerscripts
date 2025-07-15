@@ -34,6 +34,35 @@ bindkey -v
 # - direnv
 # - Starship
 # - nix
+# - Flowstorm
+# - Babashka
+
+# -----------------------------------------------------------------------------
+# Clojure Tools
+
+function nrepl_port() {
+    echo $(cat .nrepl-port)
+}
+
+function flowstorm() {
+    # JDK 17 required for FlowStorm 3.9.0+ (without overriding dependencies)
+    # sdk use java 17.0.10-zulu
+    NREPL_PORT=$(cat .nrepl-port)
+    echo "Starting Flowstorm; Connecting to port: $NREPL_PORT"
+    # prev version: "4.0.2"
+    clj -Sforce -Sdeps '{:deps {com.github.flow-storm/flow-storm-dbg {:mvn/version "4.4.6"}}}' \
+    -X flow-storm.debugger.main/start-debugger :port $NREPL_PORT \
+    :theme :dark :styles '"/home/jordan/.flow-storm/theme-overrides.css"'
+}
+
+# Autocomplete for babashka tasks (`bb` command)
+# https://book.babashka.org/#_terminal_tab_completion
+_bb_tasks() {
+    local matches=(`bb tasks |tail -n +3 |cut -f1 -d ' '`)
+    compadd -a matches
+    _files # autocomplete filenames as well
+}
+compdef _bb_tasks bb
 
 # -----------------------------------------------------------------------------
 # Misc

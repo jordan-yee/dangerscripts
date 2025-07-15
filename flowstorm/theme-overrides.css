@@ -1,0 +1,47 @@
+* {
+    -fx-theme-base1:                              #3a3a3a;
+    -fx-theme-base2:                              #485058;
+    -fx-theme-base3:                              #353c44;
+    -fx-theme-base4:                              #7a7a80;
+
+    -fx-theme-separator:                          #ffab40;
+    -fx-theme-dim-text:                           #a0a0a0;
+    -fx-theme-button1-background:                 #4682b4;
+    -fx-theme-button1-text:                       white;
+    -fx-theme-button-hover:                       #ff8c00;
+    -fx-theme-button2-background:                 #a0a0a0;
+    -fx-theme-button2-text:                       white;
+
+    -fx-theme-selected-main-tools-tab-background: #5854d1;
+    -fx-theme-selected-main-tools-tab-text:       white;
+
+    -fx-theme-flow-code-text:                     white;
+    -fx-theme-flow-code-executing-text:           #212628;
+    -fx-theme-flow-code-executing-background:     #5c6b7a;
+    -fx-theme-flow-code-executing-background-dim: #5c6b7a;
+    -fx-theme-flow-code-interesting-text:         #ff8c00;
+
+    -fx-theme-defmethod-text:                     #ff8c00;
+    -fx-theme-defn-text:                          white;
+    -fx-theme-extend-text:                        #70db93;
+    -fx-theme-links:                              #ff8c00;
+    -fx-theme-breadcrums:                         #ff8c00;
+    -fx-theme-ok:                                 #33cc33;
+    -fx-theme-on:                                 #00bedb;
+    -fx-theme-attention:                          #ff4d4d;
+    -fx-theme-warning:                            #ffab40;
+    -fx-theme-title-label:                        #ffab40;
+    -fx-theme-field-label:                        #ff8c00;
+    -fx-theme-breakpoint:                         #ff4d4d;
+    -fx-theme-breakpoint-continue:                #70db93;
+    -fx-theme-form-highlight:                     #6e6e6e;
+    -fx-theme-list-selection:                     #596573;
+    -fx-theme-hl-combos:                          #606080;
+    -fx-theme-important-combos:                   #ff8c00;
+}
+
+.root {
+    -fx-base: -fx-theme-base1;
+    -fx-background: -fx-theme-base1;
+    -fx-control-inner-background: -fx-theme-base1;
+}
