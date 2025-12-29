@@ -31,6 +31,11 @@ add-zsh-hook chpwd chpwd_recent_dirs
 # Enable completion for cdr
 zstyle ':completion:*:*:cdr:*:*' menu selection
 
+# lint only the clojure files that have been changed in the current branch
+function lint-local-branch-changes() {
+    clj-kondo --lint $(git diff --name-only origin/master...HEAD | grep -E '\.clj[sc]?$')
+}
+
 # -----------------------------------------------------------------------------
 # Misc / System
 
