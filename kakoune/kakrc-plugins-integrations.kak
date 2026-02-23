@@ -8,8 +8,8 @@
 # Configuration for the `fzf.kak` plugin
 # https://github.com/andreyorst/fzf.kak
 
-# NOTE: You must first install fzf for this to work
-#       Ubuntu 20.04: `sudo apt install fzf`
+# NOTE: You must first install `fzf` for this to work
+# https://github.com/junegunn/fzf?tab=readme-ov-file#installation
 plug "andreyorst/fzf.kak" config %{
     map global normal <c-p> ': fzf-mode<ret>'
 
@@ -22,10 +22,8 @@ plug "andreyorst/fzf.kak" config %{
 } defer "fzf-file" %{
     # Change file search command to fd
     # NOTE: You must first install fd for this to work
-    #       fd binary is fdfind in apt package
-    #       alias to fd doesn't work here
+    #       See https://github.com/sharkdp/fd#installation
     set-option global fzf_file_command 'fd --hidden --type f --exclude .git'
-
     set-option global fzf_highlight_command 'bat'
 } defer "fzf-cd" %{
     set-option global fzf_cd_command 'fd --follow --hidden --type d --exclude .git'
@@ -82,6 +80,7 @@ plug 'https://gitlab.com/kstr0k/mru-files.kak.git' %{
 
 # NOTE: Dependent on kakoune.cr:
 #       https://github.com/alexherbo2/kakoune.cr
+#       - `kcr` is initialized in kakrc-integrations.kak
 
 plug "alexherbo2/auto-pairs.kak" config %{
     set-option global auto_pairs { }
@@ -132,18 +131,14 @@ plug "jordan-yee/kakoune-clojure" config %{
 # Configuration for the `parinfer-rust` plugin
 # https://github.com/eraserhd/parinfer-rust
 
-# NOTE: You must first install Rust and Clang for this to work
-#       See https://www.rust-lang.org/tools/install
-#       Ubuntu 20.04:
-#         `sudo apt install rustc`
-#         `sudo apt install clang`
-# NOTE: Installing this might take a while.
-#       Use L command on the plugin list to see compilation output.
+# NOTE: Depends on `parinfer-rust`, installed separately via cargo.
+# - this is installed as a plugin for the kakrc script
 plug "eraserhd/parinfer-rust" do %{
-    cargo install --force --path .
+    # Installed via cargo separately.
+    # `cargo install --force --path .`
     # Optionally add cargo clean line to the do block to clean plugin from build
     # files, thus making it load a bit faster:
-    cargo clean
+    # `cargo clean`
 } config %{
     declare-user-mode parinfer
     map global parinfer s ': parinfer-disable-window<ret>: parinfer-enable-window -smart<ret>' \
@@ -157,14 +152,16 @@ plug "eraserhd/parinfer-rust" do %{
     hook global WinSetOption filetype=(clojure|lisp|scheme|racket) %{
         evaluate-commands %sh{
             # special_files_regex='.*\(project\.clj\|profiles\.clj\)$'
-            special_files_regex='.*\(project\.clj\|profiles\.clj\|deps\.edn\|tests\.edn)$'
+            special_files_regex='.*\(project\.clj\|profiles\.clj\|\.edn\|user\.clj\)$'
             # if the file DOES NOT match one of the special files, enable parinfer
             if ! expr $kak_buffile : $special_files_regex 1>/dev/null; then
-                # printf '%s\n' 'echo -debug "enabling parinfer for window"'
+                printf '%s\n' "echo -debug 'enabling parinfer for window'"
+                # printf '%s\n' "echo -debug 'kak_buffile: $kak_buffile'"
+                # printf '%s\n' "echo -debug 'special_files_regex: $special_files_regex'"
                 printf %s 'parinfer-enable-window -paren'
             # if the file DOES match one of the special files, disable parinfer
             else
-                # printf '%s\n' 'echo -debug "disabling parinfer for window"'
+                printf '%s\n' 'echo -debug "disabling parinfer for window"'
                 printf %s 'try %{ parinfer-disable-window }'
             fi
         }
