@@ -83,26 +83,6 @@ plug "andreyorst/powerline.kak" defer powerline %{
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `smarttab.kak` plugin
-# https://github.com/andreyorst/smarttab.kak
-
-# noexpandtab: use tab character to indent and align
-# smarttab:    use tab character to indent and space to align
-# expandtab:   use space character to indent and align
-
-plug "andreyorst/smarttab.kak" defer smarttab %{
-    # set how many spaces to delete when pressing <backspace>
-    set-option global softtabstop %opt{tabstop}
-} config %{
-    # these languages will use `expandtab' behavior
-    hook global WinSetOption filetype=(rust|markdown|kak|lisp|scheme|sh|perl|javascript|python|yaml|sql) expandtab
-    # these languages will use `noexpandtab' behavior
-    hook global WinSetOption filetype=(makefile|gas|go) noexpandtab
-    # these languages will use `smarttab' behavior
-    hook global WinSetOption filetype=(c|cpp) smarttab
-}
-
-# ------------------------------------------------------------------------------
 # Configuration for the `kakoune-mysticaltutor` plugin
 # https://github.com/caksoylar/kakoune-mysticaltutor
 
@@ -121,15 +101,10 @@ plug "jordan-yee/kakoune-mysticaltutor-powerline" defer powerline_mysticaltutor 
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `kakoune-git-mode` plugin
-# https://github.com/jordan-yee/kakoune-git-mode
+# Configuration for the `eraserhd/kak-ansi` plugin
+# https://github.com/eraserhd/kak-ansi
 
-plug "jordan-yee/kakoune-git-mode" config %{
-    set-option global git_mode_use_structured_quick_commit true
-    declare-git-mode
-    map global user g ': enter-user-mode git<ret>' -docstring "git mode"
-    map global git o ': tmux-terminal-window lazygit<ret>' -docstring "open lazygit in new window"
-}
+plug "eraserhd/kak-ansi"
 
 # ------------------------------------------------------------------------------
 # Configuration for the `kakoune-plugin-quick-dev` plugin
@@ -143,55 +118,24 @@ plug "jordan-yee/kakoune-plugin-quick-dev" config %{
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `kakoune-repl-mode` plugin
-# https://github.com/jordan-yee/kakoune-repl-mode
+# Configuration for the `smarttab.kak` plugin
+# https://github.com/andreyorst/smarttab.kak
 
-# load-path "~/github/jordan-yee/kakoune-repl-mode/"
-plug "jordan-yee/kakoune-repl-mode" config %{
-    require-module repl-mode
-    map global user r ': enter-user-mode repl<ret>' -docstring "repl mode"
-    repl-mode-register-default-mappings
+# noexpandtab: use tab character to indent and align
+# smarttab:    use tab character to indent and space to align
+# expandtab:   use space character to indent and align
 
-    declare-user-mode repl-commands
-    map global repl-commands c ': clojure-repl-command<ret>' -docstring "Prompt for a REPL command to evaluate on the current selection"
-    map global repl-commands l ': clojure-repl-command dlet<ret>' -docstring "dlet"
-    # map global repl-commands t ': clojure-repl-command clojure.test/run-test<ret>' -docstring "run-test"
-    map global repl-commands t ': clojure-template-repl-command "kaocha.repl/run (var <lt>ns<gt>/<lt>sel<gt>)"<ret>' \
-    -docstring "run kaocha test for selected var"
-
-    declare-user-mode ns-repl-commands
-    map global ns-repl-commands n ': clojure-namespace-repl-command<ret>' \
-    -docstring "Prompt for a REPL command to evaluate on the current namespace symbol"
-    map global ns-repl-commands i ': clojure-namespace-repl-command in-ns<ret>' -docstring "in-ns"
-    map global ns-repl-commands r ': clojure-namespace-repl-command remove-ns<ret>' -docstring "remove-ns"
-    # map global ns-repl-commands t ': clojure-namespace-repl-command clojure.test/run-tests<ret>' \
-    # -docstring "run-tests"
-    map global ns-repl-commands t ': clojure-namespace-repl-command kaocha.repl/run<ret>' \
-    -docstring "run all tests in namespace via kaocha"
-
-    hook global WinSetOption filetype=clojure %{
-      # Disabled because I find I usually just want a connected terminal.
-      # set-option window repl_mode_new_repl_command 'bb nrepl-plus'
-      # complete-command -menu repl-mode-set-new-repl-command shell-script-candidates %{
-      #     printf '%s\n' 'bb nrepl-plus' 'lein repl :connect' 'lein repl'
-      # }
-
-      map window repl c ': enter-user-mode repl-commands<ret>' -docstring "REPL Commands"
-      map window repl n ': enter-user-mode ns-repl-commands<ret>' -docstring "Namespace REPL Commands"
-
-      hook -once -always window WinSetOption filetype=.* %{
-        unset-option window repl_mode_new_repl_command
-        unmap window repl c
-        unmap window repl n
-      }
-    }
+plug "andreyorst/smarttab.kak" defer smarttab %{
+    # set how many spaces to delete when pressing <backspace>
+    set-option global softtabstop %opt{tabstop}
+} config %{
+    # these languages will use `expandtab' behavior
+    hook global WinSetOption filetype=(rust|markdown|kak|lisp|scheme|sh|perl|javascript|python|yaml|sql) expandtab
+    # these languages will use `noexpandtab' behavior
+    hook global WinSetOption filetype=(makefile|gas|go) noexpandtab
+    # these languages will use `smarttab' behavior
+    hook global WinSetOption filetype=(c|cpp) smarttab
 }
-
-# ------------------------------------------------------------------------------
-# Configuration for the `kakoune-chtsh` plugin
-# https://github.com/jordan-yee/kakoune-chtsh
-
-plug "jordan-yee/kakoune-chtsh"
 
 # ------------------------------------------------------------------------------
 # Configuration for the `case.kak` plugin
@@ -271,21 +215,6 @@ plug 'occivink/kakoune-sort-selections' config %{
 }
 
 # ------------------------------------------------------------------------------
-# Configuration for the `kakoune-expand` plugin
-# https://github.com/occivink/kakoune-expand
-
-# NOTE: This is not working in a clj file, and I don't really use it, so
-# disabling for now. I'll probably remove it at some point later.
-# plug 'occivink/kakoune-expand' config %{
-#     map -docstring "expand" global normal <c-x> ': expand<ret>'
-
-#     # 'lock' mapping where pressing <space> repeatedly will expand the selection
-#     declare-user-mode expand
-#     map -docstring "expand" global expand <space> ': expand<ret>'
-#     map -docstring "expand ↻" global user x       ': expand; enter-user-mode -lock expand<ret>'
-# }
-
-# ------------------------------------------------------------------------------
 # Configuration for the `kakoune-text-objects` plugin
 # https://github.com/delapouite/kakoune-text-objects
 
@@ -332,6 +261,75 @@ plug "https://gitlab.com/Screwtapello/kakoune-inc-dec/" noload config %{
 }
 
 # ------------------------------------------------------------------------------
+# Configuration for the `kakoune-repl-mode` plugin
+# https://github.com/jordan-yee/kakoune-repl-mode
+
+# load-path "~/github/jordan-yee/kakoune-repl-mode/"
+plug "jordan-yee/kakoune-repl-mode" config %{
+    # Basics / Standalone Config -----------------------------------------------
+    require-module repl-mode
+    map global user r ': enter-user-mode repl<ret>' -docstring "repl mode"
+    repl-mode-register-default-mappings
+
+    # Clojure Config -----------------------------------------------------------
+    # These commands require [kakoune-clojure](https://github.com/jordan-yee/kakoune-clojure)
+    declare-user-mode repl-commands
+    map global repl-commands c ': clojure-repl-command<ret>' -docstring "Prompt for a REPL command to evaluate on the current selection"
+    map global repl-commands l ': clojure-repl-command dlet<ret>' -docstring "dlet"
+    # map global repl-commands t ': clojure-repl-command clojure.test/run-test<ret>' -docstring "run-test"
+    map global repl-commands t ': clojure-template-repl-command "kaocha.repl/run (var <lt>ns<gt>/<lt>sel<gt>)"<ret>' \
+    -docstring "run kaocha test for selected var"
+
+    declare-user-mode ns-repl-commands
+    map global ns-repl-commands n ': clojure-namespace-repl-command<ret>' \
+    -docstring "Prompt for a REPL command to evaluate on the current namespace symbol"
+    map global ns-repl-commands i ': clojure-namespace-repl-command in-ns<ret>' -docstring "in-ns"
+    map global ns-repl-commands r ': clojure-namespace-repl-command remove-ns<ret>' -docstring "remove-ns"
+    # map global ns-repl-commands t ': clojure-namespace-repl-command clojure.test/run-tests<ret>' \
+    # -docstring "run-tests"
+    map global ns-repl-commands t ': clojure-namespace-repl-command kaocha.repl/run<ret>' \
+    -docstring "run all tests in namespace via kaocha"
+
+    hook global WinSetOption filetype=clojure %{
+      # Disabled because I find I usually just want a connected terminal.
+      # set-option window repl_mode_new_repl_command 'bb nrepl-plus'
+      # complete-command -menu repl-mode-set-new-repl-command shell-script-candidates %{
+      #     printf '%s\n' 'bb nrepl-plus' 'lein repl :connect' 'lein repl'
+      # }
+
+      map window repl c ': enter-user-mode repl-commands<ret>' -docstring "REPL Commands"
+      map window repl n ': enter-user-mode ns-repl-commands<ret>' -docstring "Namespace REPL Commands"
+
+      hook -once -always window WinSetOption filetype=.* %{
+        unset-option window repl_mode_new_repl_command
+        unmap window repl c
+        unmap window repl n
+      }
+    }
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-git-mode` plugin
+# - Technically an integration, but I think this is a fair exception
+# https://github.com/jordan-yee/kakoune-git-mode
+
+# load-path "~/github/jordan-yee/kakoune-git-mode/"
+plug "jordan-yee/kakoune-git-mode" config %{
+    set-option global git_mode_use_structured_quick_commit true
+    declare-git-mode
+    map global user g ': enter-user-mode git<ret>' -docstring "git mode"
+    # NOTE: this depends on tmux and lazygit
+    # - it could be adjusted to use the more generic `terminal` command...
+    map global git o ': tmux-terminal-window lazygit<ret>' -docstring "open lazygit in new window"
+}
+
+# ------------------------------------------------------------------------------
+# Configuration for the `kakoune-chtsh` plugin
+# https://github.com/jordan-yee/kakoune-chtsh
+
+plug "jordan-yee/kakoune-chtsh"
+
+# ------------------------------------------------------------------------------
 # Configuration for the `kak-rainbow` plugin
 # https://github.com/Bodhizafa/kak-rainbow
 
@@ -344,9 +342,3 @@ plug 'Bodhizafa/kak-rainbow' config %{
         rainbow-enable-window
     }
 }
-
-# ------------------------------------------------------------------------------
-# Configuration for the `eraserhd/kak-ansi` plugin
-# https://github.com/eraserhd/kak-ansi
-
-plug "eraserhd/kak-ansi"
