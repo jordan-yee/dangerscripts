@@ -17,9 +17,32 @@ define-command -hidden set-format-with-prettier \
 }
 
 # --------------------------------------
+# kakrc
+
+# hook groups starting with kak- are all removed when leaving the filetype
+hook global WinSetOption filetype=kak -group kak-custom %{
+    set-option window tabstop 4
+    set-option window indentwidth 4
+}
+
+# --------------------------------------
+# sh
+
+# hook groups starting with sh- are all removed when leaving the filetype
+hook global WinSetOption filetype=sh -group sh-custom %{
+    set-option window tabstop 4
+    set-option window indentwidth 4
+}
+
+# --------------------------------------
 # httpyac
 
 source "~/.config/kak/highlighters/httpyac.kak"
+# hook groups starting with httpyac- are all removed when leaving the filetype
+hook global WinSetOption filetype=httpyac -group httpyac-custom %{
+    set-option window tabstop 3
+    set-option window indentwidth 3
+}
 
 # --------------------------------------
 # Clojure
@@ -42,8 +65,56 @@ hook global WinSetOption filetype=clojure -group clojure-fmt %{
 
     map global goto D "<esc>: lsp-declaration<ret>" -docstring 'go to declaration'
 
-    # NOTE: This option requires kak-lsp to be set up for Clojure.
-    hook buffer BufWritePre .* lsp-formatting-sync
+    # Support for stdin/stdout usage added in `cljfmt` 0.10.3 & improved in 0.10.4
+    # set-option buffer formatcmd 'cljfmt --remove-surrounding-whitespace fix -'
+    # Not using --remove-surrounding-whitespace due to conflict with team member's formatting.
+    # `--indents=indentation.clj` needed for cljs projects, if not all
+    evaluate-commands %sh{
+        if [ -f 'indentation.clj' ]; then
+            printf "%s\n" "set-option buffer formatcmd 'cljfmt --indents=indentation.clj fix -'"
+        else
+            printf "%s\n" "set-option buffer formatcmd 'cljfmt fix -'"
+        fi
+    }
+
+    # hook buffer BufWritePre .* %{format-buffer}
+    # this block was copied from parinfer config
+    evaluate-commands %sh{
+        special_files_regex='.*\(project\.clj\|profiles\.clj\|\.edn\)$'
+        fmt_on_write_group='clojure-fmt-on-write'
+        # if the file DOES NOT match one of the special files, enable fmt-on-save
+        if ! expr $kak_buffile : $special_files_regex 1>/dev/null; then
+            # printf '%s\n' 'echo -debug "enabling fmt-on-write for buffer"'
+            printf %s "hook -group $fmt_on_write_group buffer BufWritePre .* %{format-buffer}"
+        # if the file DOES match one of the special files, disable fmt-on-save
+        # TODO: I don't think I need this else
+        else
+            # printf '%s\n' 'echo -debug "disable fmt-on-write for buffer"'
+            printf %s "remove-hooks buffer $fmt_on_write_group"
+        fi
+    }
+    # Simple alternative formatting strategy:
+    # - This option requires kak-lsp to be set up for Clojure.
+    # - This is an easy solution, but slower than the native-compiled cljfmt.
+    # hook buffer BufWritePre .* lsp-formatting-sync
+
+    enable-format-mode-mappings
+
+    # custom format-selections-pretty command for prettifying a selection
+    define-command -override format-selections-pretty %{
+        # save original formatcmd
+        declare-option -hidden str formatcmd_original %opt{formatcmd}
+        # set prettify formatcmd variant
+        set-option buffer formatcmd \
+        'cljfmt --remove-surrounding-whitespace \
+                --split-keypairs-over-multiple-lines \
+                fix -'
+        # apply prettify formatting on selections
+        format-selections
+        # restore original formatcmd command
+        set-option buffer formatcmd %opt{formatcmd_original}
+    }
+    map window format-mode p ':format-selections-pretty<ret>' -docstring 'pretty-format selections'
 }
 
 # --------------------------------------
