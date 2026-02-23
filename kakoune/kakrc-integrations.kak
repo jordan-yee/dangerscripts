@@ -104,23 +104,25 @@ define-command -override gh-browse \
 # - LSP Servers:
 #   - [clojure-lsp](https://clojure-lsp.io/installation/#script)
 
-# NOTE: You must first install rust for this to work:
-#       https://www.rust-lang.org/learn/get-started
+evaluate-commands %sh{kak-lsp}
 
-plug "kakoune-lsp/kakoune-lsp" do %{
-    cargo install --locked --force --path .
-    # kak-lsp.toml has been deprecated in favor of language-specific kakrc hooks
-    # mkdir -p ~/.config/kak-lsp
-    # cp -n ~/kak-lsp.toml ~/.config/kak-lsp/
-} config %{
+# --------------------------------------
+# General LSP Configuration
+
+# general configuration is wrapped in this command to make it easier to enable/disable it
+define-command -hidden init-kak-lsp %{
     # Documentation on available options can be seen here:
     # https://github.com/kak-lsp/kak-lsp#configuring-kakoune
+
+    # Enable to get more verbose logs for debugging:
+    # set-option global lsp_debug true
 
     set-option global lsp_completion_trigger "execute-keys 'h<a-h><a-k>\S[^\h\n,=;*(){}\[\]]\z<ret>'"
     set-option global lsp_auto_highlight_references true
     set-option global lsp_auto_show_code_actions true
     set-option global lsp_timeout 0 # disable lsp timeout
     set-option global lsp_file_watch_support true
+    set-option global lsp_hover_anchor true
 
     map global user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
 
@@ -131,14 +133,15 @@ plug "kakoune-lsp/kakoune-lsp" do %{
     -docstring "find previous diagnostic"
 
     # Snippets
-    map global insert <tab> '<a-;>: try %{ lsp-snippets-select-next-placeholders } catch %{ execute-keys -with-hooks <lt>tab> }<ret>' \
-    -docstring 'Select next snippet placeholder'
+    # TODO: See parinfer issue in Clojure config below
+    # map global insert <tab> '<a-;>: try %{ lsp-snippets-select-next-placeholders } catch %{ execute-keys -with-hooks <lt>tab> }<ret>' \
+    # -docstring 'Select next snippet placeholder'
 
-    # Overridden to use general kak command, whatever that's been configured to be
-    # Here, we're intending to use a standalone graalvm cljfmt binary.
+    # Overridden to use the configured `formatcmd`
+    # For Clojure, the intent is to use the standalone graalvm cljfmt binary:
+    # https://github.com/weavejester/cljfmt?tab=readme-ov-file#usage
     map global lsp f "<esc>: format-buffer<ret>" -docstring 'format contents of the buffer'
 
-    set-option global lsp_hover_anchor true
     set-face global DiagnosticError default+u
     set-face global DiagnosticWarning default+u
 
@@ -160,63 +163,55 @@ plug "kakoune-lsp/kakoune-lsp" do %{
     face global InfoDiagnosticHint        Information
     face global InfoDiagnosticInformation Information
     face global InfoDiagnosticWarning     Information
+}
+init-kak-lsp
 
-    # Clojure Server Config:
-    #   - https://clojure-lsp.io/installation/#script
-    #   - NOTE: Installed using script method.
-    hook -group lsp-filetype-clojure global BufSetOption filetype=(clojure) %{
-        set-option buffer lsp_servers %{
-            [clojure-lsp]
-            root_globs = ["deps.edn", "project.clj", ".git", ".hg"]
-            settings_section = "_"
-            [clojure-lsp.settings._]
-            # See https://clojure-lsp.io/settings/#all-settings
-            # source-paths-ignore-regex = ["resources.*", "target.*"]
-        }
+# --------------------------------------
+# Clojure
+
+# Clojure Server Config - https://clojure-lsp.io/installation/#script
+hook -group lsp-filetype-clojure global BufSetOption filetype=(clojure) %{
+    set-option buffer lsp_servers %{
+        [clojure-lsp]
+        root_globs = ["deps.edn", "project.clj", ".git", ".hg"]
+        settings_section = "_"
+        [clojure-lsp.settings._]
+        # See https://clojure-lsp.io/settings/#all-settings
+        # source-paths-ignore-regex = ["resources.*", "target.*"]
     }
+}
 
-    hook global WinSetOption filetype=(clojure) %{
+# Clojure Filtetype Config
+hook global WinSetOption filetype=(clojure) %{
+    # TODO: disable parinfer only when inserting a snippet completion
+    # hook -once global InsertCompletionHide .* parinfer-disable-window
 
-        # TODO: disable parinfer only when inserting a snippet completion
-        # hook -once global InsertCompletionHide .* parinfer-disable-window
+    # Select Clojure def's
+    map global object e '<a-semicolon>lsp-object Function Variable<ret>' \
+    -docstring 'LSP Function or Variable (def expressions)'
 
-        # Select Clojure def's
-        map global object e '<a-semicolon>lsp-object Function Variable<ret>' \
-        -docstring 'LSP Function or Variable (def expressions)'
+    # Goto ns alias in require
+    map global goto D "<esc>: lsp-declaration<ret>" -docstring 'go to declaration'
+    map global goto <a-d> "<esc>: newv lsp-definition<ret>" -docstring 'go to defintion in vsplit'
+    map global goto <a-D> "<esc>: newh lsp-definition<ret>" -docstring 'go to defintion in hsplit'
 
-        # Goto ns alias in require
-        map global goto D "<esc>: lsp-declaration<ret>" -docstring 'go to declaration'
-        map global goto <a-d> "<esc>: newv lsp-definition<ret>" -docstring 'go to defintion in vsplit'
-        map global goto <a-D> "<esc>: newh lsp-definition<ret>" -docstring 'go to defintion in hsplit'
+    lsp-enable-window
 
-        lsp-enable-window
+    lsp-auto-signature-help-enable
+    lsp-inlay-hints-enable global
 
-        # lsp-auto-signature-help-enable
-        # lsp-inlay-hints-enable global
-
-        # Debugging kak-lsp:
-        #
-        # View debug info in a dedicated terminal:
-        # 1. Run kak-lsp in another terminal (up to 4 v's):
-        #    `kak-lsp -s main -vvv`
-        # 2. Start kakoune with:
-        #    `kak -s main`
-        # 3. Disable the exit hook (bottom of this config block) if you want.
-        #
-        # Save debug info to a log file:
-        # 1. Enable the following command to enable logging:
-        # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
-        #    - This should come after `lsp-enable-window`
-        #    - Default lsp_cmd: `kak-lsp -s %val{session}`
-    }
-
-    # Python settings
-    # NOTE: You must install the Python lsp server for this to work.
-    #       `pip install 'python-language-server[all]'`
-    # hook global WinSetOption filetype=python %{
-    #     set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
-    # }
-
-    # I think this may be deprecated
-    # hook global KakEnd .* lsp-exit
+    # Debugging kak-lsp:
+    #
+    # View debug info in a dedicated terminal:
+    # 1. Run kak-lsp in another terminal (up to 4 v's):
+    #    `kak-lsp -s main -vvv`
+    # 2. Start kakoune with:
+    #    `kak -s main`
+    # 3. Disable the exit hook (bottom of this config block) if you want.
+    #
+    # Save debug info to a log file:
+    # 1. Enable the following command to enable logging:
+    # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
+    #    - This should come after `lsp-enable-window`
+    #    - Default lsp_cmd: `kak-lsp -s %val{session}`
 }
