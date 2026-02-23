@@ -12,3 +12,7 @@ diff-selections %{
         fi
     }
 }
+
+# NOTE: This expects the `selection` user mode to be declared in the main config.
+map global selection d ': diff-selections<ret>' \
+-docstring 'Diff the selections and display the result in a new buffer'
