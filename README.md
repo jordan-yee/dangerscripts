@@ -18,6 +18,7 @@ Below is a list of all included configs/scripts.
 | Kakoune      | kakrc-*.kak    | ~/.config/kak/kakrc-*.kak    |
 | Kakoune      | custom/*       | ~/.config/kak/custom/*       |
 | Kakoune      | highlighters/* | ~/.config/kak/highlighters/* |
+| Kakoune      | plugins/*      | ~/.config/kak/plugins/*      |
 | Kakoune      | rc/*           | /usr/local/share/kak/rc/*    |
 | Tmux         | .tmux.conf     | ~/.tmux.conf                 |
 | Zshell       | .zshrc         | ~/.zshrc                     |
