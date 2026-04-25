@@ -8,23 +8,41 @@ syncing them with different systems.
 Each application has its own directory containing all config files relevant
 to that application.
 
+## Installation
+
+Kakoune configs can be installed using GNU stow. Two separate packages target different directories:
+
+```bash
+# Install user-level Kakoune config (~/.config/kak)
+stow -t ~ kakoune-user
+
+# Install system-level Kakoune rc files (/usr/local/share/kak)
+# Note: /usr/local may require sudo or write permissions
+stow -t /usr/local kakoune-local
+```
+
+Other configs below should be installed manually or via your preferred dotfile manager.
+
 ## Contents
 
-Below is a list of all included configs/scripts.
+### Stow Packages
 
-| Applications | Scripts        | Installation Path            |
-| ------------ | -------------- | ---------------------------- |
-| Kakoune      | kakrc          | ~/.config/kak/kakrc          |
-| Kakoune      | kakrc-*.kak    | ~/.config/kak/kakrc-*.kak    |
-| Kakoune      | custom/*       | ~/.config/kak/custom/*       |
-| Kakoune      | highlighters/* | ~/.config/kak/highlighters/* |
-| Kakoune      | plugins/*      | ~/.config/kak/plugins/*      |
-| Kakoune      | rc/*           | /usr/local/share/kak/rc/*    |
-| Tmux         | .tmux.conf     | ~/.tmux.conf                 |
-| Zshell       | .zshrc         | ~/.zshrc                     |
-| Flowstorm    | flowstorm/*    | ~/.flow-storm/*              |
+Managed via GNU stow:
 
-Inactive / No Longer Used
+| Applications | Package        | Installation Path       |
+| ------------ | -------------- | ----------------------- |
+| Kakoune      | kakoune-user   | ~/.config/kak/*         |
+| Kakoune      | kakoune-local  | /usr/local/share/kak/*  |
+
+### Manual Install
+
+| Applications | Scripts    | Installation Path     |
+| ------------ | ---------- | --------------------- |
+| Tmux         | .tmux.conf | ~/.tmux.conf          |
+| Zshell       | .zshrc     | ~/.zshrc              |
+| Flowstorm    | flowstorm/ | ~/.flow-storm/*       |
+
+### Inactive / No Longer Used
 
 | Applications | Scripts     | Installation Path            |
 | ------------ | ----------- | ---------------------------- |
@@ -40,7 +58,7 @@ To compare all config files with default local paths:
 
 For files that differ, you can sync them with vimdiff:
 ```shell
-vimdiff kakoune/kakrc ~/.config/kak/kakrc
-vimdiff kakoune/kakrc-filetypes.kak ~/.config/kak/kakrc-filetypes.kak
+vimdiff kakoune-user/.config/kak/kakrc ~/.config/kak/kakrc
+vimdiff kakoune-user/.config/kak/kakrc-filetypes.kak ~/.config/kak/kakrc-filetypes.kak
 vimdiff zshell/.zshrc ~/.zshrc
 ```
