@@ -10,18 +10,13 @@ to that application.
 
 ## Installation
 
-Kakoune configs can be installed using GNU stow. Two separate packages target different directories:
+Kakoune user-level configs can be installed using GNU stow:
 
 ```bash
-# Install user-level Kakoune config (~/.config/kak)
 stow -t ~ kakoune-user
-
-# Install system-level Kakoune rc files (/usr/local/share/kak)
-# Note: /usr/local may require sudo or write permissions
-stow -t /usr/local kakoune-local
 ```
 
-Other configs below should be installed manually or via your preferred dotfile manager.
+Other configs (including kakoune-local system overrides) should be installed manually or via your preferred dotfile manager.
 
 ## Contents
 
@@ -29,18 +24,18 @@ Other configs below should be installed manually or via your preferred dotfile m
 
 Managed via GNU stow:
 
-| Applications | Package        | Installation Path       |
-| ------------ | -------------- | ----------------------- |
-| Kakoune      | kakoune-user   | ~/.config/kak/*         |
-| Kakoune      | kakoune-local  | /usr/local/share/kak/*  |
+| Applications | Package        | Installation Path |
+| ------------ | -------------- | ----------------- |
+| Kakoune      | kakoune-user   | ~/.config/kak/*   |
 
 ### Manual Install
 
-| Applications | Scripts    | Installation Path     |
-| ------------ | ---------- | --------------------- |
-| Tmux         | .tmux.conf | ~/.tmux.conf          |
-| Zshell       | .zshrc     | ~/.zshrc              |
-| Flowstorm    | flowstorm/ | ~/.flow-storm/*       |
+| Applications | Scripts                      | Installation Path                    |
+| ------------ | ---------------------------- | ------------------------------------ |
+| Kakoune      | kakoune-local/share/kak/rc/* | /usr/local/share/kak/rc/* (override) |
+| Tmux         | .tmux.conf                   | ~/.tmux.conf                         |
+| Zshell       | .zshrc                       | ~/.zshrc                             |
+| Flowstorm    | flowstorm/                   | ~/.flow-storm/*                      |
 
 ### Inactive / No Longer Used
 
