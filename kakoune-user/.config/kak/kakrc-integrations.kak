@@ -1,5 +1,68 @@
 # ------------------------------------------------------------------------------
 # Integrations
+#
+# Each integration in this file depends on an external utility (rg, gh,
+# kak-lsp, etc.) that must be installed separately on the host. The patterns
+# below let the config load cleanly when some of those utilities are missing:
+# a missing tool emits a debug message and the rest of the file keeps loading.
+#
+# --------------------------------------
+# Standard pattern
+#
+# For each integration:
+#   1. Define `init-<name>` as a top-level `-hidden` kak command containing
+#      all the integration's setup (options, mappings, hooks, faces, ...).
+#   2. Guard it with `require-cmd <program> init-<name>`. Trivial one-liners
+#      may inline the body: `require-cmd <program> %{ ... }`.
+#
+# `require-cmd` (defined below) checks `command -v <program>` once at load
+# time, evaluates the kak code if found, and otherwise emits a single
+# `[integrations] <program>: not installed, skipping` debug line. Successful
+# loads log `[integrations] <program>: initialized` so `:echo -debug` can be
+# grepped to audit what loaded.
+#
+# Because `init-<name>` is a real kak command, you can re-run it
+# interactively (`:init-rg`) after installing the missing tool, with no
+# kakoune restart needed.
+#
+# --------------------------------------
+# Problems this addresses
+#
+# - Fatal failures: a single missing binary aborting config load.
+# - Silent gaps: without logging, you can't see what was skipped.
+# - Boilerplate drift: each integration would otherwise reinvent the
+#   shell-guard skeleton, with inconsistent variants accumulating over time.
+# - Code-in-strings: kak code embedded in shell `printf` args loses syntax
+#   highlighting and complicates quoting. Keeping setup in `init-<name>` at
+#   the top level avoids this.
+# - Hot-path overhead: hooks that fire frequently (e.g. `RegisterModified`)
+#   must never call `command -v` on every fire. Resolve once at startup and
+#   bake the result into the hook body.
+#
+# --------------------------------------
+# Conventions
+#
+# - `init-<name>` is `-hidden` (off completion) but still invokable for
+#   manual re-init.
+# - Emit kak commands from shell blocks with `printf "%s\n"`, not `echo`
+#   (`echo`'s `-n`/`-e` behavior is not portable).
+# - Tag all debug messages with `[integrations]` so they're greppable.
+# - `command -v` is a shell builtin: startup checks are free. Never call one
+#   inside a frequently-fired hook.
+#
+# --------------------------------------
+# Adding a new integration
+#
+# 1. Add a section comment header to keep the file scannable.
+# 2. Define `init-<name>` with the setup body.
+# 3. Add `require-cmd <program> init-<name>` immediately after.
+#
+# The standard pattern covers the common case, but specific integrations
+# may need to deviate (multiple alternative backends, on-demand-only
+# dependencies, transitively-reached dependencies, etc.). Adapt the
+# conventions to fit the integration's actual constraints on a case-by-case
+# basis. Before inventing a new approach, scan the existing integrations
+# below for one that solves a similar problem and reuse its shape.
 
 ### Example shell block to check existence of dependency. ###
 # evaluate-commands %sh{
