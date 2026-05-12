@@ -64,16 +64,23 @@
 # basis. Before inventing a new approach, scan the existing integrations
 # below for one that solves a similar problem and reuse its shape.
 
-### Example shell block to check existence of dependency. ###
-# evaluate-commands %sh{
-#     if command -v parinfer-rust >/dev/null 2>&1; then
-#         printf "%s\n" "echo -debug 'parinfer-rust is installed: initializing...'"
-#         printf "%s\n" "init-parinfer-rust"
-#         printf "%s\n" "echo -debug 'parinfer-rust config initialized.'"
-#     else
-#         printf "%s\n" "echo -debug 'parinfer-rust is not installed: skipping initialization.'"
-#     fi
-# }
+# ------------------------------------------------------------------------------
+# require-cmd helper
+#
+# See the conventions described at the top of this file for usage.
+
+define-command -hidden -override require-cmd -params 2 \
+-docstring 'require-cmd <program> <kak-code>: evaluate <kak-code> only if <program> is on $PATH' %{
+    evaluate-commands %sh{
+        if command -v "$1" >/dev/null 2>&1; then
+            printf "echo -debug '[integrations] %s: initializing...'\n" "$1"
+            printf "%s\n" "$2"
+            printf "echo -debug '[integrations] %s: initialized'\n" "$1"
+        else
+            printf "echo -debug '[integrations] %s: not installed, skipping'\n" "$1"
+        fi
+    }
+}
 
 # --------------------------------------
 # System Clipboard
