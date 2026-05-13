@@ -281,49 +281,56 @@ require-cmd kak-lsp %{
 # --------------------------------------
 # Clojure
 
-# Clojure Server Config - https://clojure-lsp.io/installation/#script
-hook -group lsp-filetype-clojure global BufSetOption filetype=(clojure) %{
-    set-option buffer lsp_servers %{
-        [clojure-lsp]
-        root_globs = ["deps.edn", "project.clj", ".git", ".hg"]
-        settings_section = "_"
-        [clojure-lsp.settings._]
-        # See https://clojure-lsp.io/settings/#all-settings
-        # source-paths-ignore-regex = ["resources.*", "target.*"]
+# NOTE: Some of the commands used here represent dependencies outside of the
+# clojure-lsp executable, such as:
+# - newv/h commands (custom kak commands)
+# - lsp-* commands  (provided by kak-lsp, above)
+define-command -hidden init-clojure-lsp %{
+    # Clojure Server Config - https://clojure-lsp.io/installation/#script
+    hook -group lsp-filetype-clojure global BufSetOption filetype=(clojure) %{
+        set-option buffer lsp_servers %{
+            [clojure-lsp]
+            root_globs = ["deps.edn", "project.clj"]
+            settings_section = "_"
+            [clojure-lsp.settings._]
+            # See https://clojure-lsp.io/settings/#all-settings
+            # source-paths-ignore-regex = ["resources.*", "target.*"]
+        }
+    }
+
+    # Clojure Filtetype Config
+    hook global WinSetOption filetype=(clojure) %{
+        # TODO: disable parinfer only when inserting a snippet completion
+        # hook -once global InsertCompletionHide .* parinfer-disable-window
+
+        # Select Clojure def's
+        map global object e '<a-semicolon>lsp-object Function Variable<ret>' \
+        -docstring 'LSP Function or Variable (def expressions)'
+
+        # Goto ns alias in require
+        map global goto D "<esc>: lsp-declaration<ret>" -docstring 'go to declaration'
+        map global goto <a-d> "<esc>: newv lsp-definition<ret>" -docstring 'go to defintion in vsplit'
+        map global goto <a-D> "<esc>: newh lsp-definition<ret>" -docstring 'go to defintion in hsplit'
+
+        lsp-enable-window
+
+        lsp-auto-signature-help-enable
+        lsp-inlay-hints-enable global
+
+        # Debugging kak-lsp:
+        #
+        # View debug info in a dedicated terminal:
+        # 1. Run kak-lsp in another terminal (up to 4 v's):
+        #    `kak-lsp -s main -vvv`
+        # 2. Start kakoune with:
+        #    `kak -s main`
+        # 3. Disable the exit hook (bottom of this config block) if you want.
+        #
+        # Save debug info to a log file:
+        # 1. Enable the following command to enable logging:
+        # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
+        #    - This should come after `lsp-enable-window`
+        #    - Default lsp_cmd: `kak-lsp -s %val{session}`
     }
 }
-
-# Clojure Filtetype Config
-hook global WinSetOption filetype=(clojure) %{
-    # TODO: disable parinfer only when inserting a snippet completion
-    # hook -once global InsertCompletionHide .* parinfer-disable-window
-
-    # Select Clojure def's
-    map global object e '<a-semicolon>lsp-object Function Variable<ret>' \
-    -docstring 'LSP Function or Variable (def expressions)'
-
-    # Goto ns alias in require
-    map global goto D "<esc>: lsp-declaration<ret>" -docstring 'go to declaration'
-    map global goto <a-d> "<esc>: newv lsp-definition<ret>" -docstring 'go to defintion in vsplit'
-    map global goto <a-D> "<esc>: newh lsp-definition<ret>" -docstring 'go to defintion in hsplit'
-
-    lsp-enable-window
-
-    lsp-auto-signature-help-enable
-    lsp-inlay-hints-enable global
-
-    # Debugging kak-lsp:
-    #
-    # View debug info in a dedicated terminal:
-    # 1. Run kak-lsp in another terminal (up to 4 v's):
-    #    `kak-lsp -s main -vvv`
-    # 2. Start kakoune with:
-    #    `kak -s main`
-    # 3. Disable the exit hook (bottom of this config block) if you want.
-    #
-    # Save debug info to a log file:
-    # 1. Enable the following command to enable logging:
-    # set-option global lsp_cmd "kak-lsp -s %val{session} -vvv --log /tmp/kak-lsp.log"
-    #    - This should come after `lsp-enable-window`
-    #    - Default lsp_cmd: `kak-lsp -s %val{session}`
-}
+require-cmd clojure-lsp init-clojure-lsp
