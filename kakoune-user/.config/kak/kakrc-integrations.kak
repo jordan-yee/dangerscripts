@@ -183,10 +183,11 @@ require-cmd rg %{ set-option global grepcmd 'rg --column --smart-case' }
 # --------------------------------------
 # kakoune.cr
 # See https://github.com/alexherbo2/kakoune.cr
+#
+# Stdout-emitting binary: `kcr init kakoune` writes kak commands to
+# stdout, so the inline body wraps it in `evaluate-commands %sh{}`.
 
-evaluate-commands %sh{
-    kcr init kakoune
-}
+require-cmd kcr %{ evaluate-commands %sh{ kcr init kakoune } }
 
 # --------------------------------------
 # gh (GitHub CLI)
