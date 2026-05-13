@@ -214,8 +214,6 @@ require-cmd gh %{
 # - LSP Servers:
 #   - [clojure-lsp](https://clojure-lsp.io/installation/#script)
 
-evaluate-commands %sh{kak-lsp}
-
 # --------------------------------------
 # General LSP Configuration
 
@@ -274,7 +272,11 @@ define-command -hidden init-kak-lsp %{
     face global InfoDiagnosticInformation Information
     face global InfoDiagnosticWarning     Information
 }
-init-kak-lsp
+
+require-cmd kak-lsp %{
+    evaluate-commands %sh{kak-lsp}
+    init-kak-lsp
+}
 
 # --------------------------------------
 # Clojure
