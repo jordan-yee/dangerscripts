@@ -84,50 +84,86 @@ define-command -hidden -override require-cmd -params 2 \
 
 # --------------------------------------
 # System Clipboard
+#
+# Variant: multiple alternative backends + hot-path hook.
+# - Supports clip.exe (WSL), wl-copy (Wayland), xsel (X11). The first
+#   available is selected at startup. WSL paste uses powershell.exe
+#   since clip.exe has no read counterpart.
+# - To avoid a per-yank `command -v`, the resolved copy/paste shell
+#   commands are stored in `clipboard_copy_cmd` / `clipboard_paste_cmd`
+#   options. The hook and yank-system-clipboard `eval` those options.
+# - Detection is bespoke, so this section invokes `init-clipboard`
+#   directly rather than going through `require-cmd`. `init-clipboard`
+#   mirrors the standard pattern as a single entry point: it calls
+#   `set-clipboard-commands` for detection, then installs the hook,
+#   yank-system-clipboard command, and user mappings. Nothing is
+#   installed until `init-clipboard` runs, so calling
+#   `:yank-system-clipboard` standalone fails with "no such command"
+#   rather than silently producing an empty paste.
 
-# Save primary selection to system clipboard on all copy operations.
-hook global RegisterModified '"' %{ nop %sh{
-    # Copy to Ubuntu clipboard
-    # NOTE: This system clipboard integration requires xsel to be installed.
-    #       `apt install -y xsel`
-    #printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
+declare-option -hidden str clipboard_copy_cmd
+declare-option -hidden str clipboard_paste_cmd
 
-    # Copy to Sway/Wayland clipboard (NOTE: needs improvements)
-    #( wl-copy --trim-newline $kak_main_reg_dquote & ) 2>/dev/null
-
-    # Copy to tmux clipboard
-    #tmux set-buffer -- "$kak_main_reg_dquote"
-
-    # Copy to Windows clipboard from WSL
-    printf %s "$kak_main_reg_dquote" | clip.exe
-}}
-
-define-command yank-system-clipboard \
--docstring 'save system clipboard to yank/paste register' %{
+# Detect the available clipboard backend and store its copy/paste shell
+# commands in the clipboard_*_cmd options. If no backend is available,
+# the options remain empty.
+define-command -hidden set-clipboard-commands %{
     evaluate-commands %sh{
-        windows_clipboard=$(powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//')
-        printf "set-register dquote '%s'\n" "$windows_clipboard"
+        # Backend priority: WSL -> Wayland -> X11.
+        if command -v clip.exe >/dev/null 2>&1 && command -v powershell.exe >/dev/null 2>&1; then
+            backend='clip.exe / powershell.exe (WSL)'
+            copy='printf %s "$kak_main_reg_dquote" | clip.exe'
+            paste="powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '\$ s/\n\$//'"
+        elif command -v wl-copy >/dev/null 2>&1 && command -v wl-paste >/dev/null 2>&1; then
+            backend='wl-copy / wl-paste (Wayland)'
+            copy='printf %s "$kak_main_reg_dquote" | wl-copy --trim-newline'
+            paste='wl-paste --no-newline'
+        elif command -v xsel >/dev/null 2>&1; then
+            backend='xsel (X11)'
+            copy='printf %s "$kak_main_reg_dquote" | xsel --input --clipboard'
+            paste='xsel --output --clipboard'
+        else
+            printf "echo -debug '[integrations] clipboard: no backend found'\n"
+            exit 0
+        fi
+
+        printf "echo -debug '[integrations] clipboard: backend resolved (%s)'\n" "$backend"
+        printf "set-option global clipboard_copy_cmd %%{%s}\n" "$copy"
+        printf "set-option global clipboard_paste_cmd %%{%s}\n" "$paste"
     }
 }
 
-# paste from system clipboard
-# map global user P '!xsel --output --clipboard<ret>' -docstring 'Paste system clipboard before cursor'
-# map global user p '<a-!>xsel --output --clipboard<ret>' -docstring 'Paste system clipboard after cursor'
-map global user P -docstring 'Paste system clipboard before cursor' \
-":eval yank-system-clipboard<ret>P"
-# "!powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//'<ret>"
-map global user p -docstring 'Paste system clipboard after cursor' \
-":eval yank-system-clipboard<ret>p"
-# "<a-!>powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '$ s/\n$//'<ret>"
-map global user R -docstring 'Replace selections with system clipboard' \
-":eval yank-system-clipboard<ret>R"
+# Detect the backend, then install the integration: RegisterModified
+# hook, yank-system-clipboard command, and user mappings for P/p/R.
+# If no backend was detected, the hook and command are still installed
+# but evaluate as silent no-ops (eval of empty option string).
+define-command -hidden init-clipboard %{
+    set-clipboard-commands
 
-# Wayland / Sway wl-copy/paste integration
-# map global user P '!wl-paste --no-newline | dos2unix<ret>' -docstring 'Paste system clipboard before cursor'
-# map global user p '<a-!>wl-paste --no-newline | dos2unix<ret>' -docstring 'Paste system clipboard after cursor'
-# map global user R '|wl-paste --no-newline | dos2unix<ret>' -docstring 'Replace selections with system clipboard'
+    # Save primary selection to system clipboard on all copy operations.
+    hook global RegisterModified '"' %{ nop %sh{
+        eval "$kak_opt_clipboard_copy_cmd"
+    }}
 
-# NOTE: Wayland (WSL) / Windows integration is setup externally
+    define-command -override yank-system-clipboard \
+    -docstring 'save system clipboard to yank/paste register' %{
+        evaluate-commands %sh{
+            clipboard=$(eval "$kak_opt_clipboard_paste_cmd")
+            printf "set-register dquote '%s'\n" "$clipboard"
+        }
+    }
+
+    map global user P -docstring 'Paste system clipboard before cursor' \
+    ":eval yank-system-clipboard<ret>P"
+    map global user p -docstring 'Paste system clipboard after cursor' \
+    ":eval yank-system-clipboard<ret>p"
+    map global user R -docstring 'Replace selections with system clipboard' \
+    ":eval yank-system-clipboard<ret>R"
+
+    echo -debug '[integrations] clipboard: initialized'
+}
+
+init-clipboard
 
 # --------------------------------------
 # ripgrep (rg) / :grep command enhancements
