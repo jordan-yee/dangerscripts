@@ -167,8 +167,9 @@ init-clipboard
 
 # --------------------------------------
 # ripgrep (rg) / :grep command enhancements
-# NOTE: You must install ripgrep for this functionality to work.
-
+#
+# Trivial one-liner: uses the inline `require-cmd <prog> %{ ... }` form.
+#
 # Useful rg options:
 # --smart-case : case insensitive if search is all lowercase, otherwise case sensitive
 # --max-count 1 : only 1 matching line per file is returned
@@ -177,7 +178,7 @@ init-clipboard
 #   SORTBY : path, modified, accessed, created, none
 # --word-regexp : only show matches surrounded by word boundaries
 
-set-option global grepcmd 'rg --column --smart-case'
+require-cmd rg %{ set-option global grepcmd 'rg --column --smart-case' }
 
 # --------------------------------------
 # kakoune.cr
