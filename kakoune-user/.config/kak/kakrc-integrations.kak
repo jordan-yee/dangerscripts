@@ -192,16 +192,18 @@ require-cmd kcr %{ evaluate-commands %sh{ kcr init kakoune } }
 # --------------------------------------
 # gh (GitHub CLI)
 
-define-command -override gh-browse \
--docstring 'Open file to current line in GitHub in your browser' %{
-    # TODO: check
-    # - existence of gh command
-    # - that we're in a github repo
-    echo %sh{
-        project_root=$(PWD) # assuming kak's working directory is project root
-        gh browse "$kak_reg_percent:$kak_cursor_line"
-        # printf "gh browse %s\n" "$kak_reg_percent:$kak_cursor_line"
-        printf "Opening current file in GitHub...\n"
+require-cmd gh %{
+    define-command -override gh-browse \
+    -docstring 'Open file to current line in GitHub in your browser' %{
+        echo %sh{
+            project_root=$(PWD) # assuming kak's working directory is project root
+            if git config --get remote.origin.url 2>/dev/null | grep -qE 'github\.com[:/]'; then
+                gh browse "$kak_reg_percent:$kak_cursor_line"
+                printf "Opening current file in GitHub...\n"
+            else
+                printf "Not a GitHub repo (origin remote does not point to github.com)\n"
+            fi
+        }
     }
 }
 
