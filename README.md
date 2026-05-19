@@ -16,7 +16,8 @@ Kakoune user-level configs can be installed using GNU stow:
 stow -t ~ kakoune-user
 ```
 
-Other configs (including kakoune-local system overrides) should be installed manually or via your preferred dotfile manager.
+Other configs (including kakoune-local system overrides) should be installed
+manually or via your preferred dotfile manager.
 
 ## Contents
 
