@@ -114,7 +114,7 @@ declare-option -hidden str clipboard_paste_cmd
 # options remain empty.
 define-command -hidden set-clipboard-commands %{
     evaluate-commands %sh{
-            # Backend priority: WSL -> Wayland -> X11.
+        # Backend priority: WSL -> Wayland -> X11.
         if command -v clip.exe >/dev/null 2>&1 && command -v powershell.exe >/dev/null 2>&1; then
             backend='clip.exe / powershell.exe (WSL)'
             copy='clip.exe'
