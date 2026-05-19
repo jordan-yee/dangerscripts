@@ -100,27 +100,32 @@ define-command -hidden -override require-cmd -params 2 \
 #   installed until `init-clipboard` runs, so calling
 #   `:yank-system-clipboard` standalone fails with "no such command"
 #   rather than silently producing an empty paste.
+#
+# NOTE:
+# This clipboard integration was implemented independently, but it may be worth
+# cross-referencing with the [kakboard plugin](https://github.com/lePerdu/kakboard/blob/master/kakboard.kak)
+# to identify further improvements.
 
 declare-option -hidden str clipboard_copy_cmd
 declare-option -hidden str clipboard_paste_cmd
 
 # Detect the available clipboard backend and store its copy/paste shell
-# commands in the clipboard_*_cmd options. If no backend is available,
-# the options remain empty.
+# commands in the clipboard_*_cmd options. If no backend is available, the
+# options remain empty.
 define-command -hidden set-clipboard-commands %{
     evaluate-commands %sh{
-        # Backend priority: WSL -> Wayland -> X11.
+            # Backend priority: WSL -> Wayland -> X11.
         if command -v clip.exe >/dev/null 2>&1 && command -v powershell.exe >/dev/null 2>&1; then
             backend='clip.exe / powershell.exe (WSL)'
-            copy='printf %s "$kak_main_reg_dquote" | clip.exe'
+            copy='clip.exe'
             paste="powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '\$ s/\n\$//'"
         elif command -v wl-copy >/dev/null 2>&1 && command -v wl-paste >/dev/null 2>&1; then
             backend='wl-copy / wl-paste (Wayland)'
-            copy='printf %s "$kak_main_reg_dquote" | wl-copy --trim-newline'
+            copy='wl-copy --trim-newline'
             paste='wl-paste --no-newline'
         elif command -v xsel >/dev/null 2>&1; then
             backend='xsel (X11)'
-            copy='printf %s "$kak_main_reg_dquote" | xsel --input --clipboard'
+            copy='xsel --input --clipboard'
             paste='xsel --output --clipboard'
         else
             printf "echo -debug '[integrations] clipboard: no backend found'\n"
@@ -142,7 +147,7 @@ define-command -hidden init-clipboard %{
 
     # Save primary selection to system clipboard on all copy operations.
     hook global RegisterModified '"' %{ nop %sh{
-        eval "$kak_opt_clipboard_copy_cmd"
+        printf '%s' "$kak_main_reg_dquote" | eval "$kak_opt_clipboard_copy_cmd"
     }}
 
     define-command -override yank-system-clipboard \
