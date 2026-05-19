@@ -71,6 +71,9 @@ hook global WinSetOption filetype=clojure -group clojure-fmt %{
     # `--indents=indentation.clj` needed for cljs projects, if not all
     evaluate-commands %sh{
         if [ -f 'indentation.clj' ]; then
+            # Breaking Changes in 0.11.x:
+            # > The --indents and --alias-map keys have been removed from the
+            # > CLI, in favor of using a configuration file instead.
             printf "%s\n" "set-option buffer formatcmd 'cljfmt --indents=indentation.clj fix -'"
         else
             printf "%s\n" "set-option buffer formatcmd 'cljfmt fix -'"
