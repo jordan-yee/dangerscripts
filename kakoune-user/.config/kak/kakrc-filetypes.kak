@@ -194,3 +194,25 @@ hook global WinSetOption filetype=python %{
     # execute pytest for the current file
     source "%val{config}/custom/pytest.kak"
 }
+
+# --------------------------------------
+# Rust
+
+define-command -override rust-init %{
+    map buffer repl r ":repl-send-text 'cargo run'<ret>" -docstring 'Exec `cargo run` in connected terminal repl'
+}
+
+hook global WinSetOption filetype=rust %{
+    set-option window tabstop 4
+    set-option window indentwidth 4
+
+    set-option buffer formatcmd 'rustfmt'
+    hook window BufWritePre .* format
+
+    map buffer repl r ":repl-mode-eval-text 'cargo run'<ret>" -docstring 'Exec `cargo run` in connected terminal repl'
+    map buffer repl c ":repl-mode-eval-text 'cargo check'<ret>" -docstring 'Exec `cargo check` in connected terminal repl'
+    hook -once -always window WinSetOption filetype=.* %{
+        unmap window repl r
+        unmap window repl c
+    }
+}
