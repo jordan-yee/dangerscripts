@@ -231,7 +231,7 @@ define-command -hidden enable-format-mode-mappings \
 # ------------------------------------------------------------------------------
 # Specific Language Settings
 
-# (NOTE: this relies on external dependencies)
+# NOTE: this relies on things defined above in this main config file
 source "~/.config/kak/kakrc-filetypes.kak"
 
 # ------------------------------------------------------------------------------
