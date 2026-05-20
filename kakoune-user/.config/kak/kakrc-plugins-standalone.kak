@@ -315,7 +315,11 @@ plug "jordan-yee/kakoune-repl-mode" config %{
 
 # load-path "~/github/jordan-yee/kakoune-git-mode/"
 plug "jordan-yee/kakoune-git-mode" config %{
-    set-option global git_mode_use_structured_quick_commit true
+    # Set structured commit message options here
+    # set-option global git_mode_use_structured_quick_commit true
+    # set-option global git_mode_commit_prefixes 'feat::fix::docs::refactor::build::test::style::BREAKING CHANGE::'
+    # set-option global git_mode_branch_label_regex 'SCRUM-[0-9]+'
+
     declare-git-mode
     map global user g ': enter-user-mode git<ret>' -docstring "git mode"
     # NOTE: this depends on tmux and lazygit
