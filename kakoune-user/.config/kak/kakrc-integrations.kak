@@ -153,8 +153,10 @@ define-command -hidden init-clipboard %{
     define-command -override yank-system-clipboard \
     -docstring 'save system clipboard to yank/paste register' %{
         evaluate-commands %sh{
-            clipboard=$(eval "$kak_opt_clipboard_paste_cmd")
-            printf "set-register dquote '%s'\n" "$clipboard"
+            tmpfile=$(mktemp)
+            eval "$kak_opt_clipboard_paste_cmd" > "$tmpfile"
+            printf "set-register dquote %%file{%s}\n" "$tmpfile"
+            printf "nop %%sh{rm -f '%s'}\n" "$tmpfile"
         }
     }
 
