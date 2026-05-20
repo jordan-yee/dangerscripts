@@ -38,15 +38,15 @@ plug "andreyorst/fzf.kak" config %{
 # Configuration for the `mru-files` plugin
 # https://gitlab.com/kstr0k/mru-files.kak
 
-plug 'https://gitlab.com/kstr0k/mru-files.kak.git' %{
-    # optional customization: set these *before* plugin loads
-    #set global mru_files_history %sh{echo "$HOME/.local/share/kak/mru.txt"}
-} demand mru-files %{  # %{} needed even if empty
-    # suggested mappings: *after* plugin loads
-    # think "go alt[ernate]-f[iles]"
-    map global goto <a-f> '<esc>: mru-files ' -docstring 'mru-files'
-    map global goto <a-F> '<esc>: mru-files-related<ret>' -docstring 'mru-files-related'
-}
+# plug 'https://gitlab.com/kstr0k/mru-files.kak.git' %{
+#     # optional customization: set these *before* plugin loads
+#     #set global mru_files_history %sh{echo "$HOME/.local/share/kak/mru.txt"}
+# } demand mru-files %{  # %{} needed even if empty
+#     # suggested mappings: *after* plugin loads
+#     # think "go alt[ernate]-f[iles]"
+#     map global goto <a-f> '<esc>: mru-files ' -docstring 'mru-files'
+#     map global goto <a-F> '<esc>: mru-files-related<ret>' -docstring 'mru-files-related'
+# }
 # optional: enable kakhist (see kakhist/README.md)
 
 # ------------------------------------------------------------------------------
