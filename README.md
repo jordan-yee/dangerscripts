@@ -16,6 +16,18 @@ Kakoune user-level configs can be installed using GNU stow:
 stow -t ~ kakoune-user
 ```
 
+To update symlinks after pulling new changes:
+
+```bash
+stow -Rt ~ kakoune-user
+```
+
+To uninstall (remove symlinks):
+
+```bash
+stow -Dt ~ kakoune-user
+```
+
 Other configs (including kakoune-local system overrides) should be installed
 manually or via your preferred dotfile manager.
 
