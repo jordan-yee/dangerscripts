@@ -198,10 +198,6 @@ hook global WinSetOption filetype=python %{
 # --------------------------------------
 # Rust
 
-define-command -override rust-init %{
-    map buffer repl r ":repl-send-text 'cargo run'<ret>" -docstring 'Exec `cargo run` in connected terminal repl'
-}
-
 hook global WinSetOption filetype=rust %{
     set-option window tabstop 4
     set-option window indentwidth 4
