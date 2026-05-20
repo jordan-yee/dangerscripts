@@ -10,21 +10,28 @@ to that application.
 
 ## Installation
 
+Set up the kakoune config directories and install `plug.kak` before installing
+the kakoune-user stow package:
+```sh
+mkdir -p $HOME/.config/kak/plugins
+git clone https://github.com/andreyorst/plug.kak.git $HOME/.config/kak/plugins/plug.kak
+```
+
 Kakoune user-level configs can be installed using GNU stow:
 
-```bash
+```sh
 stow -t ~ kakoune-user
 ```
 
 To update symlinks after pulling new changes:
 
-```bash
+```sh
 stow -Rt ~ kakoune-user
 ```
 
 To uninstall (remove symlinks):
 
-```bash
+```sh
 stow -Dt ~ kakoune-user
 ```
 
@@ -60,12 +67,12 @@ Managed via GNU stow:
 ## Comparing with local configs
 
 To compare all config files with default local paths:
-```shell
+```sh
 ./difflocal.sh
 ```
 
 For files that differ, you can sync them with vimdiff:
-```shell
+```sh
 vimdiff kakoune-user/.config/kak/kakrc ~/.config/kak/kakrc
 vimdiff kakoune-user/.config/kak/kakrc-filetypes.kak ~/.config/kak/kakrc-filetypes.kak
 vimdiff zshell/.zshrc ~/.zshrc
