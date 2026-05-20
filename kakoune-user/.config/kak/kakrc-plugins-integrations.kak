@@ -78,11 +78,14 @@ plug "andreyorst/fzf.kak" config %{
 # Configuration for the `auto-pairs.kak` plugin
 # https://github.com/alexherbo2/auto-pairs.kak
 
-# NOTE: Dependent on kakoune.cr:
+# NOTE: Older versions dependent on kakoune.cr:
 #       https://github.com/alexherbo2/kakoune.cr
 #       - `kcr` is initialized in kakrc-integrations.kak
-
+#
+# UPDATE: It appears the kcr usage was removed/reverted in this commit:
+#         - Aug 18, 2021 | 5058de7 | "Restore plugin"
 plug "alexherbo2/auto-pairs.kak" config %{
+    # set-option global auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ ›
     set-option global auto_pairs { }
     enable-auto-pairs
 }
