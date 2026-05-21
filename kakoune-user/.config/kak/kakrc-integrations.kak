@@ -146,8 +146,12 @@ define-command -hidden init-clipboard %{
     set-clipboard-commands
 
     # Save primary selection to system clipboard on all copy operations.
+    # wl-copy stays alive to serve clipboard data rather than exiting, which
+    # keeps the inherited stdout fd open and causes kakoune to hang waiting for
+    # the %sh{} to finish. Backgrounding with >/dev/null 2>&1 closes those fds
+    # so the shell exits immediately.
     hook global RegisterModified '"' %{ nop %sh{
-        printf '%s' "$kak_main_reg_dquote" | eval "$kak_opt_clipboard_copy_cmd"
+        printf '%s' "$kak_main_reg_dquote" | eval "$kak_opt_clipboard_copy_cmd" >/dev/null 2>&1 &
     }}
 
     define-command -override yank-system-clipboard \
