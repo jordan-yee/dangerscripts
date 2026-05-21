@@ -224,6 +224,7 @@ require-cmd gh %{
 # - https://github.com/kakoune-lsp/kakoune-lsp/releases
 # - LSP Servers:
 #   - [clojure-lsp](https://clojure-lsp.io/installation/#script)
+#   - [rust-analyzer](https://rust-analyzer.github.io/book/rust_analyzer_binary.html)
 
 # Debugging kak-lsp:
 #
@@ -350,3 +351,42 @@ define-command -hidden init-clojure-lsp %{
     }
 }
 require-cmd clojure-lsp init-clojure-lsp
+
+# --------------------------------------
+# Rust
+
+define-command -hidden init-rust-analyzer %{
+    hook -group lsp-filetype-rust global BufSetOption filetype=rust %{
+        set-option buffer lsp_servers %{
+            [rust-analyzer]
+            root_globs = ["Cargo.toml"]
+            single_instance = true
+            [rust-analyzer.experimental]
+            commands.commands = ["rust-analyzer.runSingle"]
+            hoverActions = true
+            [rust-analyzer.settings.rust-analyzer]
+            # See https://rust-analyzer.github.io/manual.html#configuration
+            # cargo.features = []
+            check.command = "clippy"
+            [rust-analyzer.symbol_kinds]
+            Constant = "const"
+            Enum = "enum"
+            EnumMember = ""
+            Field = ""
+            Function = "fn"
+            Interface = "trait"
+            Method = "fn"
+            Module = "mod"
+            Object = ""
+            Struct = "struct"
+            TypeParameter = "type"
+            Variable = "let"
+        }
+    }
+
+    # Rust Filtetype Config
+    hook -group lsp-filetype-rust global WinSetOption filetype=(rust) %{
+        init-std-lsp-filetype-config
+    }
+}
+require-cmd rust-analyzer init-rust-analyzer
