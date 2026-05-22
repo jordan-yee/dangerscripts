@@ -1,8 +1,7 @@
 # Command parsing and quoting
 
-This is the foundation. Get it wrong and nothing else matters — most "my hook does
-nothing" / "weird parse error" reports are a quoting mistake. Source of truth:
-`:doc command-parsing` and `:doc expansions`.
+Most "my hook does nothing" / "weird parse error" problems are a quoting mistake.
+Source of truth: `:doc command-parsing` and `:doc expansions`.
 
 ## How a line is parsed
 
@@ -121,7 +120,7 @@ content is used:
   `add-highlighter %exp{window/%val{hook_param_capture_1}-ref-diff} ref diff`.
 - any other letters — **parse error**.
 
-## The verbatim-now / re-parsed-later rule (read this twice)
+## The verbatim-now / re-parsed-later rule
 
 A `%{…}` argument is captured *verbatim* at the current parse. When that argument is
 later **executed as commands** (a `define-command` body, a `hook` body, the right

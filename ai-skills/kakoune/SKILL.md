@@ -18,13 +18,10 @@ description: >-
 Kakoune is configured and extended in **kakscript**: the same command language you
 type at the `:` prompt, saved into `.kak` files. There is no embedded Lua/Vimscript
 — the language is "commands + expansions," and anything beyond that is delegated to
-a POSIX shell via `%sh{ … }`. This skill captures how that language actually parses
-and runs, plus the conventions distilled from Kakoune's own `rc/` scripts so that
-new code matches upstream quality.
+a POSIX shell via `%sh{ … }`.
 
-This file is the map. Read the focused reference under `references/` for whatever
-you are touching — do not guess at quoting or hook semantics, they are precise and
-unforgiving.
+This file is the map: read the focused reference under `references/` for whatever
+you touch — quoting and hook semantics are precise and unforgiving, don't guess.
 
 ## The five things that cause 90% of kakscript bugs
 
@@ -56,12 +53,11 @@ unforgiving.
 - **Expansions** (`%val{}`, `%opt{}`, `%reg{}`, `%arg{}`, `%sh{}`, `%file{}`,
   `%exp{}`) are substituted *before* the command runs — but only when unquoted or
   inside `"…"`, never inside `'…'` or `%{…}`.
-- **Normal mode is the editing language.** There is no `delete-line` command — you
-  script edits by feeding normal-mode keys to `execute-keys` (e.g. `x` to select a
-  line, `d` to delete, `<a-k>regex<ret>` to keep selections matching a regex). The
-  `<a-k>` "keep matching" key doubles as kakscript's `if`: it errors when nothing
-  matches, and `try` swallows that error. Read `references/regex.md` for the regex
-  dialect and `doc/autoedit.asciidoc` thinking in `references/execution-model.md`.
+- **Normal mode is the editing language.** There is no `delete-line`; you script
+  edits by feeding normal-mode keys to `execute-keys` (`x` select line, `d` delete,
+  `<a-k>regex<ret>` keep selections matching). `<a-k>` doubles as kakscript's `if`:
+  it errors when nothing matches and `try` swallows that error. See
+  `references/regex.md` and `references/execution-model.md`.
 - **Client–server, shell-first.** Sorting, formatting, completion, linting are done
   by external Unix tools, not reimplemented. The integration surface is `%sh{}`,
   the `$kak_*` env vars, the command/response fifos, and `kak -p <session>` for
@@ -110,23 +106,20 @@ jump-to-source). Copy one and adapt it rather than starting from a blank file.
 
 ## Verifying kakscript (there is no test framework)
 
-Kakoune ships no unit-test harness for config — you confirm behaviour by running it
-and watching the editor's own introspection: `:doc <topic>` (authoritative, matches
-the installed version), the `*debug*` buffer, `:debug options|buffers|faces|mappings`,
-and `kak -n` for a clean isolated session. See `references/debugging-and-dev-loop.md`
-for the full loop.
+Confirm behaviour by running it and watching Kakoune's own introspection: `:doc
+<topic>` (authoritative, matches the installed version), the `*debug*` buffer,
+`:debug options|faces|mappings`, and `kak -n` for a clean session. Full loop in
+`references/debugging-and-dev-loop.md`.
 
 ## Upstream-quality bar (this skill targets shareable code)
 
-Every script should clear these; the per-pattern references carry the full
-checklists (`filetype-plugin-pattern.md`, `tool-plugin-pattern.md`, and
-`plugin-structure-and-conventions.md`):
+The per-pattern references carry the full checklists; the essentials:
 
-- Prefix every option/command/face with the script name (`_` between option words,
-  `-` between command words); `-docstring` everything non-hidden, `-hidden` the helpers.
-- `%sh{}` is POSIX — `[ ]` not `[[ ]]`, `printf` not `echo`, no bashisms or GNU-only
-  flags unless that dependency is the point of the script and is documented.
+- Prefix every option/command/face with the script name (`_` in option words, `-`
+  in command words); `-docstring` everything non-hidden, `-hidden` helpers.
+- `%sh{}` is POSIX — `[ ]` not `[[ ]]`, `printf` not `echo`, no bashisms or
+  GNU-only flags unless that documented dependency is the point of the script.
 - Hooks/highlighters/maps are `-group`ed and torn down on filetype/window change;
   highlighters live in `shared/` and attach via `ref`.
-- Loads lazily (`provide-module` + a `KakBegin`/`WinSetOption` `require-module`)
-  rather than doing heavy work at source time.
+- Load lazily (`provide-module` + a `KakBegin`/`WinSetOption` `require-module`),
+  not at source time.

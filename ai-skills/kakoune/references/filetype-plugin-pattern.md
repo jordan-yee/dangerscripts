@@ -1,10 +1,8 @@
 # The filetype plugin pattern
 
 Synthesized from Kakoune's `rc/filetype/*.kak`. Every filetype script follows the
-same skeleton; they differ only in *how many* of the optional refinements they add.
-This file gives the canonical structure first, then a ladder of refinements so you
-can match the level a given language needs. Pair with `highlighters-and-faces.md`,
-`hooks.md`, and `execution-model.md`.
+same skeleton; they differ only in *how many* optional refinements they add. Pair
+with `highlighters-and-faces.md`, `hooks.md`, and `execution-model.md`.
 
 Contents:
 
@@ -94,23 +92,10 @@ add-highlighter shared/mylang/code/keywords regex \b(if|else|fn)\b 0:keyword
 add-highlighter shared/mylang/code/numbers  regex \b\d+\b 0:value
 ```
 
-Build keyword highlighters + `static_words` from one shell block so the grammar is
-declared in a single place:
-
-```
-evaluate-commands %sh{
-    keywords='if else fn let return match'
-    types='int bool str'
-    values='true false nil'
-    join() { sep=$2; eval set -- $1; IFS="$sep"; echo "$*"; }   # see shell-and-portability.md
-    printf %s\\n "declare-option str-list mylang_static_words $(join "${keywords} ${types} ${values}" ' ')"
-    printf %s "
-        add-highlighter shared/mylang/code/keywords regex \b($(join "${keywords}" '|'))\b 0:keyword
-        add-highlighter shared/mylang/code/types    regex \b($(join "${types}" '|'))\b 0:type
-        add-highlighter shared/mylang/code/values   regex \b($(join "${values}" '|'))\b 0:value
-    "
-}
-```
+Build keyword highlighters and `static_words` from one shell block so the grammar
+is declared in a single place — the `join`-helper idiom is shown in
+`highlighters-and-faces.md`, with a full runnable version in
+`../assets/example-filetype.kak`.
 
 Use **semantic faces** (`keyword`, `type`, `value`, `string`, `comment`, `meta`,
 `function`, `module`, `attribute`, `operator`, `documentation`) so colorschemes

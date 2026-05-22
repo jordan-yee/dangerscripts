@@ -1,10 +1,9 @@
 # The external-tool plugin pattern
 
 Synthesized from `rc/tools/*.kak` (make, grep, jump, fifo, format, comment, ctags,
-lint, git, man, doc). Kakoune's design delegates real work — building, grepping,
-formatting, linting, completion — to Unix tools and wires the results back in. This
-file is the playbook for that wiring. Pair with `shell-and-portability.md`,
-`defining-commands.md`, and `options.md`.
+lint, git, man, doc). Kakoune delegates real work — building, grepping, formatting,
+linting, completion — to Unix tools and wires the results back in. Pair with
+`shell-and-portability.md`, `defining-commands.md`, and `options.md`.
 
 A complete, runnable version of this pattern is in `../assets/example-tool.kak` —
 copy it as a starting point.

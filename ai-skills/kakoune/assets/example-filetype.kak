@@ -45,11 +45,10 @@ provide-module example %{
     add-highlighter shared/example/string  region '"' (?<!\\)(\\\\)*" fill string
     add-highlighter shared/example/comment region '#' '$'            fill comment
 
-    # Declare the grammar once: the same keyword lists feed both the keyword
-    # highlighters and `static_words` completion. `join` turns a space-separated list
-    # into `a|b|c` (regex) or `a b c` (static_words). Shell functions cannot cross a
-    # %sh{} boundary, so a runnable script must define join inline; it is explained
-    # once in references/shell-and-portability.md.
+    # Declare the grammar once: these lists feed both the keyword highlighters and
+    # `static_words`. `join` builds `a|b|c` (regex) or `a b c` (static_words); it must
+    # be defined inline (shell functions can't cross %sh{}). See
+    # references/shell-and-portability.md.
     evaluate-commands %sh{
         keywords='if else for while return'
         types='int bool str'

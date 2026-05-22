@@ -50,9 +50,8 @@ hook -group example-output-highlight global WinSetOption filetype=example-output
 }
 
 hook global WinSetOption filetype=example-output %{
-    # <ret> jumps to the file:line:col under the cursor in the jump client. The
-    # generic `jump` (from jump.kak) parses that format, so no custom jumper is
-    # needed; define one and `alias buffer jump …` only if your output differs.
+    # <ret> jumps to the file:line:col under the cursor in the jump client; the
+    # generic `jump` (from jump.kak) parses that format.
     hook buffer -group example-output-hooks NormalKey <ret> jump
     hook -once -always window WinSetOption filetype=.* %{ remove-hooks buffer example-output-hooks }
 }
