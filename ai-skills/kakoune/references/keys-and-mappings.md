@@ -27,7 +27,8 @@ unmap <scope> <mode> <key> [<expected>]
 ```
 
 - `<scope>`: `global`/`buffer`/`window`.
-- `<mode>`: `normal`, `insert`, `prompt`, `user`, `goto`, `view`, `object`.
+- `<mode>`: `normal`, `insert`, `prompt`, `menu`, `user`, `goto`, `view`, `object`
+  (the full set also includes `combine`).
 - The right-hand `<keys>` are **not** affected by other mappings — they always do
   their built-in thing. Mappings only intercept the left-hand key.
 - `<keys>` execute in the current mode's context, except `user`-mode mappings always

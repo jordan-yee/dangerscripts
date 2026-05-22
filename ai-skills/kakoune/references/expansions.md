@@ -96,8 +96,9 @@ Inside `%sh{}` two named pipes are available:
 
 ```
 %sh{
-    echo "echo -to-file $kak_response_fifo %val{bufname}" > $kak_command_fifo
-    name=$(cat $kak_response_fifo)
+    # ask Kakoune to write the whole buffer to the response fifo, then read it back
+    echo "write $kak_response_fifo" > $kak_command_fifo
+    content=$(cat $kak_response_fifo)   # buffer text — not available via any $kak_* var
 }
 ```
 

@@ -76,9 +76,9 @@ prematurely close an outer one. From `rust.kak`:
 ```
 define-command -hidden rust-indent-on-new-line %~      # level 1: ~
     evaluate-commands -draft -itersel %@               # level 2: @
-        try %{ … }                                     # level 3: {}
-        try %< execute-keys -draft … <ret> … >         # sibling: <>
-        try %_ execute-keys -draft … <ret> … _         # sibling: _
+        try %{                                         # level 3: {}
+            try %[ … ] catch %[ … ]                    # level 4: [] (line- vs block-comment branches)
+        }
     @
 ~
 ```
