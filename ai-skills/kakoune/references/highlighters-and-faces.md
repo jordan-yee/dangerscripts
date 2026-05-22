@@ -93,14 +93,15 @@ Markdown loads languages dynamically: `require-module <lang>` then add a
 
 ## Building keyword highlighters from the shell
 
-Long keyword lists become alternations via a `join` helper, and the same list feeds
-`static_words` completion (universal filetype idiom):
+Long keyword lists become alternations via the `join` helper (defined and explained
+in `shell-and-portability.md`), and the same list feeds `static_words` completion —
+the universal filetype idiom for declaring the grammar in one place:
 
 ```
 evaluate-commands %sh{
     keywords='if else fn let return'
     types='int bool str'
-    join() { sep=$2; eval set -- $1; IFS="$sep"; echo "$*"; }
+    join() { sep=$2; eval set -- $1; IFS="$sep"; echo "$*"; }   # see shell-and-portability.md
     printf %s\\n "declare-option str-list mylang_static_words $(join "${keywords} ${types}" ' ')"
     printf %s "
         add-highlighter shared/mylang/code/keywords regex \b($(join "${keywords}" '|'))\b 0:keyword

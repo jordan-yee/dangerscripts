@@ -4,7 +4,10 @@ Synthesized from `rc/tools/*.kak` (make, grep, jump, fifo, format, comment, ctag
 lint, git, man, doc). Kakoune's design delegates real work — building, grepping,
 formatting, linting, completion — to Unix tools and wires the results back in. This
 file is the playbook for that wiring. Pair with `shell-and-portability.md`,
-`commands.md`, and `options.md`.
+`defining-commands.md`, and `options.md`.
+
+A complete, runnable version of this pattern is in `../assets/example-tool.kak` —
+copy it as a starting point.
 
 ## Shape of a tool plugin
 
@@ -39,7 +42,7 @@ Four conventions to copy:
 - **Lazy-load with `hook -once global KakBegin .* %{ require-module … }`.** The plugin
   costs nothing until the session starts (and modules dedupe), versus running setup
   at source time.
-- **Validate before working** (`commands.md`): emit `fail '…'` from a shell guard if a
+- **Validate before working** (`defining-commands.md`): emit `fail '…'` from a shell guard if a
   required option is empty.
 
 ## Routing command output into a buffer: fifo + jump + toolsclient
@@ -139,7 +142,7 @@ nop %sh{ (
 
 For *command-argument* completion (not insert mode) use
 `-shell-script-candidates` on the command (cached, fuzzy-matched) — see `ctags.kak`,
-`git.kak`, and `commands.md`.
+`git.kak`, and `defining-commands.md`.
 
 ## Diagnostics: gutter flags and inline ranges
 

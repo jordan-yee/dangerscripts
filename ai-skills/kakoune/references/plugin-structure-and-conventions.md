@@ -32,7 +32,7 @@ require-module <name>
   dependencies (`require-module fifo`) and to defer expensive setup.
 - `-override` lets you redefine a module, but **only if it hasn't been required yet**;
   once evaluated it can't be replaced without restarting. (Plan reloads accordingly —
-  see the dev loop below.)
+  see `debugging-and-dev-loop.md`.)
 - `ModuleLoaded <name>` hook fires after a module first evaluates.
 
 Loading idioms by plugin type:
@@ -95,16 +95,9 @@ From `doc/writing_scripts.asciidoc` — follow exactly for shareable code:
 
 ## Development / debug loop
 
-- **Clean session:** `kak -n` skips user config; `:source path/to/plugin.kak` loads
-  just your script for isolated testing.
-- **Reload:** re-`:source` for top-level commands/hooks. Module bodies need
-  `provide-module -override` (before first require) or a restart — during heavy module
-  development, restarting `kak -n` is often fastest.
-- **Inspect:** `:buffer *debug*` for errors/stderr; `:debug options|buffers|faces|
-  mappings` for state; `echo -debug %val{…}` to trace; `set-option global debug
-  'hooks|shell|commands|keys'` for verbose logging.
-- **Live reference:** `:doc <topic>` always matches the installed version — trust it
-  over memory for exact switch names and `%val` availability.
+The full loop lives in `debugging-and-dev-loop.md`: clean sessions (`kak -n`),
+reloading (`:source`, `provide-module -override`), state inspection (`:debug …` and
+the `*debug*` buffer), and `:doc` as the live reference.
 
 ## Contributing upstream (if targeting the Kakoune repo)
 

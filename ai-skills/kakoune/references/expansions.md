@@ -56,8 +56,10 @@ while [ $# -gt 0 ]; do
 done
 ```
 
-This is the canonical idiom (used by `c-family.kak`, `lint.kak`, …). Never iterate
-`$kak_selections` directly when elements may contain spaces or newlines.
+This is the canonical idiom (used by `c-family.kak`, `lint.kak`, …); see
+`shell-and-portability.md` for the `for`-loop form and the emit-side `kakquote`
+helper. Never iterate `$kak_selections` directly when elements may contain spaces or
+newlines.
 
 ### Two ways to run shell, and when to use each
 

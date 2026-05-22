@@ -90,7 +90,7 @@ local  >  window  >  buffer  >  global
 |---|---|
 | Quoting, `%`-strings, delimiters, escaping, typed expansions | `references/command-parsing-and-quoting.md` |
 | `%val`/`%opt`/`%reg`/`%arg`/`%sh`/`%file`/`%exp`, `$kak_*` vars, fifos | `references/expansions.md` |
-| `define-command`, `-params`, completion, aliases, `try`/`fail`/`nop`/`echo`/`info`/`prompt`/`on-key` | `references/commands.md` |
+| `define-command`, `-params`, completion, aliases, `try`/`fail`/`nop`/`echo`/`info`/`prompt`/`on-key` | `references/defining-commands.md` |
 | `evaluate-commands` vs `execute-keys`, `-draft`/`-itersel`/`-save-regs`/`-no-hooks`, scripting edits | `references/execution-model.md` |
 | `hook`, scopes, groups, `-once`/`-always`, the hook catalog, cleanup | `references/hooks.md` |
 | `declare-option`/`set-option`, option types incl. `line-specs`/`range-specs`/`completions` | `references/options.md` |
@@ -101,37 +101,32 @@ local  >  window  >  buffer  >  global
 | **A new filetype / syntax-highlighting / indent script** | `references/filetype-plugin-pattern.md` |
 | **A command that drives an external tool** (build, grep, format, lint, completion, REPL) | `references/tool-plugin-pattern.md` |
 | File layout, module loading, naming, docstrings, distribution, autoload | `references/plugin-structure-and-conventions.md` |
+| Debugging, the dev loop, `:doc`, `*debug*`, `:source`/`-override`, `kak -n` | `references/debugging-and-dev-loop.md` |
 
-## Verifying kakscript (no test framework — verify by running)
+Complete, copyable starting points live in `assets/`: `example-filetype.kak` (a full
+filetype — detection, highlighting, `static_words` completion, indentation) and
+`example-tool.kak` (an external-tool command that streams output to a buffer with
+jump-to-source). Copy one and adapt it rather than starting from a blank file.
 
-Kakoune ships no unit-test harness for config; you confirm behavior by running it.
+## Verifying kakscript (there is no test framework)
 
-- **Read the live docs.** Inside Kakoune, `:doc <topic>` (e.g. `:doc expansions`,
-  `:doc highlighters`) is the authoritative reference and matches the version
-  installed. The same text lives in `doc/pages/*.asciidoc`.
-- **Watch the debug buffer.** `:buffer *debug*` collects errors, hook failures, and
-  anything written to stderr from a `%sh{}` block. `echo -debug %val{…}` and
-  `set-option global debug 'hooks|shell|commands|keys'` make execution traceable.
-- **Iterate without restarting.** `:source <file>` reloads a script. A `provide-module`
-  body only evaluates once; to redefine it you need `provide-module -override`
-  (and it must not have been required yet) or restart. During development, a clean
-  session via `kak -n` (skip user config) plus an explicit `:source` is the fastest
-  loop.
-- **Inspect state.** `:debug options`, `:debug buffers`, `:debug faces`,
-  `:debug mappings` dump current values.
+Kakoune ships no unit-test harness for config — you confirm behaviour by running it
+and watching the editor's own introspection: `:doc <topic>` (authoritative, matches
+the installed version), the `*debug*` buffer, `:debug options|buffers|faces|mappings`,
+and `kak -n` for a clean isolated session. See `references/debugging-and-dev-loop.md`
+for the full loop.
 
-## Upstream-quality checklist (this skill targets shareable code)
+## Upstream-quality bar (this skill targets shareable code)
 
-Before considering a script done, confirm against
-`references/plugin-structure-and-conventions.md`:
+Every script should clear these; the per-pattern references carry the full
+checklists (`filetype-plugin-pattern.md`, `tool-plugin-pattern.md`, and
+`plugin-structure-and-conventions.md`):
 
-- [ ] All options/commands/faces prefixed with the script name; underscores for
-      option words, hyphens for command words.
-- [ ] Every non-hidden command/option has a `-docstring`; internal helpers are `-hidden`.
-- [ ] Shell in `%sh{}` is POSIX (`[ ]` not `[[ ]]`, `printf` not `echo`, no bashisms).
-- [ ] Hooks are `-group`ed and torn down on filetype/win change.
-- [ ] Highlighters live in `shared/` and are attached via `ref`, with matching removal.
-- [ ] The plugin loads lazily (`provide-module` + a `KakBegin`/`WinSetOption`
-      `require-module`) rather than running heavy work at source time.
-- [ ] No reliance on a specific shell, GNU-only flags, or non-POSIX utilities unless
-      that dependency is the whole point of the script and is documented.
+- Prefix every option/command/face with the script name (`_` between option words,
+  `-` between command words); `-docstring` everything non-hidden, `-hidden` the helpers.
+- `%sh{}` is POSIX — `[ ]` not `[[ ]]`, `printf` not `echo`, no bashisms or GNU-only
+  flags unless that dependency is the point of the script and is documented.
+- Hooks/highlighters/maps are `-group`ed and torn down on filetype/window change;
+  highlighters live in `shared/` and attach via `ref`.
+- Loads lazily (`provide-module` + a `KakBegin`/`WinSetOption` `require-module`)
+  rather than doing heavy work at source time.

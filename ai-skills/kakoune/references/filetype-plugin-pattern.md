@@ -6,6 +6,17 @@ This file gives the canonical structure first, then a ladder of refinements so y
 can match the level a given language needs. Pair with `highlighters-and-faces.md`,
 `hooks.md`, and `execution-model.md`.
 
+Contents:
+
+- The canonical skeleton — the four parts every filetype has
+- The highlighter body
+- The refinement ladder, rungs 0–6 — add only what the language needs
+- Module aliasing — one implementation, several filetypes
+- Checklist for a new filetype
+
+A complete, runnable version of this skeleton is in
+`../assets/example-filetype.kak` — copy it as a starting point.
+
 ## The canonical skeleton (every filetype has these four parts)
 
 ```
@@ -91,7 +102,7 @@ evaluate-commands %sh{
     keywords='if else fn let return match'
     types='int bool str'
     values='true false nil'
-    join() { sep=$2; eval set -- $1; IFS="$sep"; echo "$*"; }
+    join() { sep=$2; eval set -- $1; IFS="$sep"; echo "$*"; }   # see shell-and-portability.md
     printf %s\\n "declare-option str-list mylang_static_words $(join "${keywords} ${types} ${values}" ' ')"
     printf %s "
         add-highlighter shared/mylang/code/keywords regex \b($(join "${keywords}" '|'))\b 0:keyword

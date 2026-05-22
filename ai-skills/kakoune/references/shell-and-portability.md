@@ -102,6 +102,9 @@ Key points:
 
 ## Debugging shell blocks
 
+The general dev loop (`:doc`, the `*debug*` buffer, reloading, `kak -n`) is in
+`debugging-and-dev-loop.md`; the shell-specific parts are:
+
 - Anything on **stderr** goes to `*debug*`. Add `printf '%s\n' "debug: $x" >&2` while
   developing.
 - `set-option global debug 'shell'` logs each shell invocation.
