@@ -97,8 +97,8 @@ From `doc/writing_scripts.asciidoc` — follow exactly for shareable code:
 
 The full loop lives in `debugging-and-dev-loop.md`: clean sessions (`kak -n`),
 reloading (`:source`, `provide-module -override`), state inspection (`:debug …` and
-the `*debug*` buffer), and `:doc` as the live reference (interactive; Claude Code
-reads the same pages from `<prefix>/share/kak/doc/` — see that file).
+the `*debug*` buffer), and `:doc` as the live reference (interactive; the same pages
+are on disk at `<prefix>/share/kak/doc/` — see that file).
 
 ## Contributing upstream (if targeting the Kakoune repo)
 

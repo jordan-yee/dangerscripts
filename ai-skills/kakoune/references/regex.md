@@ -3,8 +3,9 @@
 Kakoune's regex is ECMAScript-flavored but with important additions and a few
 divergences. It is used in hook filters, highlighter patterns, `<a-k>`/`s`/`<a-s>`
 key conditions, and `regex`/`range-specs` options. Reference: `:doc regex`
-(interactive — Claude Code can instead read `<prefix>/share/kak/doc/regex.asciidoc`
-directly; see SKILL.md for the prefix). Matching is always over **Unicode
+(interactive; read the same content on disk at
+`<prefix>/share/kak/doc/regex.asciidoc` — see SKILL.md for the prefix). Matching is
+always over **Unicode
 codepoints**, never bytes.
 
 ## Cheat sheet

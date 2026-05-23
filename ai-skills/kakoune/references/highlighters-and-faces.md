@@ -2,9 +2,8 @@
 
 Highlighters change how text is displayed (syntax highlighting, gutters, whitespace,
 matching). Faces are the color/attribute definitions they apply. References: `:doc
-highlighters`, `:doc faces` (interactive — Claude Code can instead read
-`<prefix>/share/kak/doc/{highlighters,faces}.asciidoc` directly; see SKILL.md for the
-prefix).
+highlighters`, `:doc faces` (interactive; read the same content on disk at
+`<prefix>/share/kak/doc/{highlighters,faces}.asciidoc` — see SKILL.md for the prefix).
 
 ```
 add-highlighter [-override] <path>/<name> <type> <params>...

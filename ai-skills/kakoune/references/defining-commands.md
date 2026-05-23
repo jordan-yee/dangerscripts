@@ -1,7 +1,7 @@
 # Defining commands, completion, aliases, and the helper commands
 
-Reference: `:doc commands` (interactive — Claude Code can instead read
-`<prefix>/share/kak/doc/commands.asciidoc` directly; see SKILL.md for the prefix).
+Reference: `:doc commands` (interactive; read the same content on disk at
+`<prefix>/share/kak/doc/commands.asciidoc` — see SKILL.md for the prefix).
 This covers how you expose functionality; how it runs is
 in `execution-model.md`.
 

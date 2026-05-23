@@ -1,7 +1,7 @@
 # Execution model: evaluate-commands, execute-keys, and draft contexts
 
-How code actually runs. Reference: `:doc execeval` (interactive — Claude Code can
-instead read `<prefix>/share/kak/doc/execeval.asciidoc` directly; see SKILL.md for the
+How code actually runs. Reference: `:doc execeval` (interactive; read the same
+content on disk at `<prefix>/share/kak/doc/execeval.asciidoc` — see SKILL.md for the
 prefix), and `doc/pages/autoedit.asciidoc` (source tree only, not installed) for the
 indentation-hook reasoning that this model is built for.
 

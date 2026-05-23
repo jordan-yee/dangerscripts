@@ -8,11 +8,11 @@ whole loop; the shell-specific traps stay in `shell-and-portability.md`.
 
 `:doc <topic>` inside Kakoune (e.g. `:doc expansions`, `:doc highlighters`) is the
 authoritative reference and always matches the *installed* version — trust it over
-memory for exact switch names and `%val` availability. `:doc` is interactive, so
-Claude Code can't invoke it; read the same text directly from the installed asciidoc
-files at `<prefix>/share/kak/doc/<topic>.asciidoc`. The prefix matches the `kak`
-binary (`/usr/local/bin/kak` → `/usr/local/share/kak/doc/`) and equals `%val{runtime}`
-in a session. (The Kakoune *source* tree keeps these — plus source-only pages — under
+memory for exact switch names and `%val` availability. `:doc` is interactive (it opens
+a buffer in a running Kakoune); the same text is installed on disk as plain asciidoc,
+readable directly, at `<prefix>/share/kak/doc/<topic>.asciidoc`. The prefix matches
+the `kak` binary (`/usr/local/bin/kak` → `/usr/local/share/kak/doc/`) and equals
+`%val{runtime}` in a session. (The Kakoune *source* tree keeps these — plus source-only pages — under
 `doc/pages/`.)
 
 ## Watch the debug buffer
