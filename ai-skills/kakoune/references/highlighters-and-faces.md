@@ -81,17 +81,19 @@ Markdown loads languages dynamically: `require-module <lang>` then add a
 
 ## General highlighters
 
-| Type | Use |
-|---|---|
-| `regex <re> <cap>:<face> …` | color regex captures. `0` = whole match, `1`..`n` = groups, or named groups. `regex //\h*(TODO:)\N* 0:cyan 1:yellow,red` |
-| `dynregex <expr> <cap>:<face>` | like `regex` but expands `<expr>` first; `dynregex '%reg{/}' 0:+i` highlights live search matches |
-| `fill <face>` | flood a region with one face (the usual region body for strings/comments) |
-| `group [-passes colorize|move|wrap]` | container for other highlighters |
-| `line <n> <face>` / `column <n> <face>` | highlight a line/column |
-| `flag-lines <face> <line-specs-opt>` | gutter flags from a `line-specs` option (lint, git) |
-| `ranges <range-specs-opt>` | apply faces to ranges from a `range-specs` option (diagnostics) |
-| `replace-ranges <range-specs-opt>` | display markup in place of ranges |
-| `show-matching`, `show-whitespaces`, `number-lines`, `wrap` | convenience highlighters with their own switches |
+| Type                                                        | Use                                                                       |
+|-------------------------------------------------------------|---------------------------------------------------------------------------|
+| `regex <re> <cap>:<face> …`                                 | color regex captures. `0` = whole match, `1`..`n` = groups, or named groups. `regex //\h*(TODO:)\N* 0:cyan 1:yellow,red` |
+| `dynregex <expr> <cap>:<face>`                              | like `regex` but expands `<expr>` first; `dynregex '%reg{/}' 0:+i` highlights live search matches |
+| `fill <face>`                                               | flood a region with one face (the usual region body for strings/comments) |
+| `group [-passes colorize\|move\|wrap]`                      | container for other highlighters                                          |
+| `line <n> <face>` / `column <n> <face>`                     | highlight a line/column                                                   |
+| `flag-lines <face> <line-specs-opt>`                        | gutter flags from a `line-specs` option (lint, git)                       |
+| `ranges <range-specs-opt>`                                  | apply faces to ranges from a `range-specs` option (diagnostics)           |
+| `replace-ranges <range-specs-opt>`                          | display markup in place of ranges                                         |
+| `show-matching`, `show-whitespaces`, `number-lines`, `wrap` | convenience highlighters with their own switches                          |
+
+Note: the `|` characters in the `group` row are escaped (`\|`) so they aren't parsed as column breaks.
 
 ## Building keyword highlighters from the shell
 

@@ -7,15 +7,15 @@ expansions` (interactive — Claude Code can instead read
 
 ## The expansion types
 
-| Type | Expands to | Notes |
-|---|---|---|
-| `%val{x}` | engine value not stored in an option/register | e.g. `%val{client}`, `%val{selection}`, `%val{cursor_line}`; some need a context (window/hook) |
-| `%opt{x}` | the option `x` in the current scope | `%opt{filetype}` |
-| `%reg{x}` | contents of register `x` | symbol or alphabetic name: `%reg{/}` = `%reg{slash}` |
-| `%arg{n}` / `%arg{@}` | command argument n / all args | only inside a `define-command` body |
-| `%sh{ … }` | stdout of running the body as a POSIX shell script | blocks input until done; see below |
-| `%file{path}` | the contents of a host file | `set-register a %file{/etc/hosts}` |
-| `%exp{ … }` | its content, expanded like a `"…"` string | for composing strings from several expansions |
+| Type                  | Expands to                                         | Notes                                                |
+|-----------------------|----------------------------------------------------|------------------------------------------------------|
+| `%val{x}`             | engine value not stored in an option/register      | e.g. `%val{client}`, `%val{selection}`, `%val{cursor_line}`; some need a context (window/hook) |
+| `%opt{x}`             | the option `x` in the current scope                | `%opt{filetype}`                                     |
+| `%reg{x}`             | contents of register `x`                           | symbol or alphabetic name: `%reg{/}` = `%reg{slash}` |
+| `%arg{n}` / `%arg{@}` | command argument n / all args                      | only inside a `define-command` body                  |
+| `%sh{ … }`            | stdout of running the body as a POSIX shell script | blocks input until done; see below                   |
+| `%file{path}`         | the contents of a host file                        | `set-register a %file{/etc/hosts}`                   |
+| `%exp{ … }`           | its content, expanded like a `"…"` string          | for composing strings from several expansions        |
 
 Lists expand to multiple words **only** when they are semantically lists
 (`str-list` options, registers with several entries, `%val{selections}`). Unlike
@@ -28,13 +28,13 @@ The body is a verbatim `%`-string handed to `/bin/sh`. Kakoune expansions do **n
 run inside it; instead Kakoune exports the values you *mention* as environment
 variables. Mapping:
 
-| kakscript | shell env var |
-|---|---|
-| `%val{x}` | `$kak_x` (e.g. `$kak_session`, `$kak_buffile`, `$kak_cursor_line`) |
-| `%opt{x}` | `$kak_opt_x` |
-| `%reg{x}` | `$kak_reg_x` (all entries) / `$kak_main_reg_x` (main only) |
-| `%arg{n}` / `%arg{@}` | `$n` / `$@` (args are passed to the shell automatically) |
-| quoted list form | `$kak_quoted_<thing>` — shell-safe, re-split with `eval set --` |
+| kakscript             | shell env var                                                      |
+|-----------------------|--------------------------------------------------------------------|
+| `%val{x}`             | `$kak_x` (e.g. `$kak_session`, `$kak_buffile`, `$kak_cursor_line`) |
+| `%opt{x}`             | `$kak_opt_x`                                                       |
+| `%reg{x}`             | `$kak_reg_x` (all entries) / `$kak_main_reg_x` (main only)         |
+| `%arg{n}` / `%arg{@}` | `$n` / `$@` (args are passed to the shell automatically)           |
+| quoted list form      | `$kak_quoted_<thing>` — shell-safe, re-split with `eval set --`    |
 
 **Only variables actually referenced are exported.** A variable named only inside a
 comment still counts, which is the documented way to force-export one you build

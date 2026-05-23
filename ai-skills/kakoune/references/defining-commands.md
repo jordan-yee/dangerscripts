@@ -89,19 +89,19 @@ teardown).
 
 ## Helper commands you script with
 
-| Command | Use |
-|---|---|
-| `try <cmds> [catch <on-error>]…` | swallow/branch on errors; the engine's `if/else`. `%val{error}` holds the message in a catch. Multiple `catch` chain. |
-| `fail <text>` | raise an error with a message (aborts the current command run). |
-| `nop` | do nothing, but still evaluate arguments — `nop %sh{ … }` for side-effect-only shell. |
-| `echo [-markup] [-debug] [-to-file f] [-quoting q] <text>` | status line; `-debug` → `*debug*`; `-markup` enables `{Face}` tags. |
-| `info [-anchor l.c] [-style …] [-title t] [-markup] <text>` | popup box. Styles: `menu`, `above`, `below`, `modal`. `info -style modal` with no text hides a modal box. |
-| `prompt [-init s] [-on-change c] [-on-abort c] [-password] <prompt> <cmd>` | ask for a line; result in `%val{text}` / `$kak_text`. |
-| `on-key <cmd>` | wait for one key; it's in `%val{key}` / `$kak_key`. |
-| `menu [-auto-single] [-select-cmds] <title> <cmd> …` | choosable list; pairs of title+command (triples with `-select-cmds`). `-auto-single` runs immediately if only one item. |
-| `set-register <name> <contents>…` | each arg becomes one entry (registers are lists). |
-| `select <desc>…` | replace selections from `a.b,c.d` descriptors. |
-| `debug {info,buffers,options,faces,mappings,…}` | dump state to `*debug*`. |
+| Command                                                                    | Use                                                                                                                     |
+|----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `try <cmds> [catch <on-error>]…`                                           | swallow/branch on errors; the engine's `if/else`. `%val{error}` holds the message in a catch. Multiple `catch` chain.   |
+| `fail <text>`                                                              | raise an error with a message (aborts the current command run).                                                         |
+| `nop`                                                                      | do nothing, but still evaluate arguments — `nop %sh{ … }` for side-effect-only shell.                                   |
+| `echo [-markup] [-debug] [-to-file f] [-quoting q] <text>`                 | status line; `-debug` → `*debug*`; `-markup` enables `{Face}` tags.                                                     |
+| `info [-anchor l.c] [-style …] [-title t] [-markup] <text>`                | popup box. Styles: `menu`, `above`, `below`, `modal`. `info -style modal` with no text hides a modal box.               |
+| `prompt [-init s] [-on-change c] [-on-abort c] [-password] <prompt> <cmd>` | ask for a line; result in `%val{text}` / `$kak_text`.                                                                   |
+| `on-key <cmd>`                                                             | wait for one key; it's in `%val{key}` / `$kak_key`.                                                                     |
+| `menu [-auto-single] [-select-cmds] <title> <cmd> …`                       | choosable list; pairs of title+command (triples with `-select-cmds`). `-auto-single` runs immediately if only one item. |
+| `set-register <name> <contents>…`                                          | each arg becomes one entry (registers are lists).                                                                       |
+| `select <desc>…`                                                           | replace selections from `a.b,c.d` descriptors.                                                                          |
+| `debug {info,buffers,options,faces,mappings,…}`                            | dump state to `*debug*`.                                                                                                |
 
 `prompt`, `on-key`, and `info` act on the **current client**, so inside a draft
 context (`evaluate-commands -draft`) they are invisible/inert unless driven by an

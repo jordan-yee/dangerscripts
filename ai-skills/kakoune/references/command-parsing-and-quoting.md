@@ -17,11 +17,11 @@ directly; see SKILL.md for the prefix).
 
 A word that starts with one of these is a quoted string spanning whitespace:
 
-| Form | Inside it… | Escape the delimiter by… |
-|---|---|---|
-| `'single'` | nothing is processed — fully literal | doubling: `''` |
-| `"double"` | `%`-expansions ARE processed | doubling: `""`, and `%%` for a literal `%` |
-| `%X…X` | content is verbatim (no expansion) unless `X`'s *type* says otherwise | depends on `X`, see below |
+| Form       | Inside it…                                                            | Escape the delimiter by…                   |
+|------------|-----------------------------------------------------------------------|--------------------------------------------|
+| `'single'` | nothing is processed — fully literal                                  | doubling: `''`                             |
+| `"double"` | `%`-expansions ARE processed                                          | doubling: `""`, and `%%` for a literal `%` |
+| `%X…X`     | content is verbatim (no expansion) unless `X`'s *type* says otherwise | depends on `X`, see below                  |
 
 Key consequence: **expansions run when unquoted or inside `"…"`, but never inside
 `'…'` or inside a `%{…}` string.**

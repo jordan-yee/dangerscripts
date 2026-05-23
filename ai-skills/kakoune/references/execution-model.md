@@ -21,13 +21,15 @@ use `<space>` or a quoted `" "` when you actually need a space key.
 
 ## Switches shared by both
 
-| Switch | Effect |
-|---|---|
-| `-draft` | run in a **copy** of the context — selection/input changes are discarded. The cornerstone of non-destructive editing. |
-| `-itersel` | run once per selection, each in its own context; prevents selections merging. |
-| `-save-regs <regs>` | save and restore the named registers around execution. (`execute-keys` already auto-saves `/ " | ^ @ :` unless you override with `-save-regs`.) |
-| `-client <names>` / `-try-client <name>` | run in the context of other client(s). `-try-client` falls back to the current context if the named client doesn't exist. |
-| `-buffer <names>` | run once per named buffer. `*` = all non-debug buffers. |
+| Switch                                   | Effect                                                                                                                                           |
+|------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `-draft`                                 | run in a **copy** of the context — selection/input changes are discarded. The cornerstone of non-destructive editing.                            |
+| `-itersel`                               | run once per selection, each in its own context; prevents selections merging.                                                                    |
+| `-save-regs <regs>`                      | save and restore the named registers around execution. (`execute-keys` already auto-saves `/ " \| ^ @ :` unless you override with `-save-regs`.) |
+| `-client <names>` / `-try-client <name>` | run in the context of other client(s). `-try-client` falls back to the current context if the named client doesn't exist.                        |
+| `-buffer <names>`                        | run once per named buffer. `*` = all non-debug buffers.                                                                                          |
+
+Note: the `|` in the `-save-regs` row is escaped (`\|`) so it isn't parsed as a column break.
 
 `evaluate-commands`-only:
 
