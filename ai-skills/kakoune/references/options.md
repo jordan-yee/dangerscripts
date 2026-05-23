@@ -1,7 +1,10 @@
 # Options
 
 Options are Kakoune's named, typed, scoped values — used both to configure the
-editor and as a plugin's own storage. Reference: `:doc options`, `:doc scopes`.
+editor and as a plugin's own storage. Reference: `:doc options`, `:doc scopes`
+(interactive — Claude Code can instead read
+`<prefix>/share/kak/doc/{options,scopes}.asciidoc` directly; see SKILL.md for the
+prefix).
 
 ## Commands
 

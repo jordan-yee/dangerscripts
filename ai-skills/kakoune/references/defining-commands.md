@@ -1,6 +1,8 @@
 # Defining commands, completion, aliases, and the helper commands
 
-Reference: `:doc commands`. This covers how you expose functionality; how it runs is
+Reference: `:doc commands` (interactive — Claude Code can instead read
+`<prefix>/share/kak/doc/commands.asciidoc` directly; see SKILL.md for the prefix).
+This covers how you expose functionality; how it runs is
 in `execution-model.md`.
 
 ## `define-command`

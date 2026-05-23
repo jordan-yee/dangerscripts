@@ -1,7 +1,9 @@
 # Command parsing and quoting
 
 Most "my hook does nothing" / "weird parse error" problems are a quoting mistake.
-Source of truth: `:doc command-parsing` and `:doc expansions`.
+Source of truth: `:doc command-parsing` and `:doc expansions` (interactive — Claude
+Code can instead read `<prefix>/share/kak/doc/{command-parsing,expansions}.asciidoc`
+directly; see SKILL.md for the prefix).
 
 ## How a line is parsed
 

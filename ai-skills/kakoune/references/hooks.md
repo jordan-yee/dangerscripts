@@ -1,6 +1,8 @@
 # Hooks
 
-Hooks run commands on editor events. Reference: `:doc hooks`. They are the backbone
+Hooks run commands on editor events. Reference: `:doc hooks` (interactive — Claude
+Code can instead read `<prefix>/share/kak/doc/hooks.asciidoc` directly; see SKILL.md
+for the prefix). They are the backbone
 of filetype activation, indentation, and reacting to option changes.
 
 ```

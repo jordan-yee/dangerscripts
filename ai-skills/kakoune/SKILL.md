@@ -108,8 +108,11 @@ jump-to-source). Copy one and adapt it rather than starting from a blank file.
 
 Confirm behaviour by running it and watching Kakoune's own introspection: `:doc
 <topic>` (authoritative, matches the installed version), the `*debug*` buffer,
-`:debug options|faces|mappings`, and `kak -n` for a clean session. Full loop in
-`references/debugging-and-dev-loop.md`.
+`:debug options|faces|mappings`, and `kak -n` for a clean session. `:doc` is
+interactive, so Claude Code can't invoke it — read the same pages directly from the
+installed asciidoc at `<prefix>/share/kak/doc/<topic>.asciidoc`, where `<prefix>`
+matches the `kak` binary (`/usr/local/bin/kak` → `/usr/local/share/kak/doc/`). Full
+loop in `references/debugging-and-dev-loop.md`.
 
 ## Upstream-quality bar (this skill targets shareable code)
 

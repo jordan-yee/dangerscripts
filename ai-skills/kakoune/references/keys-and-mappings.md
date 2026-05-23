@@ -1,7 +1,9 @@
 # Keys, mappings, and user modes
 
 How to name keys, bind them, and build menus of commands. References: `:doc mapping`,
-`:doc modes`, `:doc keys` (the full normal-mode command list).
+`:doc modes`, `:doc keys` (the full normal-mode command list) — interactive, so Claude
+Code can instead read `<prefix>/share/kak/doc/{mapping,modes,keys}.asciidoc` directly
+(see SKILL.md for the prefix).
 
 ## Key notation
 
