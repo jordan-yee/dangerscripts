@@ -82,22 +82,22 @@ local  >  window  >  buffer  >  global
 
 ## Which reference to open
 
-| Working on… | Read |
-|---|---|
-| Quoting, `%`-strings, delimiters, escaping, typed expansions | `references/command-parsing-and-quoting.md` |
-| `%val`/`%opt`/`%reg`/`%arg`/`%sh`/`%file`/`%exp`, `$kak_*` vars, fifos | `references/expansions.md` |
-| `define-command`, `-params`, completion, aliases, `try`/`fail`/`nop`/`echo`/`info`/`prompt`/`on-key` | `references/defining-commands.md` |
-| `evaluate-commands` vs `execute-keys`, `-draft`/`-itersel`/`-save-regs`/`-no-hooks`, scripting edits | `references/execution-model.md` |
-| `hook`, scopes, groups, `-once`/`-always`, the hook catalog, cleanup | `references/hooks.md` |
-| `declare-option`/`set-option`, option types incl. `line-specs`/`range-specs`/`completions` | `references/options.md` |
-| `add-highlighter`, regions, `ref`/`shared`, regex captures, specs highlighters, faces, markup | `references/highlighters-and-faces.md` |
-| Key notation, `map`/`unmap`, modes, `declare-user-mode`/`enter-user-mode`, count/register forwarding | `references/keys-and-mappings.md` |
-| Regex dialect, divergences from ECMAScript, `\K`/`\N`/`\Q\E`/`\h` | `references/regex.md` |
-| POSIX shell rules, `printf` vs `echo`, `kakquote`, `join`, async detached jobs, `kak -p` | `references/shell-and-portability.md` |
-| **A new filetype / syntax-highlighting / indent script** | `references/filetype-plugin-pattern.md` |
-| **A command that drives an external tool** (build, grep, format, lint, completion, REPL) | `references/tool-plugin-pattern.md` |
-| File layout, module loading, naming, docstrings, distribution, autoload | `references/plugin-structure-and-conventions.md` |
-| Debugging, the dev loop, `:doc`, `*debug*`, `:source`/`-override`, `kak -n` | `references/debugging-and-dev-loop.md` |
+| Working on…                                                                                          | Read                                             |
+|------------------------------------------------------------------------------------------------------|--------------------------------------------------|
+| Quoting, `%`-strings, delimiters, escaping, typed expansions                                         | `references/command-parsing-and-quoting.md`      |
+| `%val`/`%opt`/`%reg`/`%arg`/`%sh`/`%file`/`%exp`, `$kak_*` vars, fifos                               | `references/expansions.md`                       |
+| `define-command`, `-params`, completion, aliases, `try`/`fail`/`nop`/`echo`/`info`/`prompt`/`on-key` | `references/defining-commands.md`                |
+| `evaluate-commands` vs `execute-keys`, `-draft`/`-itersel`/`-save-regs`/`-no-hooks`, scripting edits | `references/execution-model.md`                  |
+| `hook`, scopes, groups, `-once`/`-always`, the hook catalog, cleanup                                 | `references/hooks.md`                            |
+| `declare-option`/`set-option`, option types incl. `line-specs`/`range-specs`/`completions`           | `references/options.md`                          |
+| `add-highlighter`, regions, `ref`/`shared`, regex captures, specs highlighters, faces, markup        | `references/highlighters-and-faces.md`           |
+| Key notation, `map`/`unmap`, modes, `declare-user-mode`/`enter-user-mode`, count/register forwarding | `references/keys-and-mappings.md`                |
+| Regex dialect, divergences from ECMAScript, `\K`/`\N`/`\Q\E`/`\h`                                    | `references/regex.md`                            |
+| POSIX shell rules, `printf` vs `echo`, `kakquote`, `join`, async detached jobs, `kak -p`             | `references/shell-and-portability.md`            |
+| **A new filetype / syntax-highlighting / indent script**                                             | `references/filetype-plugin-pattern.md`          |
+| **A command that drives an external tool** (build, grep, format, lint, completion, REPL)             | `references/tool-plugin-pattern.md`              |
+| File layout, module loading, naming, docstrings, distribution, autoload                              | `references/plugin-structure-and-conventions.md` |
+| Debugging, the dev loop, `:doc`, `*debug*`, `:source`/`-override`, `kak -n`                          | `references/debugging-and-dev-loop.md`           |
 
 Complete, copyable starting points live in `assets/`: `example-filetype.kak` (a full
 filetype — detection, highlighting, `static_words` completion, indentation) and
