@@ -23,29 +23,6 @@ a POSIX shell via `%sh{ … }`.
 This file is the map: read the focused reference under `references/` for whatever
 you touch — quoting and hook semantics are precise and unforgiving, don't guess.
 
-## The five things that cause 90% of kakscript bugs
-
-1. **`%{ … }` is verbatim now, re-parsed later.** A command/hook/map body stored in
-   `%{ … }` is *not* expanded when defined. `%val{client}` inside it expands only
-   when the body later runs as commands. This is why `%sh{}` blocks cannot use
-   `%val{…}` and must read `$kak_*` environment variables instead. See
-   `references/command-parsing-and-quoting.md` and `references/expansions.md`.
-2. **Pick a delimiter that doesn't collide with the body.** `%{…}` is the default,
-   but when the body contains unbalanced braces or regex, switch delimiters
-   (`%[ ]`, `%( )`, `%< >`, or non-nestable `%| |`, `%§ §`, `%~ ~`, `%@ @`).
-   Upstream nests a different delimiter at each level. See the quoting reference.
-3. **Editing from a script must use a draft context.** `execute-keys -draft` (and
-   usually `-itersel`) run keys against a *copy* of the user's selections so you
-   don't clobber their cursor. Indentation/comment hooks are built entirely from
-   this. See `references/execution-model.md`.
-4. **Every hook you add in a filetype must be removable.** Tag hooks with
-   `-group <ft>-…` and tear them down with a `hook -once -always window
-   WinSetOption filetype=.* %{ remove-hooks window <ft>-.+ }`. Forgetting this
-   leaks behavior across filetypes. See `references/hooks.md`.
-5. **Prefix everything and document it.** Every non-hidden option/command/face is
-   named after its script and carries a `-docstring`. See
-   `references/plugin-structure-and-conventions.md`.
-
 ## Mental model
 
 - **Commands** are whitespace-separated words terminated by newline or `;`. The
@@ -79,6 +56,29 @@ local  >  window  >  buffer  >  global
   option is already set) and `buffer=<buffile>` to target a specific buffer.
 - The `shared` scope is special to highlighters: filetype highlighters live in
   `shared/<lang>` and are attached to a window with `ref`.
+
+## The five things that cause 90% of kakscript bugs
+
+1. **`%{ … }` is verbatim now, re-parsed later.** A command/hook/map body stored in
+   `%{ … }` is *not* expanded when defined. `%val{client}` inside it expands only
+   when the body later runs as commands. This is why `%sh{}` blocks cannot use
+   `%val{…}` and must read `$kak_*` environment variables instead. See
+   `references/command-parsing-and-quoting.md` and `references/expansions.md`.
+2. **Pick a delimiter that doesn't collide with the body.** `%{…}` is the default,
+   but when the body contains unbalanced braces or regex, switch delimiters
+   (`%[ ]`, `%( )`, `%< >`, or non-nestable `%| |`, `%§ §`, `%~ ~`, `%@ @`).
+   Upstream nests a different delimiter at each level. See the quoting reference.
+3. **Editing from a script must use a draft context.** `execute-keys -draft` (and
+   usually `-itersel`) run keys against a *copy* of the user's selections so you
+   don't clobber their cursor. Indentation/comment hooks are built entirely from
+   this. See `references/execution-model.md`.
+4. **Every hook you add in a filetype must be removable.** Tag hooks with
+   `-group <ft>-…` and tear them down with a `hook -once -always window
+   WinSetOption filetype=.* %{ remove-hooks window <ft>-.+ }`. Forgetting this
+   leaks behavior across filetypes. See `references/hooks.md`.
+5. **Prefix everything and document it.** Every non-hidden option/command/face is
+   named after its script and carries a `-docstring`. See
+   `references/plugin-structure-and-conventions.md`.
 
 ## Which reference to open
 
