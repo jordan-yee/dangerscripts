@@ -115,6 +115,17 @@ on disk as plain asciidoc, readable directly, at
 (`/usr/local/bin/kak` → `/usr/local/share/kak/doc/`). Full loop in
 `references/debugging-and-dev-loop.md`.
 
+## Kakoune source repository
+
+The skill's references and the installed docs at `<prefix>/share/kak/doc/`
+cover most questions. The source tree adds material not in the installation:
+contributor guides in `doc/` (`writing_scripts.asciidoc`,
+`coding-style.asciidoc`), source-only pages like `doc/pages/autoedit.asciidoc`,
+and the `rc/` scripts that form the default autoload. When a question would
+benefit from a direct, authoritative look at any of these, ask the user if
+they have a local clone of the Kakoune repository and read from it directly
+if so.
+
 ## Upstream-quality bar (this skill targets shareable code)
 
 The per-pattern references carry the full checklists; the essentials:

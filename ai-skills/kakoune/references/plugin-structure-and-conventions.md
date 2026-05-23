@@ -2,7 +2,9 @@
 
 The conventions that make a script idiomatic and shareable. Sources:
 `doc/writing_scripts.asciidoc`, `doc/coding-style.asciidoc`, and the structure of
-`rc/`. This is the reference behind the upstream-quality checklist in `SKILL.md`.
+`rc/` — all paths within the Kakoune source repository, not the installed docs
+(those live at `<prefix>/share/kak/doc/`; see SKILL.md for the prefix). This is
+the reference behind the upstream-quality checklist in `SKILL.md`.
 
 ## How scripts get loaded
 
