@@ -1,9 +1,10 @@
 # Expansions and the shell bridge
 
-Expansions inject Kakoune state into a command line. They run only when unquoted or
-inside `"…"` (see `command-parsing-and-quoting.md`). Authoritative list: `:doc
-expansions` (interactive; read the same content on disk at
-`<prefix>/share/kak/doc/expansions.asciidoc` — see SKILL.md for the prefix).
+Expansions inject Kakoune state into a command line. They run only when
+unquoted or inside `"…"` (see `command-parsing-and-quoting.md`).
+Authoritative list: `:doc expansions` (interactive; read the same content on
+disk at `<prefix>/share/kak/doc/expansions.asciidoc` — see SKILL.md for the
+prefix).
 
 ## The expansion types
 
