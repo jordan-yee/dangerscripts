@@ -259,12 +259,14 @@ define-command -hidden init-kak-lsp %{
     set-option global lsp_file_watch_support true
     set-option global lsp_hover_anchor true
 
-    map global user "l" ": enter-user-mode lsp<ret>" -docstring "LSP mode"
+    map global user l ":enter-user-mode lsp<ret>" -docstring "LSP mode"
+    map global goto d <esc>:lsp-definition<ret> -docstring 'LSP definition'
+    map global goto r <esc>:lsp-references<ret> -docstring 'LSP references'
 
     # Diagnostics
-    map global lsp "n" ": lsp-find-error --include-warnings<ret>" \
+    map global lsp n ":lsp-find-error error warning<ret>" \
     -docstring "find next diagnostic"
-    map global lsp "p" ": lsp-find-error --previous --include-warnings<ret>" \
+    map global lsp p ":lsp-find-error error warning --previous<ret>" \
     -docstring "find previous diagnostic"
 
     # Snippets
