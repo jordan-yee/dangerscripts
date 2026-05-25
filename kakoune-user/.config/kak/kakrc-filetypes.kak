@@ -207,6 +207,7 @@ hook global WinSetOption filetype=rust %{
 
     map buffer repl r ":repl-mode-eval-text 'cargo run'<ret>" -docstring 'Exec `cargo run` in connected terminal repl'
     map buffer repl c ":repl-mode-eval-text 'cargo check'<ret>" -docstring 'Exec `cargo check` in connected terminal repl'
+
     hook -once -always window WinSetOption filetype=.* %{
         unmap window repl r
         unmap window repl c
