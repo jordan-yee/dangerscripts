@@ -118,7 +118,7 @@ define-command -hidden set-clipboard-commands %{
         if command -v clip.exe >/dev/null 2>&1 && command -v powershell.exe >/dev/null 2>&1; then
             backend='clip.exe / powershell.exe (WSL)'
             copy='clip.exe'
-            paste="powershell.exe -noprofile Get-Clipboard | tr -s '\r' '\n' | sed -z '\$ s/\n\$//'"
+            paste="powershell.exe -noprofile Get-Clipboard | tr -d '\r' | sed -z '\$ s/\n\$//'"
         elif command -v wl-copy >/dev/null 2>&1 && command -v wl-paste >/dev/null 2>&1; then
             backend='wl-copy / wl-paste (Wayland)'
             copy='wl-copy --trim-newline'
