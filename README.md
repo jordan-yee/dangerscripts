@@ -8,42 +8,6 @@ syncing them with different systems.
 Each application has its own directory containing all config files relevant
 to that application.
 
-## Installation
-
-Set up the kakoune config directories and install `plug.kak` before installing
-the kakoune-user stow package:
-```sh
-mkdir -p $HOME/.config/kak/plugins
-git clone https://github.com/andreyorst/plug.kak.git $HOME/.config/kak/plugins/plug.kak
-```
-
-Kakoune user-level configs can be installed using GNU stow:
-
-```sh
-stow -t ~ kakoune-user
-```
-
-To update symlinks after pulling new changes:
-
-```sh
-stow -Rt ~ kakoune-user
-```
-
-To uninstall (remove symlinks):
-
-```sh
-stow -Dt ~ kakoune-user
-```
-
-Claude Code user-level configs install the same way:
-
-```sh
-stow -t ~ claude-user
-```
-
-Other configs (including kakoune-local system overrides) should be installed
-manually or via your preferred dotfile manager.
-
 ## Contents
 
 ### Stow Packages
@@ -70,6 +34,33 @@ Managed via GNU stow:
 | ------------ | ----------- | ---------------------------- |
 | Mintty       | .minttyrc   | ~/.minttyrc                  |
 | Sakura       | sakura.conf | ~/.config/sakura/sakura.conf |
+
+## Installation
+
+### Stow packages
+
+The [Stow Packages](#stow-packages) install with GNU stow. Replace `<package>`
+with any package name from that table:
+
+```sh
+stow -t ~ <package>     # install (create symlinks)
+stow -Rt ~ <package>    # restow after pulling new changes
+stow -Dt ~ <package>    # uninstall (remove symlinks)
+```
+
+The kakoune-user package additionally needs `plug.kak` and its plugin directory
+in place first:
+
+```sh
+mkdir -p $HOME/.config/kak/plugins
+git clone https://github.com/andreyorst/plug.kak.git $HOME/.config/kak/plugins/plug.kak
+```
+
+### Other configs
+
+Everything outside the stow packages — the [Manual Install](#manual-install)
+entries and kakoune-local system overrides — should be installed manually or via
+your preferred dotfile manager.
 
 ## Comparing with local configs
 
