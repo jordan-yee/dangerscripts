@@ -35,6 +35,12 @@ To uninstall (remove symlinks):
 stow -Dt ~ kakoune-user
 ```
 
+Claude Code user-level configs install the same way:
+
+```sh
+stow -t ~ claude-user
+```
+
 Other configs (including kakoune-local system overrides) should be installed
 manually or via your preferred dotfile manager.
 
@@ -47,6 +53,7 @@ Managed via GNU stow:
 | Applications | Package        | Installation Path |
 | ------------ | -------------- | ----------------- |
 | Kakoune      | kakoune-user   | ~/.config/kak/*   |
+| Claude Code  | claude-user    | ~/.claude/*       |
 
 ### Manual Install
 
