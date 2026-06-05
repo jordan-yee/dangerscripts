@@ -324,7 +324,15 @@ plug "jordan-yee/kakoune-git-mode" config %{
     map global user g ': enter-user-mode git<ret>' -docstring "git mode"
     # NOTE: this depends on tmux and lazygit
     # - it could be adjusted to use the more generic `terminal` command...
-    map global git o ': tmux-terminal-window lazygit<ret>' -docstring "open lazygit in new window"
+    # Launch via `$SHELL -ic` so lazygit inherits the interactive shell
+    # environment (e.g. SSH_AUTH_SOCK from .bashrc/.zshrc); otherwise tmux runs
+    # the window command under a bare non-interactive sh that skips rc files,
+    # breaking ssh-agent-based git pushes from this integration.
+    # The `sh -c '...'` wrapper is required: tmux execs a multi-argument command
+    # directly (no shell), so a bare `$SHELL` arg would never be expanded. Giving
+    # tmux `sh -c <string>` makes that inner sh expand `$SHELL`, and it survives
+    # the `env TMPDIR=...` prefix that tmux-terminal-impl may add.
+    map global git o %{: tmux-terminal-window sh -c '$SHELL -ic lazygit'<ret>} -docstring "open lazygit in new window"
 }
 
 # ------------------------------------------------------------------------------
