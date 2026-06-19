@@ -202,7 +202,19 @@ hook global WinSetOption filetype=rust %{
     set-option window tabstop 4
     set-option window indentwidth 4
 
-    set-option buffer formatcmd 'rustfmt'
+    # rustfmt defaults to edition 2015 when reading from stdin (as `format` does),
+    # which rejects modern syntax like `async fn`. rustfmt won't read Cargo.toml
+    # itself, so ask cargo for the edition and pass it explicitly via --edition.
+    # Computed once on buffer open (not per save).
+    # NOTE: In a multi-crate workspace with mixed editions, .packages[0] may not
+    #       be this file's exact crate; falls back to 2021 if cargo/jq fail.
+    evaluate-commands %sh{
+        default_edition=2021
+        edition=$(cd "${kak_buffile%/*}" && \
+            cargo metadata --no-deps --format-version 1 2>/dev/null \
+            | jq -r ".packages[0].edition // \"$default_edition\"")
+        printf "set-option buffer formatcmd 'rustfmt --edition %s'\n" "${edition:-$default_edition}"
+    }
     hook window BufWritePre .* format
 
     map buffer repl r ":repl-mode-eval-text 'cargo run'<ret>" -docstring 'Exec `cargo run` in connected terminal repl'
