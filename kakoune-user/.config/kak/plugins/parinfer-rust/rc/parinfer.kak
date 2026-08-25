@@ -1,4 +1,4 @@
-# NOTE (JY 2025): This is the rc script that ships with the parinfer-rust plugin, but I
+# NOTE: This is the rc script that ships with the parinfer-rust plugin, but I
 # hacked in tracking of the mode status so that I could display it in kakoune's
 # modeline.
 
@@ -31,6 +31,10 @@ parinfer-enable-window -params ..1 %{
 
 define-command -docstring "parinfer-disable-window: disable Parinfer for current window." \
 parinfer-disable-window %{
+    # NOTE: the parinfer_* options are declared inside the parinfer module, so
+    # disabling in a window where parinfer was never enabled would fail with
+    # "option not found: 'parinfer_enabled'".
+    require-module parinfer
     remove-hooks window parinfer
     remove-hooks window parinfer-try-paren
     set-option window parinfer_enabled false
