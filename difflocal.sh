@@ -53,18 +53,29 @@ for i in "${!differences[@]}"; do
     echo "$((i+1))) ${differences[$i]}"
 done
 
-echo ""
-echo "# To View Specific Differences:"
-if [[ -z "$diff_tool" ]]; then
-    echo "No side-by-side diff tool found."
-    echo "Install neovim (for 'nvim -d') or vim (for 'vimdiff') to get commands here."
-else
-    for i in "${!differences[@]}"; do
-        line="${differences[$i]}"
-        if [[ "$line" =~ ^Files[[:space:]](.+)[[:space:]]and[[:space:]](.+)[[:space:]]differ$ ]]; then
-            echo "$((i+1))) $diff_tool ${BASH_REMATCH[1]} ${BASH_REMATCH[2]}"
-        fi
-    done
+# Only the "Files X and Y differ" entries name a pair that can be opened side
+# by side; the rest are diff's own messages about missing files.
+syncable_numbers=()
+syncable_pairs=()
+for i in "${!differences[@]}"; do
+    line="${differences[$i]}"
+    if [[ "$line" =~ ^Files[[:space:]](.+)[[:space:]]and[[:space:]](.+)[[:space:]]differ$ ]]; then
+        syncable_numbers+=("$((i+1))")
+        syncable_pairs+=("${BASH_REMATCH[1]} ${BASH_REMATCH[2]}")
+    fi
+done
+
+if [[ ${#syncable_pairs[@]} -gt 0 ]]; then
+    echo ""
+    echo "# To View Specific Differences:"
+    if [[ -z "$diff_tool" ]]; then
+        echo "No side-by-side diff tool found."
+        echo "Install neovim (for 'nvim -d') or vim (for 'vimdiff') to get commands here."
+    else
+        for i in "${!syncable_pairs[@]}"; do
+            echo "${syncable_numbers[$i]}) $diff_tool ${syncable_pairs[$i]}"
+        done
+    fi
 fi
 
 # Inactive
