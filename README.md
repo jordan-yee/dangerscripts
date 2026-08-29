@@ -35,6 +35,13 @@ Managed via GNU stow:
 | Mintty       | .minttyrc   | ~/.minttyrc                  |
 | Sakura       | sakura.conf | ~/.config/sakura/sakura.conf |
 
+### Docs
+
+The `docs/` directory contains documentation describing common setups, meant
+for quick reference when setting things up on different systems.
+
+- [SSH Setup](./docs/ssh-setup.md)
+
 ## Installation
 
 ### Stow packages
