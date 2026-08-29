@@ -82,6 +82,10 @@ git clone https://github.com/andreyorst/plug.kak.git $HOME/.config/kak/plugins/p
 stow -t ~ kakoune-user      # restow, now unfolded
 ```
 
+Check `git status` before restowing either way. Stow exports whatever it finds
+in the package, so leftovers from a folded install get symlinked back out and
+carry on writing into the working tree.
+
 ### Other configs
 
 Everything outside the stow packages - the [Manual Install](#manual-install)
