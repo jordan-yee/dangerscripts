@@ -21,26 +21,11 @@ Managed via GNU stow:
 
 ### Manual Install
 
-| Applications | Scripts                      | Installation Path |
-| ------------ | ---------------------------- | ----------------- |
-| Kakoune      | kakoune-local/share/kak/rc/* | `<kak-runtime>`/rc/* (override) |
-| Tmux         | .tmux.conf                   | ~/.tmux.conf      |
-| Zshell       | .zshrc                       | ~/.zshrc          |
-| Flowstorm    | flowstorm/                   | ~/.flow-storm/*   |
-
-### Installation Paths
-
-Two Kakoune paths vary between systems, so nothing here hardcodes them:
-
-- **`<kak-runtime>`** - Kakoune resolves its runtime directory relative to its
-  own binary, as `<prefix>/bin/kak` → `<prefix>/share/kak`. A default source
-  build gives `/usr/local/share/kak`; a distro package gives `/usr/share/kak`.
-  Check with `kak -ui dummy -e 'echo -to-file /dev/stdout %val{runtime}; quit'`.
-- **`~/.config/kak`** - the user config directory follows `XDG_CONFIG_HOME`
-  when that is set to something other than `~/.config`.
-
-Note that overriding runtime files under `<kak-runtime>` needs root and is
-reverted whenever the package manager upgrades Kakoune.
+| Applications | Scripts    | Installation Path |
+| ------------ | ---------- | ----------------- |
+| Tmux         | .tmux.conf | ~/.tmux.conf      |
+| Zshell       | .zshrc     | ~/.zshrc          |
+| Flowstorm    | flowstorm/ | ~/.flow-storm/*   |
 
 ### Inactive / No Longer Used
 
@@ -69,19 +54,38 @@ stow -Rt ~ <package>    # restow after pulling new changes
 stow -Dt ~ <package>    # uninstall (remove symlinks)
 ```
 
-The kakoune-user package additionally needs `plug.kak` and its plugin directory
-in place first:
+**Special steps/considerations for the kakoune-user package:**
+
+The kakoune-user package additionally needs `plug.kak` and its plugin
+directory in place **before** stowing it:
 
 ```sh
 mkdir -p $HOME/.config/kak/plugins
 git clone https://github.com/andreyorst/plug.kak.git $HOME/.config/kak/plugins/plug.kak
 ```
 
+> Do not skip that order! If `~/.config/kak` does not already exist, stow folds
+> the whole directory into a single symlink pointing back into this repo. Then
+> the plug.kak clone and anything created under `~/.config/kak`is written into
+> the working tree instead of into your home directory.
+> Creating the directories first forces stow to symlink the individual files
+> inside them, which leaves `~/.config/kak` a real directory that local-only
+> content can live in.
+
+To repair an install that already folded, remove the clone from this repo's
+working tree, then:
+
+```sh
+stow -Dt ~ kakoune-user     # remove the folded symlink
+mkdir -p $HOME/.config/kak/plugins
+git clone https://github.com/andreyorst/plug.kak.git $HOME/.config/kak/plugins/plug.kak
+stow -t ~ kakoune-user      # restow, now unfolded
+```
+
 ### Other configs
 
 Everything outside the stow packages - the [Manual Install](#manual-install)
-entries and kakoune-local system overrides - should be installed manually or via
-your preferred dotfile manager.
+entries - should be installed manually or via your preferred dotfile manager.
 
 ## Comparing with local configs
 
@@ -90,12 +94,11 @@ To compare all config files with local paths:
 ./difflocal.sh
 ```
 
-The script resolves the Kakoune paths described in [Installation
-Paths](#installation-paths) and prints what it picked before diffing. Both can
-be overridden for unusual layouts:
+The Kakoune config directory follows `XDG_CONFIG_HOME` rather than being
+assumed to be `~/.config/kak`. The script prints the path it resolved before
+diffing, and it can be overridden for unusual layouts:
 
 ```sh
-KAK_RUNTIME_DIR=/opt/kakoune/share/kak ./difflocal.sh
 KAK_CONFIG_DIR=~/dotfiles/kak ./difflocal.sh
 ```
 

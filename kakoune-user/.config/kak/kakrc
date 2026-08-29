@@ -251,9 +251,16 @@ source "~/.config/kak/kakrc-custom-scripts.kak"
 # Plugins
 
 # plug.kak plugin manager - https://github.com/andreyorst/plug.kak
-source "%val{config}/plugins/plug.kak/rc/plug.kak"
-plug "andreyorst/plug.kak" noload
+# A failed command aborts the rest of the enclosing file, so a missing plug.kak
+# would silently drop everything below it. Warn and carry on without plugins
+# instead. See the dangerscripts README for the clone command.
+try %{
+    source "%val{config}/plugins/plug.kak/rc/plug.kak"
+    plug "andreyorst/plug.kak" noload
 
-# source groups of plugins
-source "~/.config/kak/kakrc-plugins-standalone.kak"
-source "~/.config/kak/kakrc-plugins-integrations.kak"
+    # source groups of plugins
+    source "~/.config/kak/kakrc-plugins-standalone.kak"
+    source "~/.config/kak/kakrc-plugins-integrations.kak"
+} catch %{
+    echo -debug "kakrc: plugins not loaded: %val{error}"
+}

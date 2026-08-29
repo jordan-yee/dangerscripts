@@ -47,6 +47,38 @@ hook global WinSetOption filetype=httpyac -group httpyac-custom %{
 # --------------------------------------
 # Clojure
 
+# Overrides for kakoune's included clojure & comment scripts.
+# These replace locally patched copies of those runtime files. Every value
+# below is exposed by upstream as an option or an overridable hook, so nothing
+# has to be patched in kakoune's own rc directory, which would need root and be
+# reverted by every kakoune upgrade.
+
+# Upstream comment.kak sets comment_line to '#_' (the reader macro, which
+# comments out the next form rather than the rest of the line). Its hook is
+# registered while the runtime scripts load, and this file is sourced from the
+# kakrc afterwards, so this hook is registered later and wins.
+hook global BufSetOption filetype=clojure %{
+    set-option buffer comment_line ';;'
+}
+
+# The options below are declared inside `provide-module clojure`, so they do not
+# exist yet while this file is being sourced. Setting them at file scope would
+# fail, and a failed command aborts the rest of the enclosing file.
+# Both extend upstream's value instead of replacing it, so additions made
+# upstream keep working after a kakoune upgrade.
+hook global ModuleLoaded clojure %{
+    # Forms that take arguments *and* an indented body, which indent by
+    # indentwidth rather than aligning to the first argument.
+    set-option global clojure_special_indent_forms \
+        "(?:%opt{clojure_special_indent_forms}|comment|try|catch|case|cond|do)"
+
+    # Also treat the clj/cljc/cljs/cljx source set under a source directory as
+    # part of the prefix to strip when clojure-insert-ns derives a namespace
+    # from the file path.
+    set-option global clojure_source_directories \
+        "%opt{clojure_source_directories}(/clj[csx]?)?"
+}
+
 # hook groups starting with clojure- are all removed when leaving the filetype
 # by kakoune's included clojure filetype script
 hook global WinSetOption filetype=clojure -group clojure-fmt %{
