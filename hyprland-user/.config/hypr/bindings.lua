@@ -109,3 +109,23 @@ o.bind("SUPER + CTRL + K", "Move grouped window focus right", hl.dsp.group.next(
 o.bind("SUPER + APOSTROPHE", "Terminal", { omarchy = "terminal" })
 o.bind("SUPER + SHIFT + APOSTROPHE", "Herdr", { omarchy = "terminal-herdr" })
 o.bind("SUPER + ALT + APOSTROPHE", "Tmux", { omarchy = "terminal-tmux" })
+
+-- Passwords: 1Password -> Bitwarden
+hl.unbind("SUPER + SHIFT + SLASH")
+o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden", focus = "^(Bitwarden)$" })
+
+-- HEY -> Google equivalents
+hl.unbind("SUPER + SHIFT + C")
+o.bind("SUPER + SHIFT + C", "Calendar", { webapp = "https://calendar.google.com" })
+hl.unbind("SUPER + SHIFT + E")
+o.bind("SUPER + SHIFT + E", "Email", { webapp = "https://mail.google.com" })
+hl.unbind("SUPER + SHIFT + ALT + E")
+o.bind("SUPER + SHIFT + ALT + E", "New email", { webapp = "https://mail.google.com/mail/u/0/?fs=1&tf=cm" })
+
+-- Unused webapp bindings
+hl.unbind("SUPER + SHIFT + ALT + G") -- WhatsApp
+hl.unbind("SUPER + SHIFT + CTRL + G") -- Google Messages
+hl.unbind("SUPER + SHIFT + P") -- Google Photos
+hl.unbind("SUPER + SHIFT + S") -- Google Maps
+hl.unbind("SUPER + SHIFT + X") -- X
+hl.unbind("SUPER + SHIFT + ALT + X") -- X Post
