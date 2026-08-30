@@ -16,6 +16,10 @@ kak_config="${KAK_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/kak}"
 # falling back to ~/.config.
 hypr_config="${HYPR_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/hypr}"
 
+# Lazygit user config directory. Lazygit reads this from XDG_CONFIG_HOME,
+# falling back to ~/.config.
+lazygit_config="${LAZYGIT_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/lazygit}"
+
 # Side-by-side diff tool used for the manual sync suggestions printed at the
 # end. Neovim's diff mode is preferred; vimdiff is the fallback for systems
 # without neovim. Empty when neither is installed.
@@ -31,6 +35,7 @@ diff_tool="$(resolve_diff_tool)"
 echo "# Resolved Local Paths:"
 echo "kakoune config: $kak_config"
 echo "hyprland config: $hypr_config"
+echo "lazygit config: $lazygit_config"
 echo ""
 
 # ------------------------------------------------------------------------------
@@ -46,6 +51,7 @@ mapfile -t differences < <(
     for f in hyprland-user/.config/hypr/*.lua; do
         diff --brief "$f" "$hypr_config/${f##*/}" 2>&1
     done
+    diff --brief lazygit-user/.config/lazygit/config.yml "$lazygit_config/config.yml" 2>&1
     diff --brief tmux/.tmux.conf ~/.tmux.conf 2>&1
     diff --brief zshell/.zshrc ~/.zshrc 2>&1
     diff --brief --recursive flowstorm ~/.flow-storm 2>&1

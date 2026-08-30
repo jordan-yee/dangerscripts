@@ -1,0 +1,14 @@
+gui:
+  showDivergenceFromBaseBranch: "arrowAndNumber"
+  nerdFontsVersion: "3"
+git:
+  diffRenderers:
+    - command: delta --dark --paging=never
+    - command: delta --dark --paging=never --features side-by-side
+# Lazygit picks its editor by matching a preset name against the basename of
+# core.editor / $GIT_EDITOR / $VISUAL / $EDITOR, and falls back to vim when
+# nothing matches. Under Omarchy $EDITOR is the 'omarchy-launch-editor'
+# wrapper, which matches no preset, so name the preset explicitly.
+# See docs/kakoune-omarchy.md.
+os:
+  editPreset: "kakoune"

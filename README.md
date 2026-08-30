@@ -14,11 +14,12 @@ to that application.
 
 Managed via GNU stow:
 
-| Applications | Package        | Installation Path |
-| ------------ | -------------- | ----------------- |
-| Kakoune      | kakoune-user   | ~/.config/kak/*   |
-| Claude Code  | claude-user    | ~/.claude/*       |
-| Hyprland     | hyprland-user  | ~/.config/hypr/*  |
+| Applications | Package       | Installation Path   |
+| ------------ | ------------- | ------------------- |
+| Kakoune      | kakoune-user  | ~/.config/kak/*     |
+| Claude Code  | claude-user   | ~/.claude/*         |
+| Hyprland     | hyprland-user | ~/.config/hypr/*    |
+| Lazygit      | lazygit-user  | ~/.config/lazygit/* |
 
 ### Manual Install
 
@@ -107,6 +108,30 @@ existing copies before the first install on a system:
 rm $HOME/.config/hypr/bindings.lua $HOME/.config/hypr/input.lua
 stow -t ~ hyprland-user
 ```
+
+**Special steps/considerations for the lazygit-user package:**
+
+This package tracks the single file `~/.config/lazygit/config.yml`. As with the
+packages above, create the directory first so stow symlinks the file rather
+than folding the whole directory:
+
+```sh
+mkdir -p $HOME/.config/lazygit
+```
+
+Stow refuses to overwrite a file it does not own, so remove (or back up) an
+existing config before the first install on a system:
+
+```sh
+rm $HOME/.config/lazygit/config.yml
+stow -t ~ lazygit-user
+```
+
+The `os.editPreset` setting in this config is what makes lazygit's `e` binding
+open Kakoune instead of falling back to Vim; see
+[Kakoune as the default editor on Omarchy](./docs/kakoune-omarchy.md) for why
+that is needed. The `git.diffRenderers` entries require
+[delta](https://github.com/dandavison/delta) to be installed.
 
 ### Other configs
 
