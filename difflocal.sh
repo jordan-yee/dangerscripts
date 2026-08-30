@@ -12,6 +12,10 @@
 # falling back to ~/.config.
 kak_config="${KAK_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/kak}"
 
+# Hyprland user config directory. Hyprland reads this from XDG_CONFIG_HOME,
+# falling back to ~/.config.
+hypr_config="${HYPR_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/hypr}"
+
 # Side-by-side diff tool used for the manual sync suggestions printed at the
 # end. Neovim's diff mode is preferred; vimdiff is the fallback for systems
 # without neovim. Empty when neither is installed.
@@ -26,6 +30,7 @@ diff_tool="$(resolve_diff_tool)"
 
 echo "# Resolved Local Paths:"
 echo "kakoune config: $kak_config"
+echo "hyprland config: $hypr_config"
 echo ""
 
 # ------------------------------------------------------------------------------
@@ -38,6 +43,9 @@ mapfile -t differences < <(
     done
     diff --brief --recursive kakoune-user/.config/kak/custom "$kak_config/custom" 2>&1
     diff --brief --recursive kakoune-user/.config/kak/highlighters "$kak_config/highlighters" 2>&1
+    for f in hyprland-user/.config/hypr/*.lua; do
+        diff --brief "$f" "$hypr_config/${f##*/}" 2>&1
+    done
     diff --brief tmux/.tmux.conf ~/.tmux.conf 2>&1
     diff --brief zshell/.zshrc ~/.zshrc 2>&1
     diff --brief --recursive flowstorm ~/.flow-storm 2>&1

@@ -18,6 +18,7 @@ Managed via GNU stow:
 | ------------ | -------------- | ----------------- |
 | Kakoune      | kakoune-user   | ~/.config/kak/*   |
 | Claude Code  | claude-user    | ~/.claude/*       |
+| Hyprland     | hyprland-user  | ~/.config/hypr/*  |
 
 ### Manual Install
 
@@ -86,6 +87,27 @@ Check `git status` before restowing either way. Stow exports whatever it finds
 in the package, so leftovers from a folded install get symlinked back out and
 carry on writing into the working tree.
 
+**Special steps/considerations for the hyprland-user package:**
+
+This package tracks only the config files listed above; the rest of
+`~/.config/hypr` is left alone. Omarchy creates that directory with its own
+files during install, so it already exists as a real directory and stow
+symlinks the individual files rather than folding the directory. If you are
+setting up a system where `~/.config/hypr` does not exist yet, create it first
+for the same reason described for kakoune-user above:
+
+```sh
+mkdir -p $HOME/.config/hypr
+```
+
+Stow refuses to overwrite files it does not own, so remove (or back up) the
+existing copies before the first install on a system:
+
+```sh
+rm $HOME/.config/hypr/bindings.lua $HOME/.config/hypr/input.lua
+stow -t ~ hyprland-user
+```
+
 ### Other configs
 
 Everything outside the stow packages - the [Manual Install](#manual-install)
@@ -98,18 +120,21 @@ To compare all config files with local paths:
 ./difflocal.sh
 ```
 
-The Kakoune config directory follows `XDG_CONFIG_HOME` rather than being
-assumed to be `~/.config/kak`. The script prints the path it resolved before
-diffing, and it can be overridden for unusual layouts:
+The Kakoune and Hyprland config directories follow `XDG_CONFIG_HOME` rather
+than being assumed to be `~/.config/kak` and `~/.config/hypr`. The script prints
+the paths it resolved before diffing, and they can be overridden for unusual
+layouts:
 
 ```sh
 KAK_CONFIG_DIR=~/dotfiles/kak ./difflocal.sh
+HYPR_CONFIG_DIR=~/dotfiles/hypr ./difflocal.sh
 ```
 
 For files that differ, you can sync them side by side in Neovim's diff mode:
 ```sh
 nvim -d kakoune-user/.config/kak/kakrc ~/.config/kak/kakrc
 nvim -d kakoune-user/.config/kak/kakrc-filetypes.kak ~/.config/kak/kakrc-filetypes.kak
+nvim -d hyprland-user/.config/hypr/bindings.lua ~/.config/hypr/bindings.lua
 nvim -d zshell/.zshrc ~/.zshrc
 ```
 
