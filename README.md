@@ -89,10 +89,10 @@ carry on writing into the working tree.
 
 **Special steps/considerations for the hyprland-user package:**
 
-This package tracks only the config files listed above; the rest of
-`~/.config/hypr` is left alone. Omarchy creates that directory with its own
-files during install, so it already exists as a real directory and stow
-symlinks the individual files rather than folding the directory. If you are
+This package tracks only the config files listed above; any other files in
+`~/.config/hypr` are left alone. These are really overrides for Omarchy 4's
+default hyprland settings, which include other config files in that directory,
+but should work just as well for other hyprland installations. If you are
 setting up a system where `~/.config/hypr` does not exist yet, create it first
 for the same reason described for kakoune-user above:
 
