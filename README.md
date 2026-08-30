@@ -42,6 +42,7 @@ The `docs/` directory contains documentation describing common setups, meant
 for quick reference when setting things up on different systems.
 
 - [SSH Setup](./docs/ssh-setup.md)
+- [Kakoune as the default editor on Omarchy](./docs/kakoune-omarchy.md)
 
 ## Installation
 
