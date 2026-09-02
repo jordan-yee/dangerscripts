@@ -110,6 +110,26 @@ rm $HOME/.config/hypr/bindings.lua $HOME/.config/hypr/input.lua
 stow -t ~ hyprland-user
 ```
 
+Beware that `omarchy refresh hyprland` (and `omarchy refresh config hypr/...`)
+copies the stock defaults onto these files with `cp`, which follows the stow
+symlinks and overwrites the copies in this repo. The symlinks themselves
+survive, so restoring the repo files is the whole fix; no stow commands are
+needed. Omarchy also leaves `*.bak.<timestamp>` copies of the previous files
+in `~/.config/hypr`, which can be deleted once nothing in them is missed:
+
+```sh
+git checkout -- hyprland-user
+rm $HOME/.config/hypr/*.bak.*
+```
+
+To avoid the clobbering entirely, unstow before refreshing and restow after:
+
+```sh
+stow -Dt ~ hyprland-user
+omarchy refresh hyprland
+stow -t ~ hyprland-user
+```
+
 **Special steps/considerations for the lazygit-user package:**
 
 This package tracks the single file `~/.config/lazygit/config.yml`. As with the
