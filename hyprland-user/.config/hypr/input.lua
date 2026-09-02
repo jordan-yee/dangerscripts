@@ -6,11 +6,7 @@
 hl.config({
   input = {
     -- Use multiple keyboard layouts and switch between them with Left Alt + Right Alt.
-    kb_layout = "us",
-    kb_options = "",
-
-    -- Use a specific keyboard variant if needed (e.g. intl for international keyboards).
-    kb_variant = "",
+    kb_layout = "us",    -- Use a specific keyboard variant if needed (e.g. intl for international keyboards).
 
     -- Change speed of keyboard repeat.
     -- repeat_rate = 40,
