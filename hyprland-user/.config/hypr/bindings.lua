@@ -129,3 +129,7 @@ hl.unbind("SUPER + SHIFT + P") -- Google Photos
 hl.unbind("SUPER + SHIFT + S") -- Google Maps
 hl.unbind("SUPER + SHIFT + X") -- X
 hl.unbind("SUPER + SHIFT + ALT + X") -- X Post
+
+-- Utilities - Kyria-friendly alternative bindings
+o.bind("SUPER + CTRL + ALT + F", "Calendar", "omarchy-shell shell toggle omarchy.clock")
+o.bind("SUPER + CTRL + ALT + G", "Toggle weather", "omarchy-notification-weather")
