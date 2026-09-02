@@ -91,43 +91,39 @@ carry on writing into the working tree.
 
 **Special steps/considerations for the hyprland-user package:**
 
-This package tracks only the config files listed above; any other files in
-`~/.config/hypr` are left alone. These are really overrides for Omarchy 4's
+This package tracks only the files in `hyprland-user/.config/hypr/`; anything
+else in `~/.config/hypr` is left alone. They are overrides for Omarchy 4's
 default hyprland settings, which include other config files in that directory,
-but should work just as well for other hyprland installations. If you are
-setting up a system where `~/.config/hypr` does not exist yet, create it first
-for the same reason described for kakoune-user above:
+but should work just as well for other hyprland installations.
+
+For the first install on a system, create the directory first (for the same
+reason described for kakoune-user above), then remove Omarchy's copies of the
+tracked files, since stow refuses to overwrite files it does not own:
 
 ```sh
 mkdir -p $HOME/.config/hypr
-```
-
-Stow refuses to overwrite files it does not own, so remove (or back up) the
-existing copies before the first install on a system:
-
-```sh
-rm $HOME/.config/hypr/bindings.lua $HOME/.config/hypr/input.lua
+for f in hyprland-user/.config/hypr/*; do rm -f "$HOME/.config/hypr/${f##*/}"; done
 stow -t ~ hyprland-user
 ```
 
-Beware that `omarchy refresh hyprland` (and `omarchy refresh config hypr/...`)
-copies the stock defaults onto these files with `cp`, which follows the stow
-symlinks and overwrites the copies in this repo. The symlinks themselves
-survive, so restoring the repo files is the whole fix; no stow commands are
-needed. Omarchy also leaves `*.bak.<timestamp>` copies of the previous files
-in `~/.config/hypr`, which can be deleted once nothing in them is missed:
-
-```sh
-git checkout -- hyprland-user
-rm $HOME/.config/hypr/*.bak.*
-```
-
-To avoid the clobbering entirely, unstow before refreshing and restow after:
+`omarchy refresh hyprland` (and `omarchy refresh config hypr/...`) overwrites
+the tracked files with `cp`, which follows the stow symlinks and clobbers the
+copies in this repo. Unstow first to avoid that:
 
 ```sh
 stow -Dt ~ hyprland-user
 omarchy refresh hyprland
 stow -t ~ hyprland-user
+```
+
+If a refresh ran while stowed, the symlinks survive, so restoring the repo
+files is the whole fix. Omarchy backs up each file it replaces as
+`<file>.bak.<timestamp>` in `~/.config/hypr`, so uncommitted edits can be
+recovered from there before deleting the backups:
+
+```sh
+git checkout -- hyprland-user
+rm $HOME/.config/hypr/*.bak.*
 ```
 
 **Special steps/considerations for the lazygit-user package:**
