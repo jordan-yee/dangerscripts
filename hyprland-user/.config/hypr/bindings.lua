@@ -112,7 +112,7 @@ o.bind("SUPER + ALT + APOSTROPHE", "Tmux", { omarchy = "terminal-tmux" })
 
 -- Passwords: 1Password -> Bitwarden
 hl.unbind("SUPER + SHIFT + SLASH")
-o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden", focus = "^(Bitwarden)$" })
+o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden-desktop", focus = "^(Bitwarden)$" })
 
 -- HEY -> Google equivalents
 hl.unbind("SUPER + SHIFT + C")
