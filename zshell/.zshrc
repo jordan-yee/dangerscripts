@@ -231,6 +231,50 @@ source <(fzf --zsh)
 #   fd --type d --hidden --exclude ".git" . "$1"
 # }
 
+# --------------------------------------
+# Custom Functions
+
+# Fuzzy search ripgrep results
+# - Search for "TODO" in all files, respecting .gitignore
+#   `rg-fzf 'TODO'`
+# - Search for "TODO" excluding node_modules directory
+#   `rg-fzf 'TODO' node_modules`
+rg-fzf() {
+  local pattern="${1:-.}"
+  local exclude_dir="${2}"
+
+  local rg_args=(--color=always --line-number --no-heading)
+  if [[ -n "$exclude_dir" ]]; then
+    rg_args+=(--glob "!$exclude_dir/**")
+  fi
+
+  rg "${rg_args[@]}" "$pattern" |
+    fzf --ansi \
+      --preview 'echo {} | cut -d: -f1 | xargs head -20' \
+      --preview-window 'right:60%'
+}
+alias gff=rg-fzf
+
+# Fuzzy search ripgrep results and open in editor
+e-rg-fzf() {
+  local pattern="${1:-.}"
+  local exclude_dir="${2}"
+
+  local rg_args=(--color=always --line-number --no-heading)
+  if [[ -n "$exclude_dir" ]]; then
+    rg_args+=(--glob "!$exclude_dir/**")
+  fi
+
+  local result
+  result=$(rg "${rg_args[@]}" "$pattern" |
+    fzf --ansi \
+      --preview 'echo {} | cut -d: -f1 | xargs head -20' \
+      --preview-window 'right:60%')
+
+  [[ -n "$result" ]] && ${EDITOR:-vim} +"${result##*:}" "${result%%:*}"
+}
+alias egff=rg-fzf
+
 # -----------------------------------------------------------------------------
 # Ranger
 
