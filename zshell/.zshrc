@@ -288,6 +288,17 @@ rangercd() {
     rm -f -- "$temp_file"
 }
 
+# ------------------------------------------------------------------------------
+# aspell
+# - Used by both Kakoune and Claude Code for spell checking
+
+# Add 1 or more words to the aspell personal dictionary:
+# `aspell-add clojure kakoune`
+# - All lower-case means case-insensitive
+# - Leading upper-case letter means proper name casing or all-caps only
+# - Unknown behavior if the personal dictionary file isn't setup yet
+aspell-add() { printf '%s\n#\n' "${@/#/*}" | aspell -a > /dev/null; }
+
 # -----------------------------------------------------------------------------
 # Rust
 
