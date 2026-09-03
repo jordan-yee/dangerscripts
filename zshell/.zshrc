@@ -296,7 +296,6 @@ rangercd() {
 # `aspell-add clojure kakoune`
 # - All lower-case means case-insensitive
 # - Leading upper-case letter means proper name casing or all-caps only
-# - Unknown behavior if the personal dictionary file isn't setup yet
 aspell-add() { printf '%s\n#\n' "${@/#/*}" | aspell -a > /dev/null; }
 
 # -----------------------------------------------------------------------------
