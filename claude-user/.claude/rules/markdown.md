@@ -1,10 +1,8 @@
----
-paths:
-  - "**/*.md"
-  - "**/*.markdown"
----
-
 # Markdown Rules
+
+These rules apply to markdown anywhere it appears: `.md` and `.markdown` files,
+and markdown written into other files, regardless of which tool or command
+makes the change.
 
 ## Line Wrapping
 

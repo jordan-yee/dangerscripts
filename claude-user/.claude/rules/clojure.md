@@ -1,13 +1,8 @@
----
-paths:
-  - "**/*.clj"
-  - "**/*.cljs"
-  - "**/*.cljc"
-  - "**/*.cljx"
-  - "**/*.bb"
----
-
 # Clojure Language Rules
+
+These rules apply to Clojure code anywhere it appears: `.clj`, `.cljs`, `.cljc`,
+`.cljx`, and `.bb` files, one-off expressions run from the shell, and code
+blocks inside other files such as markdown or HTML.
 
 ## Evaluating Clojure code at the REPL
 
