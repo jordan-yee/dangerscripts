@@ -14,13 +14,14 @@ to that application.
 
 Managed via GNU stow:
 
-| Applications   | Package       | Installation Path   |
-| -------------- | ------------- | ------------------- |
-| Kakoune        | kakoune-user  | ~/.config/kak/*     |
-| Claude Code    | claude-user   | ~/.claude/*         |
-| Hyprland       | hyprland-user | ~/.config/hypr/*    |
-| Lazygit        | lazygit-user  | ~/.config/lazygit/* |
-| Tmux (Omarchy) | omarchy-tmux  | ~/.config/tmux/*    |
+| Applications    | Package       | Installation Path   |
+| --------------- | ------------- | ------------------- |
+| Kakoune         | kakoune-user  | ~/.config/kak/*     |
+| Claude Code     | claude-user   | ~/.claude/*         |
+| Hyprland        | hyprland-user | ~/.config/hypr/*    |
+| Lazygit         | lazygit-user  | ~/.config/lazygit/* |
+| Tmux (Omarchy)  | omarchy-tmux  | ~/.config/tmux/*    |
+| Herdr (Omarchy) | omarchy-herdr | ~/.config/herdr/*   |
 
 ### Manual Install
 
@@ -170,6 +171,32 @@ Like the Hyprland configs, an Omarchy refresh of the tmux config would follow
 the symlink and overwrite the copy in this repo, so unstow before refreshing
 and restow afterwards. If that already happened, restore it with
 `git checkout -- omarchy-tmux`.
+
+**Special steps/considerations for the omarchy-herdr package:**
+
+This package tracks the single file `~/.config/herdr/config.toml`, which maps
+the omarchy-tmux keybindings and look onto herdr (tmux sessions, windows and
+panes become herdr workspaces, tabs and panes). Comments at the top of the file
+list the tmux bindings herdr has no equivalent for. Install it the same way as
+omarchy-tmux:
+
+```sh
+mkdir -p $HOME/.config/herdr
+rm $HOME/.config/herdr/config.toml
+stow -t ~ omarchy-herdr
+```
+
+The other files herdr keeps in `~/.config/herdr` are runtime state, not config,
+and are deliberately left untracked:
+
+- `session.json` - the saved layout (workspaces, tabs, panes and their working
+  directories) that herdr writes on exit and restores on the next start.
+- `herdr-server.log` / `herdr-client.log` - logs from the herdr server and
+  client processes, useful only for debugging.
+- `.plugins.lock` - an empty lock file herdr uses to coordinate plugin
+  operations between processes.
+- `config.toml.bak.<timestamp>` - a backup of a replaced config; safe to delete
+  once the tracked config is confirmed working.
 
 ### Other configs
 
