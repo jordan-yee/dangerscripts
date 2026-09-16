@@ -14,12 +14,13 @@ to that application.
 
 Managed via GNU stow:
 
-| Applications | Package       | Installation Path   |
-| ------------ | ------------- | ------------------- |
-| Kakoune      | kakoune-user  | ~/.config/kak/*     |
-| Claude Code  | claude-user   | ~/.claude/*         |
-| Hyprland     | hyprland-user | ~/.config/hypr/*    |
-| Lazygit      | lazygit-user  | ~/.config/lazygit/* |
+| Applications   | Package       | Installation Path   |
+| -------------- | ------------- | ------------------- |
+| Kakoune        | kakoune-user  | ~/.config/kak/*     |
+| Claude Code    | claude-user   | ~/.claude/*         |
+| Hyprland       | hyprland-user | ~/.config/hypr/*    |
+| Lazygit        | lazygit-user  | ~/.config/lazygit/* |
+| Tmux (Omarchy) | omarchy-tmux  | ~/.config/tmux/*    |
 
 ### Manual Install
 
@@ -149,6 +150,26 @@ open Kakoune instead of falling back to Vim; see
 [Kakoune as the default editor on Omarchy](./docs/kakoune-omarchy.md) for why
 that is needed. The `git.diffRenderers` entries require
 [delta](https://github.com/dandavison/delta) to be installed.
+
+**Special steps/considerations for the omarchy-tmux package:**
+
+This package tracks the single file `~/.config/tmux/tmux.conf`, a customized
+version of Omarchy's default tmux config. It is separate from the older
+`tmux/.tmux.conf` in [Manual Install](#manual-install), which is for non-Omarchy
+systems. As with the packages above, create the directory first so stow
+symlinks the file rather than folding the whole directory, and remove Omarchy's
+copy since stow refuses to overwrite a file it does not own:
+
+```sh
+mkdir -p $HOME/.config/tmux
+rm $HOME/.config/tmux/tmux.conf
+stow -t ~ omarchy-tmux
+```
+
+Like the Hyprland configs, an Omarchy refresh of the tmux config would follow
+the symlink and overwrite the copy in this repo, so unstow before refreshing
+and restow afterwards. If that already happened, restore it with
+`git checkout -- omarchy-tmux`.
 
 ### Other configs
 
