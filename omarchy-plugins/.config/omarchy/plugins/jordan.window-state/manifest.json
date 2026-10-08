@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "jordan.window-state",
+  "name": "Window state",
+  "version": "2.0.0",
+  "author": "Jordan",
+  "description": "Focused window state (tiled, floating, popped out, full width, tiled full screen, grouped) and the window count of the workspace in view",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "WindowState.qml"
+  },
+  "barWidget": {
+    "displayName": "Window state",
+    "description": "Focused window state and workspace window count",
+    "category": "Compositor",
+    "allowMultiple": false,
+    "defaultSection": "left"
+  }
+}

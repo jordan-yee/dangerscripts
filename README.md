@@ -14,14 +14,15 @@ to that application.
 
 Managed via GNU stow:
 
-| Applications    | Package       | Installation Path   |
-| --------------- | ------------- | ------------------- |
-| Kakoune         | kakoune-user  | ~/.config/kak/*     |
-| Claude Code     | claude-user   | ~/.claude/*         |
-| Hyprland        | hyprland-user | ~/.config/hypr/*    |
-| Lazygit         | lazygit-user  | ~/.config/lazygit/* |
-| Tmux (Omarchy)  | omarchy-tmux  | ~/.config/tmux/*    |
-| Herdr (Omarchy) | omarchy-herdr | ~/.config/herdr/*   |
+| Applications                 | Package         | Installation Path                  |
+| ---------------------------- | --------------- | ---------------------------------- |
+| Kakoune                      | kakoune-user    | ~/.config/kak/*                    |
+| Claude Code                  | claude-user     | ~/.claude/*                        |
+| Hyprland                     | hyprland-user   | ~/.config/hypr/*                   |
+| Lazygit                      | lazygit-user    | ~/.config/lazygit/*                |
+| Tmux (Omarchy)               | omarchy-tmux    | ~/.config/tmux/*                   |
+| Herdr (Omarchy)              | omarchy-herdr   | ~/.config/herdr/*                  |
+| Quickshell Plugins (Omarchy) | omarchy-plugins | ~/.config/omarchy/plugins/jordan.* |
 
 ### Manual Install
 
@@ -233,3 +234,39 @@ same way:
 ```sh
 vimdiff kakoune-user/.config/kak/kakrc ~/.config/kak/kakrc
 ```
+
+**Special steps/considerations for the omarchy-plugins package:**
+
+This package tracks my own Omarchy shell plugins, one directory per plugin
+under `omarchy-plugins/.config/omarchy/plugins/`. Every custom plugin on a
+system installs into `~/.config/omarchy/plugins`, including third-party ones,
+so only the plugins added to this package are tracked; the rest of that
+directory is left alone. Mine normally carry the `jordan.` prefix, but the
+prefix is a convention rather than a guarantee, so the package contents are
+the source of truth for what is included.
+
+Create the plugins directory first, so stow symlinks each plugin directory
+rather than folding the whole plugins directory into this repo (which would
+pull every third-party plugin installed later into the working tree):
+
+```sh
+mkdir -p $HOME/.config/omarchy/plugins
+stow -t ~ omarchy-plugins
+omarchy-shell shell rescanPlugins
+```
+
+Each plugin directory is deliberately left folded into a single symlink, so
+files added to a plugin land in this repo without restowing. To adopt another
+plugin, move it into the package and restow:
+
+```sh
+mv $HOME/.config/omarchy/plugins/<plugin-id> omarchy-plugins/.config/omarchy/plugins/
+stow -Rt ~ omarchy-plugins
+```
+
+The shell normally hot-reloads plugin code on save, but its file watcher does
+not follow symlinks, so edits to a stowed plugin need a manual
+`omarchy-shell shell rescanPlugins` to take effect.
+
+Stowing only installs the plugin code. Placing a widget on the bar is a
+separate setting in `~/.config/omarchy/shell.json`, which is not tracked here.
