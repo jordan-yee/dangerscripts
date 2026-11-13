@@ -4,6 +4,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 import "Vocabulary.js" as Vocabulary
 
@@ -89,8 +90,8 @@ BarWidget {
 
   readonly property var tally: tallyWindows(hasWorkspace, workspaceId, Hyprland.toplevels.values)
 
-  readonly property color foreground: bar ? bar.barForeground : Color.foreground
-  readonly property color accent: bar ? bar.urgent : Color.bar.active
+  readonly property color foreground: bar ? bar.barForeground : Commons.Color.foreground
+  readonly property color accent: bar ? bar.urgent : Commons.Color.bar.active
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
 
   // State name -> key label for the legend, read from Hyprland on first use.

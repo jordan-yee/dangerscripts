@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 import "Vocabulary.js" as Vocabulary
 
 // What the bar shows: a hairline that sets the widget apart from the
@@ -26,8 +27,8 @@ Item {
 
   property bool vertical: false
   property int barSize: Style.bar.sizeHorizontal
-  property color foreground: Color.foreground
-  property color accent: Color.bar.active
+  property color foreground: Commons.Color.foreground
+  property color accent: Commons.Color.bar.active
   property string fontFamily: Style.font.family
 
   readonly property bool hasWindow: mode !== ""
@@ -60,7 +61,7 @@ Item {
 
     visible: opacity > 0
     opacity: root.marked ? 0.9 : 0
-    color: Color.accent
+    color: Commons.Color.accent
     radius: Math.min(width, height) / 2
     width: root.vertical ? thickness : slots.width
     height: root.vertical ? slots.height : thickness

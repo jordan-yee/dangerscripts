@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 
 // One icon slot. An empty `text` collapses the slot so the row closes up
@@ -14,8 +15,8 @@ Item {
   // Space before the icon along the bar's axis.
   property real lead: 0
   property bool vertical: false
-  property color foreground: Color.foreground
-  property color accent: Color.bar.active
+  property color foreground: Commons.Color.foreground
+  property color accent: Commons.Color.bar.active
   property string fontFamily: Style.font.family
 
   readonly property bool shown: text !== ""
